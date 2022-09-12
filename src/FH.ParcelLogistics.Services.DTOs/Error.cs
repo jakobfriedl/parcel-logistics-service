@@ -18,21 +18,18 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Converters;
 
-namespace FH.ParcelLogistics.Services.DTOs
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
-    [DataContract]
-    public partial class Error 
-    {
-        /// <summary>
-        /// The error message.
-        /// </summary>
-        /// <value>The error message.</value>
-        [Required]
-        [DataMember(Name="errorMessage", EmitDefaultValue=false)]
-        public string ErrorMessage { get; set; }
-
-    }
+namespace FH.ParcelLogistics.Services.DTOs {
+	/// <summary>
+	/// 
+	/// </summary>
+	[DataContract]
+	public partial class Error {
+		/// <summary>
+		/// The error message.
+		/// </summary>
+		/// <value>The error message.</value>
+		[Required]
+		[DataMember(Name = "errorMessage", EmitDefaultValue = false)]
+		public string ErrorMessage { get; set; }
+	}
 }

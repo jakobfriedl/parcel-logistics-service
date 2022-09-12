@@ -18,28 +18,25 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Converters;
 
-namespace FH.ParcelLogistics.Services.DTOs
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
-    [DataContract]
-    public partial class Warehouse : Hop
-    {
-        /// <summary>
-        /// Gets or Sets Level
-        /// </summary>
-        [Required]
-        [DataMember(Name="level", EmitDefaultValue=true)]
-        public int Level { get; set; }
+namespace FH.ParcelLogistics.Services.DTOs {
+	/// <summary>
+	/// 
+	/// </summary>
+	[DataContract]
+	public partial class Warehouse : Hop {
+		/// <summary>
+		/// Gets or Sets Level
+		/// </summary>
+		[Required]
+		[DataMember(Name = "level", EmitDefaultValue = true)]
+		public int Level { get; set; }
 
-        /// <summary>
-        /// Next hops after this warehouse (warehouses or trucks).
-        /// </summary>
-        /// <value>Next hops after this warehouse (warehouses or trucks).</value>
-        [Required]
-        [DataMember(Name="nextHops", EmitDefaultValue=false)]
-        public List<WarehouseNextHops> NextHops { get; set; }
-
-    }
+		/// <summary>
+		/// Next hops after this warehouse (warehouses or trucks).
+		/// </summary>
+		/// <value>Next hops after this warehouse (warehouses or trucks).</value>
+		[Required]
+		[DataMember(Name = "nextHops", EmitDefaultValue = false)]
+		public List<WarehouseNextHops> NextHops { get; set; }
+	}
 }

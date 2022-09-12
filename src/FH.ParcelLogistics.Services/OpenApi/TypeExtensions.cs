@@ -2,50 +2,45 @@
 using System.Linq;
 using System.Text;
 
-namespace FH.ParcelLogistics.Services.OpenApi
-{
-    /// <summary>
-    /// Replacement utilities from Swashbuckle.AspNetCore.SwaggerGen which are not in 5.x
-    /// </summary>
-    public static class TypeExtensions
-    {
-        /// <summary>
-        /// Produce a friendly name for the type which is unique.
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="fullyQualified"></param>
-        public static string FriendlyId(this Type type, bool fullyQualified = false)
-        {
-            var typeName = fullyQualified
-                ? type.FullNameSansTypeParameters().Replace("+", ".")
-                : type.Name;
+namespace FH.ParcelLogistics.Services.OpenApi {
+	/// <summary>
+	/// Replacement utilities from Swashbuckle.AspNetCore.SwaggerGen which are not in 5.x
+	/// </summary>
+	public static class TypeExtensions {
+		/// <summary>
+		/// Produce a friendly name for the type which is unique.
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="fullyQualified"></param>
+		public static string FriendlyId(this Type type, bool fullyQualified = false) {
+			var typeName = fullyQualified
+				? type.FullNameSansTypeParameters().Replace("+", ".")
+				: type.Name;
 
-            if (type.IsGenericType)
-            {
-                var genericArgumentIds = type.GetGenericArguments()
-                    .Select(t => t.FriendlyId(fullyQualified))
-                    .ToArray();
+			if (type.IsGenericType) {
+				var genericArgumentIds = type.GetGenericArguments()
+					.Select(t => t.FriendlyId(fullyQualified))
+					.ToArray();
 
-                return new StringBuilder(typeName)
-                    .Replace($"`{genericArgumentIds.Count()}", string.Empty)
-                    .Append($"[{string.Join(",", genericArgumentIds).TrimEnd(',')}]")
-                    .ToString();
-            }
+				return new StringBuilder(typeName)
+					.Replace($"`{genericArgumentIds.Count()}", string.Empty)
+					.Append($"[{string.Join(",", genericArgumentIds).TrimEnd(',')}]")
+					.ToString();
+			}
 
-            return typeName;
-        }
+			return typeName;
+		}
 
-        /// <summary>
-        /// Determine the fully qualified type name without type parameters.
-        /// </summary>
-        /// <param name="type"></param>
-        public static string FullNameSansTypeParameters(this Type type)
-        {
-            var fullName = type.FullName;
-            if (string.IsNullOrEmpty(fullName))
-                fullName = type.Name;
-            var chopIndex = fullName.IndexOf("[[", StringComparison.Ordinal);
-            return (chopIndex == -1) ? fullName : fullName.Substring(0, chopIndex);
-        }
-    }
+		/// <summary>
+		/// Determine the fully qualified type name without type parameters.
+		/// </summary>
+		/// <param name="type"></param>
+		public static string FullNameSansTypeParameters(this Type type) {
+			var fullName = type.FullName;
+			if (string.IsNullOrEmpty(fullName))
+				fullName = type.Name;
+			var chopIndex = fullName.IndexOf("[[", StringComparison.Ordinal);
+			return (chopIndex == -1) ? fullName : fullName.Substring(0, chopIndex);
+		}
+	}
 }

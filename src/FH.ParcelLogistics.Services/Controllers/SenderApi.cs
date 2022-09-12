@@ -20,46 +20,44 @@ using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 
-namespace FH.ParcelLogistics.Services.Controllers
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
-    [ApiController]
-    public class SenderApiController : ControllerBase
-    { 
-        /// <summary>
-        /// Submit a new parcel to the logistics service. 
-        /// </summary>
-        /// <param name="parcel"></param>
-        /// <response code="201">Successfully submitted the new parcel</response>
-        /// <response code="400">The operation failed due to an error.</response>
-        /// <response code="404">The address of sender or receiver was not found.</response>
-        [HttpPost]
-        [Route("/parcel")]
-        [Consumes("application/json")]
-        [ValidateModelState]
-        [SwaggerOperation("SubmitParcel")]
-        [SwaggerResponse(statusCode: 201, type: typeof(NewParcelInfo), description: "Successfully submitted the new parcel")]
-        [SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-        [SwaggerResponse(statusCode: 404, type: typeof(Error), description: "The address of sender or receiver was not found.")]
-        public virtual IActionResult SubmitParcel([FromBody]Parcel parcel)
-        {
+namespace FH.ParcelLogistics.Services.Controllers {
+	/// <summary>
+	/// 
+	/// </summary>
+	[ApiController]
+	public class SenderApiController : ControllerBase {
+		/// <summary>
+		/// Submit a new parcel to the logistics service. 
+		/// </summary>
+		/// <param name="parcel"></param>
+		/// <response code="201">Successfully submitted the new parcel</response>
+		/// <response code="400">The operation failed due to an error.</response>
+		/// <response code="404">The address of sender or receiver was not found.</response>
+		[HttpPost]
+		[Route("/parcel")]
+		[Consumes("application/json")]
+		[ValidateModelState]
+		[SwaggerOperation("SubmitParcel")]
+		[SwaggerResponse(statusCode: 201, type: typeof(NewParcelInfo),
+			description: "Successfully submitted the new parcel")]
+		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
+		[SwaggerResponse(statusCode: 404, type: typeof(Error),
+			description: "The address of sender or receiver was not found.")]
+		public virtual IActionResult SubmitParcel([FromBody] Parcel parcel) {
+			//TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+			// return StatusCode(201, default(NewParcelInfo));
+			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+			// return StatusCode(400, default(Error));
+			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+			// return StatusCode(404, default(Error));
+			string exampleJson = null;
+			exampleJson = "{\n  \"trackingId\" : \"PYJRB4HZ6\"\n}";
 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(NewParcelInfo));
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(Error));
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(Error));
-            string exampleJson = null;
-            exampleJson = "{\n  \"trackingId\" : \"PYJRB4HZ6\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<NewParcelInfo>(exampleJson)
-            : default(NewParcelInfo);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-    }
+			var example = exampleJson != null
+				? JsonConvert.DeserializeObject<NewParcelInfo>(exampleJson)
+				: default(NewParcelInfo);
+			//TODO: Change the data returned
+			return new ObjectResult(example);
+		}
+	}
 }

@@ -18,34 +18,31 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Converters;
 
-namespace FH.ParcelLogistics.Services.DTOs
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
-    [DataContract]
-    public partial class Parcel 
-    {
-        /// <summary>
-        /// Gets or Sets Weight
-        /// </summary>
-        [Required]
-        [DataMember(Name="weight", EmitDefaultValue=true)]
-        public float Weight { get; set; }
+namespace FH.ParcelLogistics.Services.DTOs {
+	/// <summary>
+	/// 
+	/// </summary>
+	[DataContract]
+	public partial class Parcel {
+		/// <summary>
+		/// Gets or Sets Weight
+		/// </summary>
+		[Required]
+		[DataMember(Name = "weight", EmitDefaultValue = true)]
+		public float Weight { get; set; }
 
-        /// <summary>
-        /// Gets or Sets Recipient
-        /// </summary>
-        [Required]
-        [DataMember(Name="recipient", EmitDefaultValue=false)]
-        public Recipient Recipient { get; set; }
+		/// <summary>
+		/// Gets or Sets Recipient
+		/// </summary>
+		[Required]
+		[DataMember(Name = "recipient", EmitDefaultValue = false)]
+		public Recipient Recipient { get; set; }
 
-        /// <summary>
-        /// Gets or Sets Sender
-        /// </summary>
-        [Required]
-        [DataMember(Name="sender", EmitDefaultValue=false)]
-        public Recipient Sender { get; set; }
-
-    }
+		/// <summary>
+		/// Gets or Sets Sender
+		/// </summary>
+		[Required]
+		[DataMember(Name = "sender", EmitDefaultValue = false)]
+		public Recipient Sender { get; set; }
+	}
 }

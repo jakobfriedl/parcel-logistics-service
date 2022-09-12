@@ -18,21 +18,18 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Converters;
 
-namespace FH.ParcelLogistics.Services.DTOs
-{ 
-    /// <summary>
-    /// 
-    /// </summary>
-    [DataContract]
-    public partial class NewParcelInfo 
-    {
-        /// <summary>
-        /// The tracking ID of the parcel. 
-        /// </summary>
-        /// <value>The tracking ID of the parcel. </value>
-        [RegularExpression("^[A-Z0-9]{9}$")]
-        [DataMember(Name="trackingId", EmitDefaultValue=false)]
-        public string TrackingId { get; set; }
-
-    }
+namespace FH.ParcelLogistics.Services.DTOs {
+	/// <summary>
+	/// 
+	/// </summary>
+	[DataContract]
+	public partial class NewParcelInfo {
+		/// <summary>
+		/// The tracking ID of the parcel. 
+		/// </summary>
+		/// <value>The tracking ID of the parcel. </value>
+		[RegularExpression("^[A-Z0-9]{9}$")]
+		[DataMember(Name = "trackingId", EmitDefaultValue = false)]
+		public string TrackingId { get; set; }
+	}
 }
