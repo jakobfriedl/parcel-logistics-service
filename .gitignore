@@ -5,6 +5,7 @@
 
 # custom ignores
 .openapi-generator/
+.vscode/
 
 # User-specific files
 *.rsuser
