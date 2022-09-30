@@ -20,7 +20,4 @@ steps:
     command: 'build'
     projects: './src/FH.ParcelLogistics.Services/FH.ParcelLogistics.Services.csproj'
 
-- task: PublishBuildArtifacts@1    
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
+- task: PublishBuildArtifacts@1
