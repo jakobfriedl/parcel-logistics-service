@@ -4,8 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- main
-
+  - main
+  
 pool:
   vmImage: ubuntu-latest
 
@@ -18,4 +18,14 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: './src/FH.ParcelLogistics.Services/'
+    projects: './src/services/FH.ParcelLogistics.Services/FH.ParcelLogistics.Services.csproj'
+
+- task: CopyFiles@2
+  inputs:
+    targetFolder: '$(Build.ArtifactStagingDirectory)'    
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
