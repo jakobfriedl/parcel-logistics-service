@@ -18,7 +18,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: './src/FH.ParcelLogistics.Services/FH.ParcelLogistics.Services.csproj'
+    projects: './src/services/FH.ParcelLogistics.Services/FH.ParcelLogistics.Services.csproj'
 
 - task: CopyFiles@2
   inputs:
