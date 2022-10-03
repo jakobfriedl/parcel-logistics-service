@@ -3,11 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FH.ParcelLogistics.Services", "src\FH.ParcelLogistics.Services\FH.ParcelLogistics.Services.csproj", "{5EDB3E43-6154-44BF-82D6-5FEA3FD4D344}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1C540961-7E6C-4E79-B2A1-A729D457FE9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FH.ParcelLogistics.Services.DTOs", "src\FH.ParcelLogistics.Services.DTOs\FH.ParcelLogistics.Services.DTOs.csproj", "{B8D18F25-F379-4B87-ACCC-F8A17E0AED38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FH.ParcelLogistics.Services", "src\services\FH.ParcelLogistics.Services\FH.ParcelLogistics.Services.csproj", "{5EDB3E43-6154-44BF-82D6-5FEA3FD4D344}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.Services.Interfaces", "src\FH.ParcelLogistics.Services.Interfaces\FH.ParcelLogistics.Services.Interfaces.csproj", "{8E95145F-8DE4-4CE0-9B3B-693BC8DBF818}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FH.ParcelLogistics.Services.DTOs", "src\services\FH.ParcelLogistics.Services.DTOs\FH.ParcelLogistics.Services.DTOs.csproj", "{B8D18F25-F379-4B87-ACCC-F8A17E0AED38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.Services.Interfaces", "src\services\FH.ParcelLogistics.Services.Interfaces\FH.ParcelLogistics.Services.Interfaces.csproj", "{8E95145F-8DE4-4CE0-9B3B-693BC8DBF818}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "logic", "logic", "{8E6D93B5-F184-4A57-9030-A10F7C6C0E58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.BusinessLogic.Entities", "src\logic\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj", "{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.BusinessLogic.Interfaces", "src\logic\FH.ParcelLogistics.BusinessLogic.Interfaces\FH.ParcelLogistics.BusinessLogic.Interfaces.csproj", "{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.BusinessLogic", "src\logic\FH.ParcelLogistics.BusinessLogic\FH.ParcelLogistics.BusinessLogic.csproj", "{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.BusinessLogic.Tests", "src\logic\FH.ParcelLogistics.BusinessLogic.Tests\FH.ParcelLogistics.BusinessLogic.Tests.csproj", "{E13F3455-645C-4C14-B744-E953E91CDA48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,11 +39,34 @@ Global
 		{8E95145F-8DE4-4CE0-9B3B-693BC8DBF818}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E95145F-8DE4-4CE0-9B3B-693BC8DBF818}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E95145F-8DE4-4CE0-9B3B-693BC8DBF818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E13F3455-645C-4C14-B744-E953E91CDA48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E13F3455-645C-4C14-B744-E953E91CDA48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E13F3455-645C-4C14-B744-E953E91CDA48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E13F3455-645C-4C14-B744-E953E91CDA48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {65EF4A92-2D53-4C29-86BA-4FB38DD0F4DC}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BB0D18E4-A0F9-4EB9-AFE1-182E46D9E353} = {1C540961-7E6C-4E79-B2A1-A729D457FE9E}
+		{8E6D93B5-F184-4A57-9030-A10F7C6C0E58} = {1C540961-7E6C-4E79-B2A1-A729D457FE9E}
+		{6DD7EB3D-8F42-44F5-B6DA-196E1BC8F913} = {8E6D93B5-F184-4A57-9030-A10F7C6C0E58}
+		{B2E1AA08-DD6C-4D10-8082-547A4D2FF19C} = {8E6D93B5-F184-4A57-9030-A10F7C6C0E58}
+		{E13F3455-645C-4C14-B744-E953E91CDA48} = {8E6D93B5-F184-4A57-9030-A10F7C6C0E58}
 	EndGlobalSection
 EndGlobal
