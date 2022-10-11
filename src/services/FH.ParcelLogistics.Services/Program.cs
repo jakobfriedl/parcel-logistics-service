@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -5,6 +6,7 @@ namespace FH.ParcelLogistics.Services {
 	/// <summary>
 	/// Program
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class Program {
 		/// <summary>
 		/// Main

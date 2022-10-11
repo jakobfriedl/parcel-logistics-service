@@ -1,6 +1,9 @@
 namespace FH.ParcelLogistics.Services.MappingProfiles;
+
+using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 
+[ExcludeFromCodeCoverage]
 public class ParcelProfile : Profile
 {
     public ParcelProfile(){

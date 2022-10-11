@@ -15,12 +15,14 @@ using FH.ParcelLogistics.Services.Filters;
 using FH.ParcelLogistics.Services.OpenApi;
 using FH.ParcelLogistics.Services.Formatters;
 using FH.ParcelLogistics.Services.MappingProfiles;
+using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
 	/// Startup
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class Startup {
 		/// <summary>
 		/// Constructor

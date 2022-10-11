@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -9,6 +10,7 @@ namespace FH.ParcelLogistics.Services.Attributes {
 	/// <summary>
 	/// Model state validation attribute
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class ValidateModelStateAttribute : ActionFilterAttribute {
 		/// <summary>
 		/// Called before the action method is invoked
