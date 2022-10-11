@@ -19,8 +19,9 @@ steps:
   inputs:
     command: 'build'
     projects: './src/services/FH.ParcelLogistics.Services/FH.ParcelLogistics.Services.csproj'
-- script: dotnet test --configuration $(buildConfiguration)
-  displayName: 'dotnet test $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test --configuration $(buildConfiguration)'
 
 - task: CopyFiles@2
   inputs:
