@@ -28,18 +28,18 @@ namespace FH.ParcelLogistics.Services.DTOs {
 		/// State of the parcel.
 		/// </summary>
 		/// <value>State of the parcel.</value>
-		[TypeConverter(typeof(CustomEnumConverter<StateEnum>))]
+		[TypeConverter(typeof(CustomEnumConverter<ParcelState>))]
 		[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-		public enum StateEnum {
+		public enum ParcelState {
 			/// <summary>
 			/// Enum PickupEnum for Pickup
 			/// </summary>
-			[EnumMember(Value = "Pickup")] PickupEnum = 1,
+			[EnumMember(Value = "Pickup")] Pickup = 1,
 
 			/// <summary>
 			/// Enum InTransportEnum for InTransport
 			/// </summary>
-			[EnumMember(Value = "InTransport")] InTransportEnum = 2,
+			[EnumMember(Value = "InTransport")] InTransport = 2,
 
 			/// <summary>
 			/// Enum InTruckDeliveryEnum for InTruckDelivery
@@ -50,12 +50,12 @@ namespace FH.ParcelLogistics.Services.DTOs {
 			/// <summary>
 			/// Enum TransferredEnum for Transferred
 			/// </summary>
-			[EnumMember(Value = "Transferred")] TransferredEnum = 4,
+			[EnumMember(Value = "Transferred")] Transferred = 4,
 
 			/// <summary>
 			/// Enum DeliveredEnum for Delivered
 			/// </summary>
-			[EnumMember(Value = "Delivered")] DeliveredEnum = 5
+			[EnumMember(Value = "Delivered")] Delivered = 5
 		}
 
 		/// <summary>
@@ -64,7 +64,7 @@ namespace FH.ParcelLogistics.Services.DTOs {
 		/// <value>State of the parcel.</value>
 		[Required]
 		[DataMember(Name = "state", EmitDefaultValue = true)]
-		public StateEnum State { get; set; }
+		public ParcelState State { get; set; }
 
 		/// <summary>
 		/// Hops visited in the past.
