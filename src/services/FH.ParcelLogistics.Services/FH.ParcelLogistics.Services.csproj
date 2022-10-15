@@ -25,5 +25,7 @@
   <ItemGroup>
     <!--<DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />-->
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj" />
+    <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic\FH.ParcelLogistics.BusinessLogic.csproj" />
+    <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Interfaces\FH.ParcelLogistics.BusinessLogic.Interfaces.csproj" />
   </ItemGroup>
 </Project>

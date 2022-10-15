@@ -42,6 +42,17 @@ namespace FH.ParcelLogistics.Services {
 		/// </summary>
 		/// <param name="services"></param>
 		public void ConfigureServices(IServiceCollection services) {
+
+			// AutoMapper
+			var config = new MapperConfiguration(cfg => {
+				cfg.AddProfile<HelperProfile>();
+				cfg.AddProfile<HopProfile>();
+				cfg.AddProfile<ParcelProfile>();
+			});
+			var mapper = config.CreateMapper();
+			services.AddSingleton(mapper);
+			services.AddMvc(); 
+
 			// Add framework services.
 			services
 				// Don't need the full MVC stack for an API, see https://andrewlock.net/comparing-startup-between-the-asp-net-core-3-templates/
@@ -82,19 +93,6 @@ namespace FH.ParcelLogistics.Services {
 				});
 			services
 				.AddSwaggerGenNewtonsoftSupport();
-
-
-			// AutoMapper
-			services.AddAutoMapper(typeof(Startup));
-
-			// Create Mapping Profiles
-			var config = new MapperConfiguration(cfg => {
-				cfg.AddProfile<HelperProfile>();
-				cfg.AddProfile<HopProfile>();
-				cfg.AddProfile<ParcelProfile>();
-			});
-
-
 		}
 
 		/// <summary>

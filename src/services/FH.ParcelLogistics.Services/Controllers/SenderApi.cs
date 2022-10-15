@@ -19,6 +19,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
+using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic.Entities;
+using FH.ParcelLogistics.BusinessLogic; 
+
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -26,6 +30,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class SenderApiController : ControllerBase {
+
+		private readonly IMapper _mapper; 
+		public SenderApiController(IMapper mapper) { _mapper = mapper; }
+
 		/// <summary>
 		/// Submit a new parcel to the logistics service. 
 		/// </summary>
@@ -38,26 +46,21 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[Consumes("application/json")]
 		[ValidateModelState]
 		[SwaggerOperation("SubmitParcel")]
-		[SwaggerResponse(statusCode: 201, type: typeof(NewParcelInfo),
-			description: "Successfully submitted the new parcel")]
-		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-		[SwaggerResponse(statusCode: 404, type: typeof(Error),
-			description: "The address of sender or receiver was not found.")]
-		public virtual IActionResult SubmitParcel([FromBody] Parcel parcel) {
-			//TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(201, default(NewParcelInfo));
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404, default(Error));
-			string exampleJson = null;
-			exampleJson = "{\n  \"trackingId\" : \"PYJRB4HZ6\"\n}";
+		[SwaggerResponse(statusCode: 201, type: typeof(NewParcelInfo), description: "Successfully submitted the new parcel")]
+		[SwaggerResponse(statusCode: 400, type: typeof(DTOs.Error), description: "The operation failed due to an error.")]
+		[SwaggerResponse(statusCode: 404, type: typeof(DTOs.Error), description: "The address of sender or receiver was not found.")]
+		public virtual IActionResult SubmitParcel([FromBody] DTOs.Parcel parcel) {
+			var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
+			var logic = new FH.ParcelLogistics.BusinessLogic.SubmissionLogic();
 
-			var example = exampleJson != null
-				? JsonConvert.DeserializeObject<NewParcelInfo>(exampleJson)
-				: default(NewParcelInfo);
-			//TODO: Change the data returned
-			return new ObjectResult(example);
+			var result = logic.SubmitParcel(parcelEntity);
+
+			if(result is BusinessLogic.Entities.Parcel){
+				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 
+			}
+
+			// ? Differentiate between 400 and 404 errors
+			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value); 
 		}
 	}
 }

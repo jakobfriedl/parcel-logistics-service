@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
+using AutoMapper;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -26,6 +27,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class StaffApiController : ControllerBase {
+
+		private readonly IMapper _mapper;
+		public StaffApiController(IMapper mapper) { _mapper = mapper; }
+
 		/// <summary>
 		/// Report that a Parcel has been delivered at it&#39;s final destination address. 
 		/// </summary>
@@ -38,16 +43,14 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[ValidateModelState]
 		[SwaggerOperation("ReportParcelDelivery")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-		public virtual IActionResult ReportParcelDelivery(
-			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			return StatusCode(200);
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404);
+		public virtual IActionResult ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
+			var logic = new BusinessLogic.ReportingLogic();
+			var result = logic.ReportParcelDelivery(trackingId);
 
-			throw new NotImplementedException();
+			if (result is BusinessLogic.Entities.Error) {
+				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(result).Value);
+			}
+			return StatusCode(StatusCodes.Status200OK);
 		}
 
 		/// <summary>
@@ -65,15 +68,15 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ReportParcelHop(
 			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
-			[FromRoute(Name = "code")] [Required] [RegularExpression("^[A-Z]{4}\\d{1,4}$")] string code) {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			return StatusCode(200);
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404);
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
+			[FromRoute(Name = "code")] [Required] [RegularExpression("^[A-Z]{4}\\d{1,4}$")] string code) 
+		{
+			var logic = new BusinessLogic.ReportingLogic();
+			var result = logic.ReportParcelHop(trackingId, code);
 
-			throw new NotImplementedException();
+			if (result is BusinessLogic.Entities.Error) {
+				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(result).Value);
+			}
+			return StatusCode(StatusCodes.Status200OK);
 		}
 	}
 }

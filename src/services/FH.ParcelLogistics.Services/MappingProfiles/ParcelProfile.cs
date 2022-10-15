@@ -7,14 +7,17 @@ using AutoMapper;
 public class ParcelProfile : Profile
 {
     public ParcelProfile(){
-        CreateMap<(DTOs.Parcel, DTOs.NewParcelInfo, DTOs.TrackingInformation), BusinessLogic.Entities.Parcel>()
-            .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Item1.Weight))
-            .ForMember(dest => dest.Recipient, opt => opt.MapFrom(src => src.Item1.Recipient))
-            .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Item1.Sender))
-            .ForMember(dest => dest.TrackingId, opt => opt.MapFrom(src => src.Item2.TrackingId))
-            .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.Item3.State))
-            .ForMember(dest => dest.VisitedHops, opt => opt.MapFrom(src => src.Item3.VisitedHops))
-            .ForMember(dest => dest.FutureHops, opt => opt.MapFrom(src => src.Item3.FutureHops))
-            .ReverseMap();
+        CreateMap<DTOs.Parcel, BusinessLogic.Entities.Parcel>()
+            .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
+            .ForMember(dest => dest.Recipient, opt => opt.MapFrom(src => src.Recipient))
+            .ForMember(dest => dest.Sender, opt => opt.MapFrom(src => src.Sender));
+
+        CreateMap<BusinessLogic.Entities.Parcel, DTOs.NewParcelInfo>()
+            .ForMember(dest => dest.TrackingId, opt => opt.MapFrom(src => src.TrackingId));
+
+        CreateMap<BusinessLogic.Entities.Parcel, DTOs.TrackingInformation>()
+            .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
+            .ForMember(dest => dest.VisitedHops, opt => opt.MapFrom(src => src.VisitedHops))
+            .ForMember(dest => dest.FutureHops, opt => opt.MapFrom(src => src.FutureHops));
     }
 }

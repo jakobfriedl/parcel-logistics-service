@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
+using AutoMapper;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -26,6 +27,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class RecipientApiController : ControllerBase {
+
+		private readonly IMapper _mapper;
+		public RecipientApiController(IMapper mapper) { _mapper = mapper; }
+
 		/// <summary>
 		/// Find the latest state of a parcel by its tracking ID. 
 		/// </summary>
@@ -40,23 +45,15 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(TrackingInformation),
 			description: "Parcel exists, here&#39;s the tracking information.")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-		public virtual IActionResult TrackParcel(
-			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(200, default(TrackingInformation));
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404);
-			string exampleJson = null;
-			exampleJson =
-				"{\n  \"visitedHops\" : [ {\n    \"dateTime\" : \"2000-01-23T04:56:07.000+00:00\",\n    \"code\" : \"code\",\n    \"description\" : \"description\"\n  }, {\n    \"dateTime\" : \"2000-01-23T04:56:07.000+00:00\",\n    \"code\" : \"code\",\n    \"description\" : \"description\"\n  } ],\n  \"futureHops\" : [ {\n    \"dateTime\" : \"2000-01-23T04:56:07.000+00:00\",\n    \"code\" : \"code\",\n    \"description\" : \"description\"\n  }, {\n    \"dateTime\" : \"2000-01-23T04:56:07.000+00:00\",\n    \"code\" : \"code\",\n    \"description\" : \"description\"\n  } ],\n  \"state\" : \"Pickup\"\n}";
+		public virtual IActionResult TrackParcel([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
+			var logic = new BusinessLogic.TrackingLogic();
+			var result = logic.TrackParcel(trackingId);
 
-			var example = exampleJson != null
-				? JsonConvert.DeserializeObject<TrackingInformation>(exampleJson)
-				: default(TrackingInformation);
-			//TODO: Change the data returned
-			return new ObjectResult(example);
+			if (result is BusinessLogic.Entities.Parcel) {
+				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.TrackingInformation>(result)).Value);
+			}
+
+			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
 		}
 	}
 }

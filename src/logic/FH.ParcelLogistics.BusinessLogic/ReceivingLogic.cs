@@ -28,7 +28,7 @@ public class ParcelValidator : AbstractValidator<Parcel>
             //only Checks if Country is Austria|Österreich
             RuleFor(senderPostalCode => senderPostalCode.Sender.PostalCode).NotEmpty().Length(6).Matches(@"[A][-]\d{4}");
             RuleFor(senderCity => senderCity.Sender.City).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
-            RuleFor(senderStreet => senderStreet.Sender.Street).NotEmpty().Matches(@"^[A-Z][a-zäüöß /\d-]*");
+            RuleFor(senderStreet => senderStreet.Sender.Street).NotEmpty().Matches(@"^[a-zA-Z][a-zäüöß /\d-]*");
             RuleFor(senderName => senderName.Sender.Name).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
         RuleFor(hopArrivalCode => hopArrivalCode.FutureHops).SetInheritanceValidator(i => new HopArrivalValidator());

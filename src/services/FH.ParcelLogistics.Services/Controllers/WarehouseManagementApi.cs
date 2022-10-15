@@ -19,6 +19,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
+using AutoMapper;
+using System.Xml;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -26,6 +28,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class WarehouseManagementApiController : ControllerBase {
+
+		private readonly IMapper _mapper;
+		public WarehouseManagementApiController(IMapper mapper) { _mapper = mapper; }
+		
 		/// <summary>
 		/// Exports the hierarchy of Warehouse and Truck objects. 
 		/// </summary>
@@ -39,20 +45,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(Warehouse), description: "Successful response")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ExportWarehouses() {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(200, default(Warehouse));
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404);
-			string exampleJson = null;
-			exampleJson = "null";
+			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
+			var result = logic.ExportWarehouses();
+			if(result is BusinessLogic.Entities.Warehouse){
+				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Warehouse>(result)).Value); 
+			}
 
-			var example = exampleJson != null
-				? JsonConvert.DeserializeObject<Warehouse>(exampleJson)
-				: default(Warehouse);
-			//TODO: Change the data returned
-			return new ObjectResult(example);
+			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
 		}
 
 		/// <summary>
@@ -69,21 +68,12 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(Hop), description: "Successful response")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult GetWarehouse([FromRoute(Name = "code")] [Required] string code) {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(200, default(Hop));
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
-			//TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(404);
-			string exampleJson = null;
-			exampleJson =
-				"{\n  \"code\" : \"code\",\n  \"locationName\" : \"locationName\",\n  \"processingDelayMins\" : 0,\n  \"hopType\" : \"hopType\",\n  \"description\" : \"description\",\n  \"locationCoordinates\" : {\n    \"lon\" : 1.4658129805029452,\n    \"lat\" : 6.027456183070403\n  }\n}";
-
-			var example = exampleJson != null
-				? JsonConvert.DeserializeObject<Hop>(exampleJson)
-				: default(Hop);
-			//TODO: Change the data returned
-			return new ObjectResult(example);
+			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
+			var result = logic.GetWarehouse(code);
+			if(result is BusinessLogic.Entities.Hop){
+				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Hop>(result)).Value); 
+			}
+			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
 		}
 
 		/// <summary>
@@ -99,12 +89,14 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerOperation("ImportWarehouses")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ImportWarehouses([FromBody] Warehouse warehouse) {
-			//TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			return StatusCode(200);
-			//TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-			// return StatusCode(400, default(Error));
+			var warehouseEntity = _mapper.Map<BusinessLogic.Entities.Warehouse>(warehouse);
+			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
+			var result = logic.ImportWarehouses(warehouseEntity);
 
-			throw new NotImplementedException();
+			if(result is BusinessLogic.Entities.Error){
+				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
+			}
+			return StatusCode(StatusCodes.Status200OK);
 		}
 	}
 }

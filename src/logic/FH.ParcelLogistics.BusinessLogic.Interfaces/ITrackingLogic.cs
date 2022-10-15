@@ -1,7 +1,7 @@
-namespace FH.ParcelLogistics.BusinessLogic.Interfaces{
+namespace FH.ParcelLogistics.BusinessLogic.Interfaces;
 
-    public interface ITrackingLogic
-    {
-    }
-
+public interface ITrackingLogic
+{
+    object TrackParcel(string trackingId); 
 }
+
