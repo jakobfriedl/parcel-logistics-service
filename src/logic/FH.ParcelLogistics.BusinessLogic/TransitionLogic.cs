@@ -1,3 +1,4 @@
+using System.Net;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FluentValidation;
@@ -9,7 +10,7 @@ public class TransitionTrackingIDValidator : AbstractValidator<string>
 {
     public TransitionTrackingIDValidator()
     {
-        RuleFor(parcelTrackingId => parcelTrackingId).NotEmpty().Matches(@"^[A-Z0-9]{9}$");
+        RuleFor(parcelTrackingId => parcelTrackingId).NotNull().Matches(@"^[A-Z0-9]{9}$");
     }
 }
 
@@ -20,37 +21,49 @@ public class TransitionValidator : AbstractValidator<Parcel>
     {
         //check Recipient
         RuleFor(parcel => parcel.Recipient).NotNull();
-        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotEmpty().Matches(@"Austria|Österreich").DependentRules(() =>
-        {
+        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotNull().Matches(@"Austria|Österreich").DependentRules(() => {
             //only Checks if Country is Austria|Österreich  
-            RuleFor(recipientPostalCode => recipientPostalCode.Recipient.PostalCode).NotEmpty().Length(6).Matches(@"[A][-]\d{4}");
-            RuleFor(recipientCity => recipientCity.Recipient.City).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
-            RuleFor(recipientStreet => recipientStreet.Recipient.Street).NotEmpty().Matches(@"^[A-Z][a-zäüöß /\d-]*");
-            RuleFor(recipientName => recipientName.Recipient.Name).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+            RuleFor(recipientPostalCode => recipientPostalCode.Recipient.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
+            RuleFor(recipientCity => recipientCity.Recipient.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+            RuleFor(recipientStreet => recipientStreet.Recipient.Street).NotNull().Matches(@"^[A-Z][a-zäüöß /\d-]*");
+            RuleFor(recipientName => recipientName.Recipient.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
 
         //check Sender
         RuleFor(parcel => parcel.Sender).NotNull();
-        RuleFor(senderCountry => senderCountry.Sender.Country).NotEmpty().Matches(@"Austria|Österreich").DependentRules(() =>
-        {
+        RuleFor(senderCountry => senderCountry.Sender.Country).NotNull().Matches(@"Austria|Österreich").DependentRules(() => {
             //only Checks if Country is Austria|Österreich
-            RuleFor(senderPostalCode => senderPostalCode.Sender.PostalCode).NotEmpty().Length(6).Matches(@"[A][-]\d{4}");
-            RuleFor(senderCity => senderCity.Sender.City).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
-            RuleFor(senderStreet => senderStreet.Sender.Street).NotEmpty().Matches(@"^[a-zA-Z][a-zäüöß /\d-]*");
-            RuleFor(senderName => senderName.Sender.Name).NotEmpty().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+            RuleFor(senderPostalCode => senderPostalCode.Sender.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
+            RuleFor(senderCity => senderCity.Sender.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+            RuleFor(senderStreet => senderStreet.Sender.Street).NotNull().Matches(@"^[a-zA-Z][a-zäüöß /\d-]*");
+            RuleFor(senderName => senderName.Sender.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
-        RuleFor(parcelWeight => parcelWeight.Weight).NotEmpty().GreaterThan(0.0f);
+        RuleFor(parcelWeight => parcelWeight.Weight).NotNull().GreaterThan(0.0f);
     }
 }
 
 public class TransitionLogic : ITransitionLogic
 {
+    TransitionTrackingIDValidator trackingIDValidator = new TransitionTrackingIDValidator();
+    TransitionValidator transitionValidator = new TransitionValidator();
     public object TransitionParcel(string trackingId, Parcel parcel)
     {
-        // TODO: Validate trackingId and Parcel, then return trackingId or error
-        return new Parcel()
-        {
-            TrackingId = trackingId,
-        };
+        // Validate trackingId and parcel
+        if (!trackingIDValidator.Validate(trackingId).IsValid || !transitionValidator.Validate(parcel).IsValid){
+            return new Error(){
+                StatusCode = 400,
+                ErrorMessage = "The operation failed due to an error.",
+            }; 
+        }
+
+        // TODO: Check if parcel already exists
+        // if(true){
+        //     return new Error(){
+        //         StatusCode = 409,
+        //         ErrorMessage = "A parcel with the specified trackingID is already in the system.",
+        //     }; 
+        // }
+
+        return new Parcel(){ TrackingId = trackingId };
     }
 }

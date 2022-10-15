@@ -1,23 +1,39 @@
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using System.Net;
 using FluentValidation;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
 public class TrackingStateValidator : AbstractValidator<string>
 {
-    public TrackingStateValidator()
-    {
-        RuleFor(parcelTrackingId => parcelTrackingId).NotEmpty().Matches(@"^[A-Z0-9]{9}$");
+    public TrackingStateValidator(){
+        RuleFor(parcelTrackingId => parcelTrackingId).NotNull().Matches(@"^[A-Z0-9]{9}$");
     }
 }
 
 
 public class TrackingLogic : ITrackingLogic
 {
+    TrackingStateValidator trackingStateValidator = new TrackingStateValidator();
     public object TrackParcel(string trackingId)
     {
-        // TODO: Validate trackingId and return TrackingInformation, otherwise return error
+        // Validate trackingId
+        if (!trackingStateValidator.Validate(trackingId).IsValid){
+            return new Error(){
+                StatusCode = 400,
+                ErrorMessage = "The operation failed due to an error.",
+            };
+        }
+
+        // TODO: Check if parcel exists
+        // if (...){
+        //     return new Error(){
+        //         StatusCode = 404,
+        //         ErrorMessage = "Parcel does not exist with this tracking ID.",
+        //     };
+        // }
+
         // TODO: Change hardcoded return type
         return new Parcel()
         {

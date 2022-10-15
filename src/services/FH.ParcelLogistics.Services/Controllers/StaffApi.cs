@@ -48,7 +48,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			var result = logic.ReportParcelDelivery(trackingId);
 
 			if (result is BusinessLogic.Entities.Error) {
-				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(result).Value);
+				var error =  _mapper.Map<DTOs.Error>(result); 
+            	return StatusCode((int)error.StatusCode, error);
 			}
 			return StatusCode(StatusCodes.Status200OK);
 		}
@@ -74,7 +75,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			var result = logic.ReportParcelHop(trackingId, code);
 
 			if (result is BusinessLogic.Entities.Error) {
-				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(result).Value);
+				var error =  _mapper.Map<DTOs.Error>(result); 
+            	return StatusCode((int)error.StatusCode, error);
 			}
 			return StatusCode(StatusCodes.Status200OK);
 		}

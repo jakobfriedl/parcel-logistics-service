@@ -48,8 +48,7 @@ namespace FH.ParcelLogistics.Services.Controllers
         [Consumes("application/json")]
         [ValidateModelState]
         [SwaggerOperation("TransitionParcel")]
-        [SwaggerResponse(statusCode: 200, type: typeof(NewParcelInfo),
-            description: "Successfully transitioned the parcel")]
+        [SwaggerResponse(statusCode: 200, type: typeof(NewParcelInfo), description: "Successfully transitioned the parcel")]
         [SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
         public virtual IActionResult TransitionParcel(
             [FromRoute(Name = "trackingId")][Required][RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
@@ -63,7 +62,8 @@ namespace FH.ParcelLogistics.Services.Controllers
                 return StatusCode(StatusCodes.Status200OK, _mapper.Map<NewParcelInfo>(result));
             }
 
-            return StatusCode(StatusCodes.Status400BadRequest, _mapper.Map<DTOs.Error>(result));
+            var error =  _mapper.Map<DTOs.Error>(result); 
+            return StatusCode((int)error.StatusCode, error);
         }
     }
 }

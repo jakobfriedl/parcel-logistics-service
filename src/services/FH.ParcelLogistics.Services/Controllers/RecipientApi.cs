@@ -52,8 +52,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			if (result is BusinessLogic.Entities.Parcel) {
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.TrackingInformation>(result)).Value);
 			}
-
-			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
+			
+			var error =  _mapper.Map<DTOs.Error>(result); 
+            return StatusCode((int)error.StatusCode, error);
 		}
 	}
 }

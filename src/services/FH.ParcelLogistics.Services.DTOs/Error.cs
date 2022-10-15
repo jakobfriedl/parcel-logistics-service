@@ -17,6 +17,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Converters;
+using System.Net;
 
 namespace FH.ParcelLogistics.Services.DTOs {
 	/// <summary>
@@ -24,6 +25,13 @@ namespace FH.ParcelLogistics.Services.DTOs {
 	/// </summary>
 	[DataContract]
 	public partial class Error {
+		/// <summary>
+		/// Status code of the error message
+		/// </summary>
+		/// <value>Status code of the error message</value>
+		[DataMember(Name = "statusCode", EmitDefaultValue = false)]
+		public HttpStatusCode StatusCode { get; set; }
+		
 		/// <summary>
 		/// The error message.
 		/// </summary>

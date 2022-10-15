@@ -59,8 +59,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 
 			}
 
-			// ? Differentiate between 400 and 404 errors
-			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value); 
+			var error =  _mapper.Map<DTOs.Error>(result); 
+            return StatusCode((int)error.StatusCode, error);
 		}
 	}
 }
