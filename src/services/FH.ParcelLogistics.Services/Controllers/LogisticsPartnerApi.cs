@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -32,7 +33,11 @@ namespace FH.ParcelLogistics.Services.Controllers
     {
 
         private readonly IMapper _mapper;
-        public LogisticsPartnerApiController(IMapper mapper) { _mapper = mapper; }
+        private readonly ITransitionLogic _transitionLogic; 
+        public LogisticsPartnerApiController(IMapper mapper) { 
+            _mapper = mapper; 
+            _transitionLogic = new BusinessLogic.TransitionLogic();
+        }
 
 
         /// <summary>
@@ -55,8 +60,7 @@ namespace FH.ParcelLogistics.Services.Controllers
             [FromBody] Parcel parcel)
         {
             var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
-            var logic = new FH.ParcelLogistics.BusinessLogic.TransitionLogic();
-            var result = logic.TransitionParcel(trackingId, parcelEntity);
+            var result = _transitionLogic.TransitionParcel(trackingId, parcelEntity);
 
             if (result is BusinessLogic.Entities.Parcel){
                 return StatusCode(StatusCodes.Status200OK, _mapper.Map<NewParcelInfo>(result));

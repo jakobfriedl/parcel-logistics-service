@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -29,7 +30,11 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	public class StaffApiController : ControllerBase {
 
 		private readonly IMapper _mapper;
-		public StaffApiController(IMapper mapper) { _mapper = mapper; }
+		private readonly IReportingLogic _reportingLogic; 
+		public StaffApiController(IMapper mapper) { 
+			_mapper = mapper; 
+			_reportingLogic = new BusinessLogic.ReportingLogic();
+		}
 
 		/// <summary>
 		/// Report that a Parcel has been delivered at it&#39;s final destination address. 
@@ -44,8 +49,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerOperation("ReportParcelDelivery")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			var logic = new BusinessLogic.ReportingLogic();
-			var result = logic.ReportParcelDelivery(trackingId);
+			var result = _reportingLogic.ReportParcelDelivery(trackingId);
 
 			if (result is BusinessLogic.Entities.Error) {
 				var error =  _mapper.Map<DTOs.Error>(result); 
@@ -69,10 +73,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ReportParcelHop(
 			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
-			[FromRoute(Name = "code")] [Required] [RegularExpression("^[A-Z]{4}\\d{1,4}$")] string code) 
+			[FromRoute(Name = "code")] [Required] [RegularExpression(@"^[A-Z]{4}\d{1,4}$")] string code) 
 		{
-			var logic = new BusinessLogic.ReportingLogic();
-			var result = logic.ReportParcelHop(trackingId, code);
+			var result = _reportingLogic.ReportParcelHop(trackingId, code);
 
 			if (result is BusinessLogic.Entities.Error) {
 				var error =  _mapper.Map<DTOs.Error>(result); 

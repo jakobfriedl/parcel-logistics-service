@@ -17,6 +17,7 @@ using FH.ParcelLogistics.Services.Formatters;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -42,7 +43,6 @@ namespace FH.ParcelLogistics.Services {
 		/// </summary>
 		/// <param name="services"></param>
 		public void ConfigureServices(IServiceCollection services) {
-
 			// AutoMapper
 			var config = new MapperConfiguration(cfg => {
 				cfg.AddProfile<HelperProfile>();

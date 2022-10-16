@@ -21,8 +21,8 @@ using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
-using FH.ParcelLogistics.BusinessLogic; 
-
+using FH.ParcelLogistics.BusinessLogic;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -30,9 +30,16 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class SenderApiController : ControllerBase {
-
 		private readonly IMapper _mapper; 
-		public SenderApiController(IMapper mapper) { _mapper = mapper; }
+		private readonly ISubmissionLogic _submissionLogic = null;
+		public SenderApiController(IMapper mapper) { 
+			_mapper = mapper; 
+			_submissionLogic = new BusinessLogic.SubmissionLogic(); 
+		}
+		// public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic) { 
+		// 	_mapper = mapper; 
+		// 	_submissionLogic = submissionLogic; 
+		// }
 
 		/// <summary>
 		/// Submit a new parcel to the logistics service. 
@@ -51,9 +58,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 404, type: typeof(DTOs.Error), description: "The address of sender or receiver was not found.")]
 		public virtual IActionResult SubmitParcel([FromBody] DTOs.Parcel parcel) {
 			var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
-			var logic = new FH.ParcelLogistics.BusinessLogic.SubmissionLogic();
-
-			var result = logic.SubmitParcel(parcelEntity);
+			var result = _submissionLogic.SubmitParcel(parcelEntity);
 
 			if(result is BusinessLogic.Entities.Parcel){
 				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 

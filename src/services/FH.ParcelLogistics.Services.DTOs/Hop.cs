@@ -46,7 +46,7 @@ namespace FH.ParcelLogistics.Services.DTOs {
 		/// </summary>
 		/// <value>Unique CODE of the hop.</value>
 		[Required]
-		[RegularExpression("^[A-Z]{4}\\d{1,4}$")]
+		[RegularExpression(@"^[A-Z]{4}\d{1,4}$")]
 		[DataMember(Name = "code", EmitDefaultValue = false)]
 		public string Code { get; set; }
 

@@ -21,6 +21,7 @@ using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using System.Xml;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -30,7 +31,11 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	public class WarehouseManagementApiController : ControllerBase {
 
 		private readonly IMapper _mapper;
-		public WarehouseManagementApiController(IMapper mapper) { _mapper = mapper; }
+		private readonly IWarehouseLogic _warehouseLogic; 
+		public WarehouseManagementApiController(IMapper mapper) { 
+			_mapper = mapper; 
+			_warehouseLogic = new BusinessLogic.WarehouseLogic();
+		}
 		
 		/// <summary>
 		/// Exports the hierarchy of Warehouse and Truck objects. 
@@ -45,8 +50,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(Warehouse), description: "Successful response")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ExportWarehouses() {
-			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
-			var result = logic.ExportWarehouses();
+			var result = _warehouseLogic.ExportWarehouses();
+
 			if(result is BusinessLogic.Entities.Warehouse){
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Warehouse>(result)).Value); 
 			}
@@ -68,8 +73,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(Hop), description: "Successful response")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult GetWarehouse([FromRoute(Name = "code")] [Required] string code) {
-			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
-			var result = logic.GetWarehouse(code);
+			var result = _warehouseLogic.GetWarehouse(code);
+
 			if(result is BusinessLogic.Entities.Hop){
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Hop>(result)).Value); 
 			}
@@ -90,8 +95,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ImportWarehouses([FromBody] Warehouse warehouse) {
 			var warehouseEntity = _mapper.Map<BusinessLogic.Entities.Warehouse>(warehouse);
-			var logic = new FH.ParcelLogistics.BusinessLogic.WarehouseLogic();
-			var result = logic.ImportWarehouses(warehouseEntity);
+			var result = _warehouseLogic.ImportWarehouses(warehouseEntity);
 
 			if(result is BusinessLogic.Entities.Error){
 				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);

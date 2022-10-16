@@ -21,6 +21,7 @@ public class ReportingLogic : IReportingLogic
 {
     ReportTrackingIDValidator reportTrackingIDValidator = new ReportTrackingIDValidator();
     ReportHopValidator hopValidator = new ReportHopValidator();
+
     public object ReportParcelDelivery(string trackingId)
     {
         // Validate trackingId

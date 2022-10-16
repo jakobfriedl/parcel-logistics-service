@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -29,7 +30,11 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	public class RecipientApiController : ControllerBase {
 
 		private readonly IMapper _mapper;
-		public RecipientApiController(IMapper mapper) { _mapper = mapper; }
+		private readonly ITrackingLogic _trackingLogic;
+		public RecipientApiController(IMapper mapper) { 
+			_mapper = mapper; 
+			_trackingLogic = new BusinessLogic.TrackingLogic();
+		}
 
 		/// <summary>
 		/// Find the latest state of a parcel by its tracking ID. 
@@ -42,12 +47,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[Route("/parcel/{trackingId}")]
 		[ValidateModelState]
 		[SwaggerOperation("TrackParcel")]
-		[SwaggerResponse(statusCode: 200, type: typeof(TrackingInformation),
-			description: "Parcel exists, here&#39;s the tracking information.")]
+		[SwaggerResponse(statusCode: 200, type: typeof(TrackingInformation), description: "Parcel exists, here&#39;s the tracking information.")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult TrackParcel([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			var logic = new BusinessLogic.TrackingLogic();
-			var result = logic.TrackParcel(trackingId);
+			var result = _trackingLogic.TrackParcel(trackingId);
 
 			if (result is BusinessLogic.Entities.Parcel) {
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.TrackingInformation>(result)).Value);
