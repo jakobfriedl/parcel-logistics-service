@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ namespace FH.ParcelLogistics.Services.Authentication {
 	/// <summary>
 	/// A requirement that an ApiKey must be present.
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class ApiKeyRequirement : IAuthorizationRequirement {
 		/// <summary>
 		/// Get the list of api keys
@@ -33,6 +35,7 @@ namespace FH.ParcelLogistics.Services.Authentication {
 	/// <summary>
 	/// Enforce that an api key is present.
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public class ApiKeyRequirementHandler : AuthorizationHandler<ApiKeyRequirement> {
 		/// <copydoc cref="AuthorizationHandler{T}.HandleRequirementAsync" />
 		protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,

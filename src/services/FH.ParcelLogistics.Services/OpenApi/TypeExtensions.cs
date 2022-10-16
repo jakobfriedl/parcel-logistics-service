@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -6,6 +7,7 @@ namespace FH.ParcelLogistics.Services.OpenApi {
 	/// <summary>
 	/// Replacement utilities from Swashbuckle.AspNetCore.SwaggerGen which are not in 5.x
 	/// </summary>
+	[ExcludeFromCodeCoverage]
 	public static class TypeExtensions {
 		/// <summary>
 		/// Produce a friendly name for the type which is unique.

@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace FH.ParcelLogistics.Services.Formatters {
 	// Input Type Formatter to allow model binding to Streams
+	[ExcludeFromCodeCoverage]
 	public class InputFormatterStream : InputFormatter {
 		public InputFormatterStream() {
 			SupportedMediaTypes.Add("application/octet-stream");
