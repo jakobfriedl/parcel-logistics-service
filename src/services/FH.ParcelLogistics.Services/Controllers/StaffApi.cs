@@ -21,6 +21,7 @@ using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -31,9 +32,15 @@ namespace FH.ParcelLogistics.Services.Controllers {
 
 		private readonly IMapper _mapper;
 		private readonly IReportingLogic _reportingLogic; 
+
+		[ActivatorUtilitiesConstructor]
 		public StaffApiController(IMapper mapper) { 
 			_mapper = mapper; 
 			_reportingLogic = new BusinessLogic.ReportingLogic();
+		}
+		public StaffApiController(IMapper mapper, IReportingLogic reportingLogic) { 
+			_mapper = mapper; 
+			_reportingLogic = reportingLogic;
 		}
 
 		/// <summary>

@@ -23,6 +23,7 @@ using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -31,15 +32,17 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	[ApiController]
 	public class SenderApiController : ControllerBase {
 		private readonly IMapper _mapper; 
-		private readonly ISubmissionLogic _submissionLogic = null;
+		private readonly ISubmissionLogic _submissionLogic;
+
+		[ActivatorUtilitiesConstructor]
 		public SenderApiController(IMapper mapper) { 
 			_mapper = mapper; 
 			_submissionLogic = new BusinessLogic.SubmissionLogic(); 
 		}
-		// public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic) { 
-		// 	_mapper = mapper; 
-		// 	_submissionLogic = submissionLogic; 
-		// }
+		public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic) { 
+			_mapper = mapper; 
+			_submissionLogic = submissionLogic; 
+		}
 
 		/// <summary>
 		/// Submit a new parcel to the logistics service. 
@@ -64,7 +67,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 
 			}
 
-			var error =  _mapper.Map<DTOs.Error>(result); 
+			var error = _mapper.Map<DTOs.Error>(result); 
             return StatusCode((int)error.StatusCode, error);
 		}
 	}

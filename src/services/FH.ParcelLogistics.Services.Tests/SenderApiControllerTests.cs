@@ -12,89 +12,94 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Castle.Components.DictionaryAdapter.Xml;
+using FizzWare.NBuilder;
+using FH.ParcelLogistics.Services.DTOs;
 
+[TestFixture]
 public class SenderApiControllerTests
 {
-    private IMapper _mapper; 
-    private readonly DTOs.Parcel _validParcel = new DTOs.Parcel(){
-        Weight = 1,
-        Recipient = new DTOs.Recipient(){
-            Name = "John Doe",
-            Street = "Street 1",
-            City = "City 1",
-            PostalCode = "A-1100",
-            Country = "Austria"
-        },
-        Sender = new DTOs.Recipient(){
-            Name = "Jane Doe",
-            Street = "Street 2",
-            City = "City 2",
-            PostalCode = "A-1200",
-            Country = "Österreich"
-        }
-    };
-
-    private readonly DTOs.Parcel _invalidParcel = new DTOs.Parcel(){
-        Weight = 0,
-        Recipient = new DTOs.Recipient(){
-            Name = "John Doe",
-            Street = "Street 1",
-            City = "City 1",
-            PostalCode = "B-2323",
-            Country = "Austria"
-        },
-        Sender = new DTOs.Recipient(){
-            Name = "Jane Doe",
-            Street = "Street 2",
-            City = "City 2",
-            PostalCode = "A-1200",
-            Country = "Germany"
-        }
-    };
-
-    [SetUp]
-    public void Setup(){
+    private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
             cfg.AddProfile<HelperProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
-        _mapper = config.CreateMapper();
-    } 
+        return config.CreateMapper();
+    }
 
     [Test]
     public void SubmitParcel_ValidParcel_Returns201(){
-        //arrange
-        var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
-        var randomTrackingId = idRandomizer.Generate();
+        // arrange
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        var expectedId = idGenerator.Generate();
 
         var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
-        submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>())).Returns(randomTrackingId);
+        submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Parcel>
+                        .CreateNew()
+                        .With(x => x.TrackingId = expectedId)
+                        .Build());
+        
         var submissionLogic = submissionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var senderApi = new SenderApiController(mapper, submissionLogic);
 
-        var senderApi = new SenderApiController(_mapper);
+        // act
+        var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
 
-        //act
-        IActionResult result = senderApi.SubmitParcel(_validParcel);
-
-        //assert
-        Assert.AreEqual(201, (result as ObjectResult).StatusCode);
-        // Assert.AreEqual(randomTrackingId, ((result as ObjectResult).Value as DTOs.NewParcelInfo).TrackingId);
+        // assert
+        Assert.AreEqual(201, result?.StatusCode);
+        Assert.AreEqual(expectedId, (result?.Value as NewParcelInfo)?.TrackingId);
     }
 
     [Test]
     public void SubmitParcel_InvalidParcel_Returns400(){
-        //arrange
-        // var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
-        // submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>())).Returns<It.IsAny<Error>()>();
-        // var submissionLogic = submissionLogicMock.Object;
+        // arrange
+        var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
+        submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 400)
+                        .Build());
         
-        var senderApi = new SenderApiController(_mapper);
+        var submissionLogic = submissionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var senderApi = new SenderApiController(mapper, submissionLogic);
 
-        //act
-        IActionResult result = senderApi.SubmitParcel(_invalidParcel);
+        // act
+        var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>
+                                                .CreateNew()
+                                                .With(x => x.Weight = 0)
+                                                .Build()) as ObjectResult;
 
         //assert
-        Assert.AreEqual(400, (result as ObjectResult).StatusCode);
+        Assert.AreEqual(400, result?.StatusCode);
+        Assert.IsInstanceOf<DTOs.Error>(result?.Value);
+    }
+
+    [Test]
+    public void SubmitParcel_AddressNotFound_Returns404(){
+        // arrange
+        var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
+        submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 404)
+                        .Build());
+        
+        var submissionLogic = submissionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var senderApi = new SenderApiController(mapper, submissionLogic);
+
+        // act
+        var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>
+                                                .CreateNew()
+                                                .With(x => x.Recipient = Builder<DTOs.Recipient>.CreateNew().Build())
+                                                .With(x => x.Recipient.Street = "Invalid street")
+                                                .Build()) as ObjectResult;
+        
+        // assert
+        Assert.AreEqual(404, result?.StatusCode);
+        Assert.IsInstanceOf(typeof(DTOs.Error), result?.Value);
     }
 }

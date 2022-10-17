@@ -22,6 +22,7 @@ using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using System.Xml;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -32,9 +33,15 @@ namespace FH.ParcelLogistics.Services.Controllers {
 
 		private readonly IMapper _mapper;
 		private readonly IWarehouseLogic _warehouseLogic; 
+
+		[ActivatorUtilitiesConstructor]
 		public WarehouseManagementApiController(IMapper mapper) { 
 			_mapper = mapper; 
 			_warehouseLogic = new BusinessLogic.WarehouseLogic();
+		}
+		public WarehouseManagementApiController(IMapper mapper, IWarehouseLogic warehouseLogic) { 
+			_mapper = mapper; 
+			_warehouseLogic = warehouseLogic;
 		}
 		
 		/// <summary>
@@ -56,7 +63,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Warehouse>(result)).Value); 
 			}
 
-			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
+			var error = _mapper.Map<DTOs.Error>(result); 
+            return StatusCode((int)error.StatusCode, error);
 		}
 
 		/// <summary>
@@ -78,7 +86,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			if(result is BusinessLogic.Entities.Hop){
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Hop>(result)).Value); 
 			}
-			return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
+
+			var error = _mapper.Map<DTOs.Error>(result); 
+            return StatusCode((int)error.StatusCode, error);
 		}
 
 		/// <summary>
@@ -98,7 +108,8 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			var result = _warehouseLogic.ImportWarehouses(warehouseEntity);
 
 			if(result is BusinessLogic.Entities.Error){
-				return StatusCode(StatusCodes.Status400BadRequest, new ObjectResult(_mapper.Map<DTOs.Error>(result)).Value);
+				var error = _mapper.Map<DTOs.Error>(result); 
+            	return StatusCode((int)error.StatusCode, error);
 			}
 			return StatusCode(StatusCodes.Status200OK);
 		}

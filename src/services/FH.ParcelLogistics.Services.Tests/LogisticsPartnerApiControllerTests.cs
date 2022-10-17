@@ -11,131 +11,155 @@ using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FizzWare.NBuilder;
+using FH.ParcelLogistics.Services.DTOs;
 
 public class LogisticsPartnerApiControllerTests
 {
-    private IMapper _mapper;
-
-    private readonly DTOs.Parcel _validParcel = new DTOs.Parcel(){
-        Weight = 1,
-        Recipient = new DTOs.Recipient(){
-            Name = "John Doe",
-            Street = "Street 1",
-            City = "City 1",
-            PostalCode = "A-1100",
-            Country = "Austria"
-        },
-        Sender = new DTOs.Recipient(){
-            Name = "Jane Doe",
-            Street = "Street 2",
-            City = "City 2",
-            PostalCode = "A-1200",
-            Country = "Österreich"
-        }
-    };
-
-    private readonly DTOs.Parcel _invalidParcel = new DTOs.Parcel(){
-        Weight = 0,
-        Recipient = new DTOs.Recipient(){
-            Name = "John Doe",
-            Street = "Street 1",
-            City = "City 1",
-            PostalCode = "B-2323",
-            Country = "Austria"
-        },
-        Sender = new DTOs.Recipient(){
-            Name = "Jane Doe",
-            Street = "Street 2",
-            City = "City 2",
-            PostalCode = "A-1200",
-            Country = "Germany"
-        }
-    };
-
-    [SetUp]
-    public void Setup(){
+    private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
             cfg.AddProfile<HelperProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
-        _mapper = config.CreateMapper();
-    } 
+        return config.CreateMapper();
+    }
+
+    private string GenerateValidTrackingId(){
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
+
+    private string GenerateInvalidTrackingId(){
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
+        return idGenerator.Generate();
+    }
 
     [Test]
     public void TransitionParcel_ValidParameters_Returns200(){
-        //arrange 
-        var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
-        var randomTrackingId = idRandomizer.Generate();
+        // arrange
+        var validId = GenerateValidTrackingId();
 
-        var logisticsPartnerApi = new LogisticsPartnerApiController(_mapper);
+        var transitionLogicMock = new Mock<ITransitionLogic>();
+        transitionLogicMock.Setup(x => x.TransitionParcel(validId, It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Parcel>
+                        .CreateNew()
+                        .With(x => x.TrackingId = validId)
+                        .Build());
+        
+        var transitionLogic = transitionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
 
-        //act
-        var result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _validParcel);
+        // act
+        var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
 
-        //assert
-        Assert.AreEqual(200, (result as ObjectResult).StatusCode); 
+        // assert
+        Assert.AreEqual(200, result?.StatusCode); 
+        Assert.IsInstanceOf<NewParcelInfo>(result?.Value);
+        Assert.AreEqual(validId, ((result.Value as NewParcelInfo).TrackingId));
     }
 
     [Test]
     public void TransitionParcel_InvalidTrackingId_Returns400(){
-        //arrange 
-        var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
-        var randomTrackingId = idRandomizer.Generate();
+        // arrange
+        var invalidId = GenerateInvalidTrackingId();
 
-        var logisticsPartnerApi = new LogisticsPartnerApiController(_mapper);
+        var transitionLogicMock = new Mock<ITransitionLogic>();
+        transitionLogicMock.Setup(x => x.TransitionParcel(invalidId, It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 400)
+                        .Build());
+        
+        var transitionLogic = transitionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
 
-        //act
-        var result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _validParcel);
+        // act
+        var result = logisticsPartnerApi.TransitionParcel(invalidId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
 
-        //assert
-        Assert.AreEqual(400, (result as ObjectResult).StatusCode); 
+        // assert
+        Assert.AreEqual(400, result?.StatusCode); 
+        Assert.IsInstanceOf<DTOs.Error>(result?.Value);
     }
 
     [Test]
     public void TransitionParcel_InvalidParcel_Returns400(){
-        //arrange 
-        var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
-        var randomTrackingId = idRandomizer.Generate();
+        // arrange
+        var validId = GenerateValidTrackingId();
 
-        var logisticsPartnerApi = new LogisticsPartnerApiController(_mapper);
+        var transitionLogicMock = new Mock<ITransitionLogic>();
+        transitionLogicMock.Setup(x => x.TransitionParcel(validId, It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 400)
+                        .Build());
+        
+        var transitionLogic = transitionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
 
-        //act
-        var result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _invalidParcel);
+        // act
+        var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>
+                                                                        .CreateNew()
+                                                                        .With(x => x.Weight = 0)
+                                                                        .Build()) as ObjectResult;
 
-        //assert
-        Assert.AreEqual(400, (result as ObjectResult).StatusCode); 
+        // assert
+        Assert.AreEqual(400, result?.StatusCode); 
+        Assert.IsInstanceOf<DTOs.Error>(result?.Value);
     }
 
     [Test]
     public void TransitionParcel_InvalidParameters_Returns400(){
-        //arrange 
-        var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
-        var randomTrackingId = idRandomizer.Generate();
+        // arrange
+        var invalidId = GenerateInvalidTrackingId();
 
-        var logisticsPartnerApi = new LogisticsPartnerApiController(_mapper);
+        var transitionLogicMock = new Mock<ITransitionLogic>();
+        transitionLogicMock.Setup(x => x.TransitionParcel(invalidId, It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 400)
+                        .Build());
+        
+        var transitionLogic = transitionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
 
-        //act
-        var result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _invalidParcel);
+        // act
+        var result = logisticsPartnerApi.TransitionParcel(invalidId, Builder<DTOs.Parcel>
+                                                                        .CreateNew()
+                                                                        .With(x => x.Weight = 0)
+                                                                        .Build()) as ObjectResult;
 
-        //assert
-        Assert.AreEqual(400, (result as ObjectResult).StatusCode); 
+        // assert
+        Assert.AreEqual(400, result?.StatusCode); 
+        Assert.IsInstanceOf<DTOs.Error>(result?.Value);
     }
 
-    //TODO - Implement when DB exists
-    // [Test]
-    // public void TransitionParcel_ParcelAlreadyExists_Returns409(){
-    //     //arrange 
-    //     var idRandomizer = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
-    //     var randomTrackingId = idRandomizer.Generate();
+    [Test]
+    public void TransitionParcel_ParcelAlreadyExists_Returns409(){
+        // arrange
+        var validId = GenerateValidTrackingId();
 
-    //     var logisticsPartnerApi = new LogisticsPartnerApiController(_mapper);
+        var transitionLogicMock = new Mock<ITransitionLogic>();
+        transitionLogicMock.Setup(x => x.TransitionParcel(validId, It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Returns(Builder<BusinessLogic.Entities.Error>
+                        .CreateNew()
+                        .With(x => x.StatusCode = 409)
+                        .Build());
+        
+        var transitionLogic = transitionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
 
-    //     //act
-    //     var result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _validParcel);
-    //     result = logisticsPartnerApi.TransitionParcel(randomTrackingId, _validParcel);
+        // act
+        var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
 
-    //     //assert
-    //     Assert.AreEqual(409, (result as ObjectResult).StatusCode); 
-    // }
+        // assert
+        Assert.AreEqual(409, result?.StatusCode);
+        Assert.IsInstanceOf<DTOs.Error>(result?.Value);
+    }
 }

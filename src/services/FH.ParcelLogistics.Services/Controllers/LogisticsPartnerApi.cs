@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -34,11 +35,16 @@ namespace FH.ParcelLogistics.Services.Controllers
 
         private readonly IMapper _mapper;
         private readonly ITransitionLogic _transitionLogic; 
+
+		[ActivatorUtilitiesConstructor]
         public LogisticsPartnerApiController(IMapper mapper) { 
             _mapper = mapper; 
             _transitionLogic = new BusinessLogic.TransitionLogic();
         }
-
+        public LogisticsPartnerApiController(IMapper mapper, ITransitionLogic transitionLogic) { 
+            _mapper = mapper; 
+            _transitionLogic = transitionLogic;
+        }
 
         /// <summary>
         /// Transfer an existing parcel into the system from the service of a logistics partner. 
