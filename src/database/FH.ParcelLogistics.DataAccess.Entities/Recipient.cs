@@ -1,7 +1,7 @@
 namespace FH.ParcelLogistics.DataAccess.Entities;
 public partial class Recipient
 {
-    public int Id { get; set; }
+    public int RecipientId { get; set; }
     public string Name { get; set; }
     public string Street { get; set; }
     public string PostalCode { get; set; }
