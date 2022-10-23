@@ -2,6 +2,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FH.ParcelLogistics.BusinessLogic.Interfaces\FH.ParcelLogistics.BusinessLogic.Interfaces.csproj" />
     <ProjectReference Include="..\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj" />
+    <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Interfaces\FH.ParcelLogistics.DataAccess.Interfaces.csproj" />
+    <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Sql\FH.ParcelLogistics.DataAccess.Sql.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.2.2" />

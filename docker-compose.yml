@@ -1,0 +1,20 @@
+# run docker-compose up -d
+version: '3'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=pass@word1
+    ports: 
+      - 1433:1433
+    volumes:
+      - /mnt/c/.Jakob/FHTW/5_Semester/Softwarekomponentensysteme/parcel-logistics-service/mysqldata:/var/opt/mssql/data/
+  adminer:
+    image: knom/adminer-mssql
+    ports:
+      - 8081:8080
+    environment:
+       - ADMINER_PLUGINS=tinymce
+       - ADMINER_DESIGN=flat
+       - ADMINER_DEFAULT_SERVER=sqlserver

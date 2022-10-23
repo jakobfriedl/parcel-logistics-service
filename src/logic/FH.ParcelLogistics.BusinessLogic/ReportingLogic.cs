@@ -1,7 +1,10 @@
+namespace FH.ParcelLogistics.BusinessLogic;
+
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
-namespace FH.ParcelLogistics.BusinessLogic;
 
 public class ReportTrackingIDValidator : AbstractValidator<string>
 {
@@ -19,13 +22,21 @@ public class ReportHopValidator : AbstractValidator<string>
 
 public class ReportingLogic : IReportingLogic
 {
-    ReportTrackingIDValidator reportTrackingIDValidator = new ReportTrackingIDValidator();
-    ReportHopValidator hopValidator = new ReportHopValidator();
+    private readonly ReportTrackingIDValidator _reportTrackingIDValidator = new ReportTrackingIDValidator();
+    private readonly ReportHopValidator _hopValidator = new ReportHopValidator();
+    private readonly IParcelRepository _parcelRepository; 
+    
+    public ReportingLogic(){
+        _parcelRepository = new ParcelRepository();
+    }
+    public ReportingLogic(IParcelRepository parcelRepository){
+        _parcelRepository = parcelRepository;
+    }
 
     public object ReportParcelDelivery(string trackingId)
     {
         // Validate trackingId
-        if (!reportTrackingIDValidator.Validate(trackingId).IsValid){
+        if (!_reportTrackingIDValidator.Validate(trackingId).IsValid){
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
@@ -46,7 +57,7 @@ public class ReportingLogic : IReportingLogic
     public object ReportParcelHop(string trackingId, string code)
     {
         // Validate trackingId and code
-        if (!reportTrackingIDValidator.Validate(trackingId).IsValid || !hopValidator.Validate(code).IsValid){
+        if (!_reportTrackingIDValidator.Validate(trackingId).IsValid || !_hopValidator.Validate(code).IsValid){
         return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."

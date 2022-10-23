@@ -2,6 +2,8 @@ using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using System.Net;
 using FluentValidation;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -15,11 +17,20 @@ public class TrackingStateValidator : AbstractValidator<string>
 
 public class TrackingLogic : ITrackingLogic
 {
-    TrackingStateValidator trackingStateValidator = new TrackingStateValidator();
+    private readonly TrackingStateValidator _trackingStateValidator = new TrackingStateValidator();
+    private readonly IParcelRepository _parcelRepository;
+
+    public TrackingLogic(){
+        _parcelRepository = new ParcelRepository();
+    }
+    public TrackingLogic(IParcelRepository parcelRepository){
+        _parcelRepository = parcelRepository;
+    }
+
     public object TrackParcel(string trackingId)
     {
         // Validate trackingId
-        if (!trackingStateValidator.Validate(trackingId).IsValid){
+        if (!_trackingStateValidator.Validate(trackingId).IsValid){
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error.",

@@ -1,5 +1,7 @@
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 
 namespace FH.ParcelLogistics.BusinessLogic;
@@ -33,11 +35,19 @@ public class SubmissionValidator : AbstractValidator<Parcel>
 
 public class SubmissionLogic : ISubmissionLogic
 {
-    SubmissionValidator submissionValidator = new SubmissionValidator();
+    private readonly SubmissionValidator _submissionValidator = new SubmissionValidator();
+    private readonly IParcelRepository _parcelRepository;
+    public SubmissionLogic(){
+        _parcelRepository = new ParcelRepository();
+    }
+    public SubmissionLogic(IParcelRepository parcelRepository){
+        _parcelRepository = parcelRepository;
+    }
+
     public object SubmitParcel(Parcel parcel)
     {
         // Validate parcel
-        if (!submissionValidator.Validate(parcel).IsValid){
+        if (!_submissionValidator.Validate(parcel).IsValid){
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."

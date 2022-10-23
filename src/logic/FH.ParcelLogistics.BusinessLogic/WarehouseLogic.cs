@@ -1,5 +1,7 @@
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 
 
@@ -28,9 +30,17 @@ public class WarehouseCodeValidator : AbstractValidator<string>
 
 public class WarehouseLogic : IWarehouseLogic
 {
-    WarehouseValidator warehouseValidator = new WarehouseValidator();
-    WarehouseCodeValidator warehouseCodeValidator = new WarehouseCodeValidator();
-    
+    private readonly WarehouseValidator _warehouseValidator = new WarehouseValidator();
+    private readonly WarehouseCodeValidator _warehouseCodeValidator = new WarehouseCodeValidator();
+    private readonly IWarehouseRepository _warehouseRepository;
+
+    public WarehouseLogic(){
+        _warehouseRepository = new WarehouseRepository();
+    }
+    public WarehouseLogic(IWarehouseRepository warehouseRepository){
+        _warehouseRepository = warehouseRepository;
+    }
+
     public object ExportWarehouses(){
 
         // TODO: check for errors
@@ -73,7 +83,7 @@ public class WarehouseLogic : IWarehouseLogic
 
     public object GetWarehouse(string code){
         // Validate warehouse
-        if(!warehouseCodeValidator.Validate(code).IsValid){
+        if(!_warehouseCodeValidator.Validate(code).IsValid){
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
@@ -103,7 +113,7 @@ public class WarehouseLogic : IWarehouseLogic
 
     public object ImportWarehouses(Warehouse warehouse){
         // Validate warehouse
-        if(!warehouseValidator.Validate(warehouse).IsValid){
+        if(!_warehouseValidator.Validate(warehouse).IsValid){
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."

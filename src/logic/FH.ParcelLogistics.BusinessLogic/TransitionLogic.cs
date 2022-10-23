@@ -1,6 +1,8 @@
 using System.Net;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 
 
@@ -44,12 +46,21 @@ public class TransitionValidator : AbstractValidator<Parcel>
 
 public class TransitionLogic : ITransitionLogic
 {
-    TransitionTrackingIDValidator trackingIDValidator = new TransitionTrackingIDValidator();
-    TransitionValidator transitionValidator = new TransitionValidator();
+    private readonly TransitionTrackingIDValidator _trackingIDValidator = new TransitionTrackingIDValidator();
+    private readonly TransitionValidator _transitionValidator = new TransitionValidator();
+    private readonly IParcelRepository _parcelRepository;
+
+    public TransitionLogic(){
+        _parcelRepository = new ParcelRepository();
+    }
+    public TransitionLogic(IParcelRepository parcelRepository){
+        _parcelRepository = parcelRepository;
+    }
+
     public object TransitionParcel(string trackingId, Parcel parcel)
     {
         // Validate trackingId and parcel
-        if (!trackingIDValidator.Validate(trackingId).IsValid || !transitionValidator.Validate(parcel).IsValid){
+        if (!_trackingIDValidator.Validate(trackingId).IsValid || !_transitionValidator.Validate(parcel).IsValid){
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error.",
