@@ -8,10 +8,10 @@ namespace FH.ParcelLogistics.BusinessLogic.Tests;
 
 public class ReportingLogicTest
 {
-    const string ValidTrackingId = "AUGB84723";
-    const string InvalidTrackingId = "AUGB84724F";
-    const string ValidHopCode = "AUGB5";
-    const string InvalidHopCode = "AUG6283";
+    private const string ValidTrackingId = "AUGB84723";
+    private const string InvalidTrackingId = "AUGB84724F";
+    private const string ValidHopCode = "AUGB5";
+    private const string InvalidHopCode = "AUG6283";
     private ReportTrackingIDValidator reportTrackingIDValidator;
     private ReportHopValidator reportHopValidator;
     private ReportingLogic reportingLogic;
