@@ -38,7 +38,7 @@ public class SubmissionLogic : ISubmissionLogic
     private readonly SubmissionValidator _submissionValidator = new SubmissionValidator();
     private readonly IParcelRepository _parcelRepository;
     public SubmissionLogic(){
-        _parcelRepository = new ParcelRepository();
+        _parcelRepository = new ParcelRepository(new DbContext());
     }
     public SubmissionLogic(IParcelRepository parcelRepository){
         _parcelRepository = parcelRepository;
@@ -53,6 +53,8 @@ public class SubmissionLogic : ISubmissionLogic
                 ErrorMessage = "The operation failed due to an error."
             };
         }
+
+        _parcelRepository.Submit(new DataAccess.Entities.Parcel()); 
 
         // TODO: Check if sender and receiver exist
         // if (...){

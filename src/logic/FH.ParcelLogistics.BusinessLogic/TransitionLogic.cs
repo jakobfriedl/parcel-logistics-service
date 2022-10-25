@@ -51,7 +51,7 @@ public class TransitionLogic : ITransitionLogic
     private readonly IParcelRepository _parcelRepository;
 
     public TransitionLogic(){
-        _parcelRepository = new ParcelRepository();
+        _parcelRepository = new ParcelRepository(new DbContext());
     }
     public TransitionLogic(IParcelRepository parcelRepository){
         _parcelRepository = parcelRepository;

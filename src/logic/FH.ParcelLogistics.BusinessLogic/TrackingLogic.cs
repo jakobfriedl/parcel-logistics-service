@@ -21,7 +21,7 @@ public class TrackingLogic : ITrackingLogic
     private readonly IParcelRepository _parcelRepository;
 
     public TrackingLogic(){
-        _parcelRepository = new ParcelRepository();
+        _parcelRepository = new ParcelRepository(new DbContext());
     }
     public TrackingLogic(IParcelRepository parcelRepository){
         _parcelRepository = parcelRepository;

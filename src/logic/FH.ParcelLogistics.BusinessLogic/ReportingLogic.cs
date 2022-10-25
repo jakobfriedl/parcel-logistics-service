@@ -1,5 +1,6 @@
 namespace FH.ParcelLogistics.BusinessLogic;
 
+using System.Data;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
@@ -27,7 +28,7 @@ public class ReportingLogic : IReportingLogic
     private readonly IParcelRepository _parcelRepository; 
     
     public ReportingLogic(){
-        _parcelRepository = new ParcelRepository();
+        _parcelRepository = new ParcelRepository(new DbContext());
     }
     public ReportingLogic(IParcelRepository parcelRepository){
         _parcelRepository = parcelRepository;

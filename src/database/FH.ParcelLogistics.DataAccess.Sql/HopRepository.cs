@@ -3,7 +3,7 @@ namespace FH.ParcelLogistics.DataAccess.Sql;
 using DataAccess.Entities; 
 
 using ParcelLogistics.DataAccess.Interfaces;
-public class WarehouseRepository : IWarehouseRepository
+public class HopRepository : IHopRepository
 {
     public bool Delete(int id){
         throw new NotImplementedException();

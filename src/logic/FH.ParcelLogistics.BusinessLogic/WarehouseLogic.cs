@@ -32,13 +32,13 @@ public class WarehouseLogic : IWarehouseLogic
 {
     private readonly WarehouseValidator _warehouseValidator = new WarehouseValidator();
     private readonly WarehouseCodeValidator _warehouseCodeValidator = new WarehouseCodeValidator();
-    private readonly IWarehouseRepository _warehouseRepository;
+    private readonly IHopRepository _hopRepository;
 
     public WarehouseLogic(){
-        _warehouseRepository = new WarehouseRepository();
+        _hopRepository = new HopRepository();
     }
-    public WarehouseLogic(IWarehouseRepository warehouseRepository){
-        _warehouseRepository = warehouseRepository;
+    public WarehouseLogic(IHopRepository hopRepository){
+        _hopRepository = hopRepository;
     }
 
     public object ExportWarehouses(){

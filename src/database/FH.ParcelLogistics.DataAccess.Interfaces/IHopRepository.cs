@@ -1,7 +1,7 @@
 namespace FH.ParcelLogistics.DataAccess.Interfaces;
 
 using DataAccess.Entities; 
-public interface IWarehouseRepository
+public interface IHopRepository
 {
     bool Import(Warehouse warehouse);
     bool Export();
