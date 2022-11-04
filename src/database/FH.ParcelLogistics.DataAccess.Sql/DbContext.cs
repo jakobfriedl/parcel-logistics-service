@@ -17,7 +17,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
     public virtual DbSet<WarehouseNextHops> WarehouseNextHops { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        optionsBuilder.UseSqlServer("Server=(parcel-logistics-service_sqlserver_1);Database=ParcelLogisticsDatabase;Integrated Security=True;User ID=sa;Password=pass@word1;", o => {
+        optionsBuilder.UseSqlServer("Server=localhost\\parcel-logistics-service_sqlserver_1,1433;Database=ParcelLogisticsDatabase;User ID=sa;Password=pass@word1;", o =>{
             o.UseNetTopologySuite();
         });
     }
@@ -27,8 +27,14 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.HasKey(_ => _.ParcelId);
             e.Property(_ => _.ParcelId).ValueGeneratedOnAdd();
             e.Property(_ => _.Weight).IsRequired();
-            e.HasOne<Recipient>(_ => _.Recipient);
-            e.HasOne<Recipient>(_ => _.Sender);
+            e.HasOne<Recipient>(_ => _.Recipient)
+                .WithMany()
+                .HasForeignKey(_ => _.ParcelId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Recipient>(_ => _.Sender)
+                .WithMany()
+                .HasForeignKey(_ => _.ParcelId)
+                .OnDelete(DeleteBehavior.Cascade);
             e.Property(_ => _.TrackingId);
             e.Property(_ => _.State);
             e.HasMany<HopArrival>(_ => _.VisitedHops);
@@ -53,7 +59,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.Property(_ => _.Description).IsRequired();
             e.Property(_ => _.ProcessingDelayMins).IsRequired();
             e.Property(_ => _.LocationName).IsRequired();
-            e.Property(_ => _.LocationCoordinates).IsRequired().HasColumnType("point");
+            e.Property(_ => _.LocationCoordinates).IsRequired();
         });
 
         modelBuilder.Entity<HopArrival>(e => {

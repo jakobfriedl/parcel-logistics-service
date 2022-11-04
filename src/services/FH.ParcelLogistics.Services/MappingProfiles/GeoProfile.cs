@@ -14,9 +14,8 @@ public class GeoProfile : Profile
         CreateMap<Point, BusinessLogic.Entities.GeoCoordinate>()
             .ConvertUsing<GeoPointConverter>();
 
-        CreateMap<string, Geometry>()
-            .ForMember(dest => dest, opt => opt.ConvertUsing<GeoJsonConverter, string>())
-            .ReverseMap();
+        CreateMap<string, Geometry>().ConvertUsing<GeoJsonConverter>();
+        CreateMap<Geometry, string>().ConvertUsing<GeoJsonConverter>();
     }
 }
 
