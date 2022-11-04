@@ -50,6 +50,7 @@ namespace FH.ParcelLogistics.Services {
 				cfg.AddProfile<HelperProfile>();
 				cfg.AddProfile<HopProfile>();
 				cfg.AddProfile<ParcelProfile>();
+				cfg.AddProfile<GeoProfile>();
 			});
 			var mapper = config.CreateMapper();
 			services.AddSingleton(mapper);
