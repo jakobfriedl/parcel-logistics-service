@@ -1,3 +1,4 @@
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
@@ -33,12 +34,15 @@ public class WarehouseLogic : IWarehouseLogic
     private readonly WarehouseValidator _warehouseValidator = new WarehouseValidator();
     private readonly WarehouseCodeValidator _warehouseCodeValidator = new WarehouseCodeValidator();
     private readonly IHopRepository _hopRepository;
+    private readonly IMapper _mapper;
 
-    public WarehouseLogic(){
+    public WarehouseLogic(IMapper mapper){
         _hopRepository = new HopRepository();
+        _mapper = mapper;
     }
-    public WarehouseLogic(IHopRepository hopRepository){
+    public WarehouseLogic(IHopRepository hopRepository, IMapper mapper){
         _hopRepository = hopRepository;
+        _mapper = mapper;
     }
 
     public object ExportWarehouses(){

@@ -18,6 +18,8 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using FH.ParcelLogistics.DataAccess.Sql;
+using Microsoft.EntityFrameworkCore;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -52,6 +54,11 @@ namespace FH.ParcelLogistics.Services {
 			var mapper = config.CreateMapper();
 			services.AddSingleton(mapper);
 			services.AddMvc(); 
+
+			// DBContext
+			// services.AddDbContext<DataAccess.Sql.DbContext>(options => {
+			// 	options.UseSqlServer(Configuration.GetConnectionString("DBConnection"));
+			// });
 
 			// Add framework services.
 			services

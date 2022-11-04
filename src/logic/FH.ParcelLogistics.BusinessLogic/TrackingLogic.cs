@@ -4,6 +4,7 @@ using System.Net;
 using FluentValidation;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
+using AutoMapper;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -19,12 +20,15 @@ public class TrackingLogic : ITrackingLogic
 {
     private readonly TrackingStateValidator _trackingStateValidator = new TrackingStateValidator();
     private readonly IParcelRepository _parcelRepository;
+    private readonly IMapper _mapper;
 
-    public TrackingLogic(){
+    public TrackingLogic(IMapper mapper){
         _parcelRepository = new ParcelRepository(new DbContext());
+        _mapper = mapper;
     }
-    public TrackingLogic(IParcelRepository parcelRepository){
+    public TrackingLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
+        _mapper = mapper;
     }
 
     public object TrackParcel(string trackingId)

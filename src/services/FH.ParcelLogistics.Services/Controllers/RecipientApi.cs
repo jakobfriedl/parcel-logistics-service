@@ -36,7 +36,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[ActivatorUtilitiesConstructor]
 		public RecipientApiController(IMapper mapper) { 
 			_mapper = mapper; 
-			_trackingLogic = new BusinessLogic.TrackingLogic();
+			_trackingLogic = new BusinessLogic.TrackingLogic(mapper);
 		}
 		public RecipientApiController(IMapper mapper, ITrackingLogic trackingLogic) { 
 			_mapper = mapper; 

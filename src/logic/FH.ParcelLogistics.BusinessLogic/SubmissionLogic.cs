@@ -3,6 +3,8 @@ using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore.Metadata;
+using AutoMapper;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -37,11 +39,15 @@ public class SubmissionLogic : ISubmissionLogic
 {
     private readonly SubmissionValidator _submissionValidator = new SubmissionValidator();
     private readonly IParcelRepository _parcelRepository;
-    public SubmissionLogic(){
+    private readonly IMapper _mapper; 
+
+    public SubmissionLogic(IMapper mapper){
         _parcelRepository = new ParcelRepository(new DbContext());
+        _mapper = mapper;
     }
-    public SubmissionLogic(IParcelRepository parcelRepository){
+    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
+        _mapper = mapper;
     }
 
     public object SubmitParcel(Parcel parcel)
@@ -54,7 +60,8 @@ public class SubmissionLogic : ISubmissionLogic
             };
         }
 
-        _parcelRepository.Submit(new DataAccess.Entities.Parcel()); 
+        var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
+        _parcelRepository.Submit(dbParcel); 
 
         // TODO: Check if sender and receiver exist
         // if (...){

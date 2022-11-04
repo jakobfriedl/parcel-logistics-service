@@ -37,7 +37,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[ActivatorUtilitiesConstructor]
 		public SenderApiController(IMapper mapper) { 
 			_mapper = mapper; 
-			_submissionLogic = new BusinessLogic.SubmissionLogic(); 
+			_submissionLogic = new BusinessLogic.SubmissionLogic(mapper); 
 		}
 		public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic) { 
 			_mapper = mapper; 

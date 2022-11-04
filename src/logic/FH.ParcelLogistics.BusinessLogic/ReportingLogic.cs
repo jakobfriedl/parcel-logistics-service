@@ -1,6 +1,7 @@
 namespace FH.ParcelLogistics.BusinessLogic;
 
 using System.Data;
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
@@ -26,12 +27,15 @@ public class ReportingLogic : IReportingLogic
     private readonly ReportTrackingIDValidator _reportTrackingIDValidator = new ReportTrackingIDValidator();
     private readonly ReportHopValidator _hopValidator = new ReportHopValidator();
     private readonly IParcelRepository _parcelRepository; 
+    private readonly IMapper _mapper;
     
-    public ReportingLogic(){
+    public ReportingLogic(IMapper mapper){
         _parcelRepository = new ParcelRepository(new DbContext());
+        _mapper = mapper;
     }
-    public ReportingLogic(IParcelRepository parcelRepository){
+    public ReportingLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
+        _mapper = mapper;
     }
 
     public object ReportParcelDelivery(string trackingId)

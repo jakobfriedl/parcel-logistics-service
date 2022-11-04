@@ -7,6 +7,9 @@ using AutoMapper;
 public class ParcelProfile : Profile
 {
     public ParcelProfile(){
+
+        CreateMap<DTOs.Recipient, BusinessLogic.Entities.Recipient>().ReverseMap();
+
         CreateMap<DTOs.Parcel, BusinessLogic.Entities.Parcel>()
             .ForMember(dest => dest.Weight, opt => opt.MapFrom(src => src.Weight))
             .ForMember(dest => dest.Recipient, opt => opt.MapFrom(src => src.Recipient))
@@ -22,5 +25,8 @@ public class ParcelProfile : Profile
             .ForMember(dest => dest.VisitedHops, opt => opt.MapFrom(src => src.VisitedHops))
             .ForMember(dest => dest.FutureHops, opt => opt.MapFrom(src => src.FutureHops))
             .ReverseMap();
+
+        CreateMap<BusinessLogic.Entities.Recipient, DataAccess.Entities.Recipient>().ReverseMap(); 
+        CreateMap<BusinessLogic.Entities.Parcel, DataAccess.Entities.Parcel>().ReverseMap(); 
     }
 }

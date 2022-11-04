@@ -1,4 +1,5 @@
 using System.Net;
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
@@ -49,12 +50,15 @@ public class TransitionLogic : ITransitionLogic
     private readonly TransitionTrackingIDValidator _trackingIDValidator = new TransitionTrackingIDValidator();
     private readonly TransitionValidator _transitionValidator = new TransitionValidator();
     private readonly IParcelRepository _parcelRepository;
+    private readonly IMapper _mapper;
 
-    public TransitionLogic(){
+    public TransitionLogic(IMapper mapper){
         _parcelRepository = new ParcelRepository(new DbContext());
+        _mapper = mapper;
     }
-    public TransitionLogic(IParcelRepository parcelRepository){
+    public TransitionLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
+        _mapper = mapper;
     }
 
     public object TransitionParcel(string trackingId, Parcel parcel)

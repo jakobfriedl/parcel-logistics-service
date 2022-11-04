@@ -17,7 +17,9 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
     public virtual DbSet<WarehouseNextHops> WarehouseNextHops { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        optionsBuilder.UseSqlServer();
+        optionsBuilder.UseSqlServer("Server=(parcel-logistics-service_sqlserver_1);Database=ParcelLogisticsDatabase;Integrated Security=True;User ID=sa;Password=pass@word1;", o => {
+            o.UseNetTopologySuite();
+        });
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder){
@@ -29,9 +31,8 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.HasOne<Recipient>(_ => _.Sender);
             e.Property(_ => _.TrackingId);
             e.Property(_ => _.State);
-            e.Property(_ => _.VisitedHops);
-            e.Property(_ => _.FutureHops);
-
+            e.HasMany<HopArrival>(_ => _.VisitedHops);
+            e.HasMany<HopArrival>(_ => _.FutureHops);
         });
 
         modelBuilder.Entity<Recipient>(e => {
