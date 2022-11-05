@@ -61,7 +61,7 @@ public class SubmissionLogic : ISubmissionLogic
         }
 
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
-        _parcelRepository.Submit(dbParcel); 
+        var result = _parcelRepository.Submit(dbParcel); 
 
         // TODO: Check if sender and receiver exist
         // if (...){
@@ -71,8 +71,6 @@ public class SubmissionLogic : ISubmissionLogic
         //     }
         // }
 
-        return new Parcel() {
-            TrackingId = "this_will_be_newly_generated"
-        };
+        return _mapper.Map<Parcel>(result); 
     }
 }

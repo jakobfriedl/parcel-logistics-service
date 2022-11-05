@@ -3,6 +3,8 @@ namespace FH.ParcelLogistics.DataAccess.Sql;
 using ParcelLogistics.DataAccess.Interfaces;
 using DataAccess.Entities;
 using System.Collections.Generic;
+using RandomDataGenerator.FieldOptions;
+using RandomDataGenerator.Randomizers;
 
 public class ParcelRepository : IParcelRepository
 {
@@ -15,13 +17,18 @@ public class ParcelRepository : IParcelRepository
     public Parcel GetByTrackingId(string trackingId) => _context.Parcels.Single(_ => _.TrackingId == trackingId);
     public IEnumerable<Parcel> GetParcels() => _context.Parcels.ToList(); 
 
+    private string GenerateValidTrackingId(){
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
+
     public Parcel Submit(Parcel parcel){
-        _context.Database.EnsureCreated();
+        // generate tracking id
+        parcel.TrackingId = GenerateValidTrackingId();
         _context.Parcels.Add(parcel);
         _context.SaveChanges();
         return parcel;
     }
-
     public Parcel Update(Parcel parcel){
         _context.Parcels.Update(parcel);
         _context.SaveChanges();

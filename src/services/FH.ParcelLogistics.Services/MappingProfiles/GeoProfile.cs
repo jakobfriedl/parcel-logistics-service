@@ -7,15 +7,16 @@ namespace FH.ParcelLogistics.Services.MappingProfiles;
 [ExcludeFromCodeCoverage]
 public class GeoProfile : Profile
 {
-    public GeoProfile()
-    {
+    public GeoProfile(){
         CreateMap<BusinessLogic.Entities.GeoCoordinate, Point>()
             .ConvertUsing<GeoPointConverter>();
         CreateMap<Point, BusinessLogic.Entities.GeoCoordinate>()
             .ConvertUsing<GeoPointConverter>();
 
-        CreateMap<string, Geometry>().ConvertUsing<GeoJsonConverter>();
-        CreateMap<Geometry, string>().ConvertUsing<GeoJsonConverter>();
+        CreateMap<string, Geometry>()
+            .ConvertUsing<GeoJsonConverter>();
+        CreateMap<Geometry, string>()
+            .ConvertUsing<GeoJsonConverter>();
     }
 }
 
