@@ -1,3 +1,4 @@
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
@@ -60,8 +61,10 @@ public class SubmissionLogic : ISubmissionLogic
     public object SubmitParcel(Parcel parcel)
     {
         // Validate parcel
-        if (!_submissionValidator.Validate(parcel).IsValid){
-            return new Error(){
+        if (!_submissionValidator.Validate(parcel).IsValid)
+        {
+            return new Error()
+            {
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             };
