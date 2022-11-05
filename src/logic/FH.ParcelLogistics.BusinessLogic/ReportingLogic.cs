@@ -27,14 +27,17 @@ public class ReportingLogic : IReportingLogic
     private readonly ReportTrackingIDValidator _reportTrackingIDValidator = new ReportTrackingIDValidator();
     private readonly ReportHopValidator _hopValidator = new ReportHopValidator();
     private readonly IParcelRepository _parcelRepository; 
+    private readonly IHopRepository _hopRepository;
     private readonly IMapper _mapper;
     
     public ReportingLogic(IMapper mapper){
         _parcelRepository = new ParcelRepository(new DbContext());
+        _hopRepository = new HopRepository(new DbContext());
         _mapper = mapper;
     }
-    public ReportingLogic(IParcelRepository parcelRepository, IMapper mapper){
+    public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
+        _hopRepository = hopRepository;
         _mapper = mapper;
     }
 
@@ -48,13 +51,17 @@ public class ReportingLogic : IReportingLogic
             }; 
         }
 
-        // TODO: Check if parcel exists
-        // if(...){
-        //     return new Error(){
-        //         StatusCode = 404,
-        //         ErrorMessage = "Parcel does not exist with this tracking ID."
-        //     }; 
-        // }
+        // Get parcel with supplied tracking id and update state, if tracking id does not exist, return 404
+        try{
+            var parcel = _parcelRepository.GetByTrackingId(trackingId); 
+            parcel.State = DataAccess.Entities.Parcel.ParcelState.Delivered; 
+            var updatedParcel = _parcelRepository.Update(parcel); 
+        } catch(InvalidOperationException){
+            return new Error(){
+                StatusCode = 404,
+                ErrorMessage = "Parcel does not exist with this tracking ID."
+            }; 
+        }
 
         return "Successfully reported hop.";
     }
@@ -67,6 +74,12 @@ public class ReportingLogic : IReportingLogic
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             }; 
+        }
+
+        try {
+            var parcel = _parcelRepository.GetByTrackingId(trackingId);
+            parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
+            var hop = _hopRepository.GetByCode(code);
         }
 
         // TODO: Check if parcel or hop exists
