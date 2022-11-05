@@ -1,10 +1,10 @@
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore.Metadata;
-using AutoMapper;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -53,15 +53,17 @@ public class SubmissionLogic : ISubmissionLogic
     public object SubmitParcel(Parcel parcel)
     {
         // Validate parcel
-        if (!_submissionValidator.Validate(parcel).IsValid){
-            return new Error(){
+        if (!_submissionValidator.Validate(parcel).IsValid)
+        {
+            return new Error()
+            {
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             };
         }
 
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
-        _parcelRepository.Submit(dbParcel); 
+        var result = _parcelRepository.Submit(dbParcel);
 
         // TODO: Check if sender and receiver exist
         // if (...){
@@ -71,8 +73,6 @@ public class SubmissionLogic : ISubmissionLogic
         //     }
         // }
 
-        return new Parcel() {
-            TrackingId = "this_will_be_newly_generated"
-        };
+        return _mapper.Map<Parcel>(result);
     }
 }

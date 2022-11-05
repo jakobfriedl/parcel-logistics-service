@@ -1,76 +1,157 @@
-using NUnit.Framework;
-using FH.ParcelLogistics.BusinessLogic;
-using FluentValidation;
-using FluentValidation.TestHelper;
 using System.Net;
+using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic;
+using FH.ParcelLogistics.BusinessLogic.Entities;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.Services.MappingProfiles;
+using FizzWare.NBuilder;
+using FluentValidation.TestHelper;
+using Moq;
+using NUnit.Framework;
+using RandomDataGenerator.FieldOptions;
+using RandomDataGenerator.Randomizers;
 
 namespace FH.ParcelLogistics.BusinessLogic.Tests;
 
-public class ReportingLogicTest
+
+public class ReportingLogicTests
 {
-    private const string ValidTrackingId = "AUGB84723";
-    private const string InvalidTrackingId = "AUGB84724F";
-    private const string ValidHopCode = "AUGB5";
-    private const string InvalidHopCode = "AUG6283";
-    private ReportTrackingIDValidator reportTrackingIDValidator;
-    private ReportHopValidator reportHopValidator;
-    private ReportingLogic reportingLogic;
-
-    [SetUp]
-    public void Setup()
+    private IMapper CreateAutoMapper()
     {
-         reportTrackingIDValidator = new ReportTrackingIDValidator();
-         reportHopValidator = new ReportHopValidator();
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<ParcelProfile>();
+            cfg.AddProfile<HopProfile>();
+        });
+        return config.CreateMapper();
     }
 
-    [Test]
-    public void ReportTrackingIDValidator()
+    private string GenerateValidTrackingId()
     {
-        //arrange
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
 
-        //act
-        var validIDResult = reportTrackingIDValidator.TestValidate(ValidTrackingId);
-        var invalidIDResult = reportTrackingIDValidator.TestValidate(InvalidTrackingId);
+    private string GenerateInvalidTrackingId()
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
+        return idGenerator.Generate();
+    }
 
-        //assert
-        validIDResult.ShouldNotHaveAnyValidationErrors();
-        invalidIDResult.ShouldHaveAnyValidationError();
+    private string GenerateValidHopCode()
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z]{4}\d{1,4}$" });
+        return idGenerator.Generate();
+    }
+
+    private string GenerateInvalidHopCode()
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z]{5}\d{1,4}$" });
+        return idGenerator.Generate();
     }
 
     [Test]
-    public void ReportHopValidator(){
-        //arrange
+    public void TrackingIdValidator_ValidTrackingId_ReturnsTrue()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var validator = new ReportTrackingIDValidator();
 
-        //act
-        var validHopResult = reportHopValidator.TestValidate(ValidHopCode);
-        var invalidHopResult = reportHopValidator.TestValidate(InvalidHopCode);
+        // act
+        var result = validator.TestValidate(trackingId);
 
-        //assert
-        validHopResult.ShouldNotHaveAnyValidationErrors();
-        invalidHopResult.ShouldHaveAnyValidationError();
+        // assert
+        result?.ShouldNotHaveAnyValidationErrors();
     }
 
     [Test]
-    public void ReportParcelDelivery(){
-        //arrange
-        object returnString = "Successfully reported hop.";
+    public void TrackingIdValidator_InvalidTrackingId_ReturnsFalse()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var validator = new ReportTrackingIDValidator();
 
-        //act
-        // var validReportParcelDelivery =  reportingLogic.ReportParcelDelivery(ValidTrackingId);
+        // act
+        var result = validator.TestValidate(trackingId);
 
-        //assert
-        Assert.Pass();
+        // assert
+        result?.ShouldHaveValidationErrorFor(x => x);
     }
 
     [Test]
-    public void ReportParcelHop(){
-        //arrange
-        object returnString = "Successfully reported hop.";
+    public void HopCodeValidator_ValidHopCode_ReturnsTrue()
+    {
+        // arrange
+        var hopCode = GenerateValidHopCode();
+        var validator = new ReportHopValidator();
 
-        //act
-        // var validReportHop =  reportingLogic.ReportParcelHop(ValidTrackingId, ValidHopCode);
+        // act
+        var result = validator.TestValidate(hopCode);
 
-        //assert
-        Assert.Pass();
+        // assert
+        result?.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Test]
+    public void HopCodeValidator_InvalidHopCode_ReturnsFalse()
+    {
+        // arrange
+        var hopCode = GenerateInvalidHopCode();
+        var validator = new ReportHopValidator();
+
+        // act
+        var result = validator.TestValidate(hopCode);
+
+        // assert
+        result?.ShouldHaveValidationErrorFor(x => x);
+    }
+
+    [Test]
+    public void ReportParcelDelivery_ValidTrackingId_ReturnsSuccess()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(repository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelDelivery(trackingId);
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual("Successfully reported hop.", result);
+    }
+
+    [Test]
+    public void ReportParcelHop_ValidTrackingIdAndHopCode_ReturnsSuccess()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var hopCode = GenerateValidHopCode();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build()); 
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(repository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelHop(trackingId, hopCode);
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual("Successfully reported hop.", result);
     }
 }

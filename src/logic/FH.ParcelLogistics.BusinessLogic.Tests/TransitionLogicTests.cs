@@ -1,114 +1,191 @@
+using System.Net;
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Entities;
-using FluentValidation;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.Services.MappingProfiles;
+using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
+using Moq;
 using NUnit.Framework;
+using RandomDataGenerator.FieldOptions;
+using RandomDataGenerator.Randomizers;
+
 namespace FH.ParcelLogistics.BusinessLogic.Tests;
 
 public class TransitionLogicTests
 {
-    private string validTrackingId = "ABCD34590";
-    private string invalidTrackingId = "ABCD!æ34590§$%&";
-    private TransitionTrackingIDValidator transitionTrackingIDValidator;
-    private TransitionValidator transitionValidator;
+    private IMapper CreateAutoMapper()
+    {
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<ParcelProfile>();
+            cfg.AddProfile<HopProfile>();
+        });
+        return config.CreateMapper();
+    }
 
-    private Parcel validParcel = new Parcel()
+    private string GenerateValidTrackingId()
     {
-        Weight = 1.1f,
-        Sender = new Recipient()
-        {
-            Name = "John Doe",
-            Street = "Straße 1",
-            PostalCode = "A-1010",
-            City = "Wien",
-            Country = "Austria"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Doe",
-            Street = "Straße 2",
-            PostalCode = "A-1150",
-            City = "Wien",
-            Country = "Austria"
-        }
-    };
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
 
-    private Parcel validRecipientParcel = new Parcel()
+    private string GenerateInvalidTrackingId()
     {
-        Weight = 0.1f,
-        Sender = new Recipient()
-        {
-            Name = "John Doe",
-            Street = "Straße 1",
-            PostalCode = "1010",
-            City = "St. Pölten",
-            Country = "Germany"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Doe",
-            Street = "Straße 2",
-            PostalCode = "A-1150",
-            City = "Wien",
-            Country = "Austria"
-        }
-    };
-    private Parcel invalidParcel = new Parcel()
-    {
-        Weight = 0.0f,
-        Sender = new Recipient()
-        {
-            Name = "John. Hermann Doe",
-            Street = "Straße 1",
-            PostalCode = "1010",
-            City = "Wien!",
-            Country = "Austria"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Jr. Doe",
-            Street = "Straße-!@ 2",
-            PostalCode = "AT-1150",
-            City = "Wien 2",
-            Country = "Austria"
-        }
-    };
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
+        return idGenerator.Generate();
+    }
 
-    [SetUp]
-    public void Setup()
+    private float GeneratePositiveFloat()
     {
-        transitionTrackingIDValidator = new TransitionTrackingIDValidator();
-        transitionValidator = new TransitionValidator();
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsFloat { Min = 0.1f, Max = 1000f });
+        return (float)idGenerator.Generate();
+    }
+
+    private string GenerateRandomRegex(string pattern)
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = pattern });
+        return idGenerator.Generate();
+    }
+
+    private Recipient GenerateValidRecipientObject()
+    {
+        var recipient = Builder<Recipient>.CreateNew()
+            .With(x => x.Name = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
+            .With(x => x.Country = GenerateRandomRegex(@"Austria|Österreich"))
+            .With(x => x.PostalCode = GenerateRandomRegex(@"[A][-]\d{4}"))
+            .With(x => x.City = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
+            .With(x => x.Street = GenerateRandomRegex(@"^[A-Z][a-zäüöß /\d-]*"))
+            .Build();
+        return recipient;
+    }
+
+    private Parcel GenerateValidParcel()
+    {
+        var parcel = Builder<Parcel>.CreateNew()
+            .With(x => x.Weight = GeneratePositiveFloat())
+            .With(x => x.Sender = GenerateValidRecipientObject())
+            .With(x => x.Recipient = GenerateValidRecipientObject())
+            .Build();
+        return parcel;
+    }
+
+    private Parcel GenerateInvalidParcelwithInvalidWeight()
+    {
+        var parcel = Builder<Parcel>.CreateNew()
+            .With(x => x.Weight = -1.0f)
+            .With(x => x.Sender = GenerateValidRecipientObject())
+            .With(x => x.Recipient = GenerateValidRecipientObject())
+
+            .Build();
+        return parcel;
     }
 
     [Test]
-    public void TransitionTrackingIDValidator()
+    public void TransitionTrackingIDValidator_ValidTrackingId_ReturnsTrue()
     {
         // arrange
+        var trackingId = GenerateValidTrackingId();
+        var validator = new TransitionTrackingIDValidator();
 
         // act
-        var validIDResult = transitionTrackingIDValidator.TestValidate(validTrackingId);
-        var invalidIDResult = transitionTrackingIDValidator.TestValidate(invalidTrackingId);
+        var result = validator.TestValidate(trackingId);
 
         // assert
-        validIDResult.ShouldNotHaveAnyValidationErrors();
-        invalidIDResult.ShouldHaveAnyValidationError();
+        result?.ShouldNotHaveAnyValidationErrors();
     }
 
     [Test]
-    public void TransitionValidator()
+    public void TransitionTrackingIDValidator_InvalidTrackingId_ReturnsFalse()
     {
         // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var validator = new TransitionTrackingIDValidator();
 
         // act
-        var validParcelResult = transitionValidator.TestValidate(validParcel);
-        var RecipientParcelResult = transitionValidator.TestValidate(validRecipientParcel);
-        var invalidParcelResult = transitionValidator.TestValidate(invalidParcel);
+        var result = validator.TestValidate(trackingId);
 
         // assert
-        validParcelResult.ShouldNotHaveAnyValidationErrors();
-        RecipientParcelResult.ShouldHaveAnyValidationError();
-        invalidParcelResult.ShouldHaveAnyValidationError();
+        result?.ShouldHaveAnyValidationError();
     }
 
+    [Test]
+    public void TransitionValidator_ValidParcel_ReturnsTrue()
+    {
+        // arrange
+        var parcel = GenerateValidParcel();
+        var validator = new TransitionValidator();
+
+        // act
+        var result = validator.TestValidate(parcel);
+
+        // assert
+        result?.ShouldNotHaveAnyValidationErrors();
+    }
+
+    [Test]
+    public void TransitionValidator_InvalidParcel_ReturnsFalse()
+    {
+        // arrange
+        var parcel = GenerateInvalidParcelwithInvalidWeight();
+        var validator = new TransitionValidator();
+
+        // act
+        var result = validator.TestValidate(parcel);
+
+        // assert
+        result?.ShouldHaveAnyValidationError();
+    }
+
+    [Test]
+    public void TransitionParcel_ValidParcel_ValidTrackingId_ReturnsTrue()
+    {
+        // arrange
+        var parcel = GenerateValidParcel();
+        var trackingId = GenerateValidTrackingId();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var transitionLogic = new TransitionLogic(repository, mapper);
+
+        // act
+        var result = transitionLogic.TransitionParcel(trackingId, parcel) as BusinessLogic.Entities.Parcel;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual(trackingId ,result?.TrackingId);
+    }
+
+    [Test]
+    public void TransitionParcel_InvalidParcel_InvalidTrackingId_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var parcel = GenerateInvalidParcelwithInvalidWeight();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var transitionLogic = new TransitionLogic(repository, mapper);
+
+        // act
+        var result = transitionLogic.TransitionParcel(trackingId, parcel) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
 }

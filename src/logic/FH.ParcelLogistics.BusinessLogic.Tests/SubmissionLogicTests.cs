@@ -1,113 +1,168 @@
-using NUnit.Framework;
+using System.Net;
+using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Entities;
-using FluentValidation;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.Services.MappingProfiles;
+using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
-using System.Net;
+using Moq;
+using NUnit.Framework;
+using RandomDataGenerator.FieldOptions;
+using RandomDataGenerator.Randomizers;
 
 namespace FH.ParcelLogistics.BusinessLogic.Tests;
 
 public class SubmissionLogicTests
 {
-    private Parcel validParcel = new Parcel()
-    {
-        Weight = 1.1f,
-        Sender = new Recipient()
-        {
-            Name = "John Doe",
-            Street = "Straße 1",
-            PostalCode = "A-1010",
-            City = "Wien",
-            Country = "Austria"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Doe",
-            Street = "Straße 2",
-            PostalCode = "A-1150",
-            City = "Wien",
-            Country = "Austria"
-        }
-    };
 
-    private Parcel validRecipientParcel = new Parcel()
+    private IMapper CreateAutoMapper()
     {
-        Weight = 0.1f,
-        Sender = new Recipient()
+        var config = new MapperConfiguration(cfg =>
         {
-            Name = "John Doe",
-            Street = "Straße 1",
-            PostalCode = "A-1010",
-            City = "St. Pölten",
-            Country = "Austria"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Doe",
-            Street = "Straße 2",
-            PostalCode = "A-1150",
-            City = "Wien",
-            Country = "Austria"
-        }
-    };
-     private Parcel invalidParcel = new Parcel()
-    {
-        Weight = 0.0f,
-        Sender = new Recipient()
-        {
-            Name = "John. Hermann Doe",
-            Street = "Straße 1",
-            PostalCode = "A-1010",
-            City = "Wien!",
-            Country = "Germany"
-        },
-        Recipient = new Recipient()
-        {
-            Name = "Jane Jr. Doe",
-            Street = "Straße-!@ 2",
-            PostalCode = "A-1150",
-            City = "Wien 2",
-            Country = "Austria"
-        }
-    };
+            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<ParcelProfile>();
+            cfg.AddProfile<HopProfile>();
+        });
+        return config.CreateMapper();
+    }
 
-    private SubmissionValidator submissionValidator;
-
-    [SetUp]
-    public void Setup()
+    private string GenerateValidTrackingId()
     {
-        submissionValidator = new SubmissionValidator();
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
+
+    private string GenerateInvalidTrackingId()
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{10}$" });
+        return idGenerator.Generate();
+    }
+
+    private float GeneratePositiveFloat()
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsFloat { Min = 0.1f, Max = 1000f });
+        return (float)idGenerator.Generate();
+    }
+
+    private string GenerateRandomRegex(string pattern)
+    {
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = pattern });
+        return idGenerator.Generate();
+    }
+
+    private Recipient GenerateValidRecipientObject()
+    {
+        var recipient = Builder<Recipient>.CreateNew()
+            .With(x => x.Name = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
+            .With(x => x.Country = GenerateRandomRegex(@"Austria|Österreich"))
+            .With(x => x.PostalCode = GenerateRandomRegex(@"[A][-]\d{4}"))
+            .With(x => x.City = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
+            .With(x => x.Street = GenerateRandomRegex(@"^[A-Z][a-zäüöß /\d-]*"))
+            .Build();
+        return recipient;
+    }
+
+    private Parcel GenerateValidParcel()
+    {
+        var parcel = Builder<Parcel>.CreateNew()
+            .With(x => x.Weight = GeneratePositiveFloat())
+            .With(x => x.Sender = GenerateValidRecipientObject())
+            .With(x => x.Recipient = GenerateValidRecipientObject())
+            .Build();
+        return parcel;
+    }
+
+    private Parcel GenerateInvalidParcelwithInvalidWeight()
+    {
+        var parcel = Builder<Parcel>.CreateNew()
+            .With(x => x.Weight = -1.0f)
+            .With(x => x.Sender = GenerateValidRecipientObject())
+            .With(x => x.Recipient = GenerateValidRecipientObject())
+
+            .Build();
+        return parcel;
     }
 
     [Test]
-    public void SubmissionValidator()
+    public void SubmissionValidator_ValidParcel_ShouldNotHaveValidationError()
     {
-        //arrange
+        // arrange
+        var validator = new SubmissionValidator();
+        var parcel = GenerateValidParcel();
 
-        //act
-        var validParcelResult = submissionValidator.TestValidate(validParcel);
-        var validRecipientParcelResult = submissionValidator.TestValidate(validRecipientParcel);
-        var invalidParcelResult = submissionValidator.TestValidate(invalidParcel);
+        // act
+        var result = validator.TestValidate(parcel);
 
-        //assert
-        validParcelResult.ShouldNotHaveAnyValidationErrors();
-        validRecipientParcelResult.ShouldNotHaveAnyValidationErrors();
-        invalidParcelResult.ShouldHaveAnyValidationError();
+        // assert
+        result.ShouldNotHaveValidationErrorFor(x => x.TrackingId);
+        result.ShouldNotHaveValidationErrorFor(x => x.Weight);
+        result.ShouldNotHaveValidationErrorFor(x => x.Sender);
+        result.ShouldNotHaveValidationErrorFor(x => x.Recipient);
     }
 
     [Test]
-    public void SubmissionLogic()
+    public void SubmissionValidator_WhenInvalidParcelWeight_ShouldHaveValidationError()
     {
-        //arrange
-        var validParcelReturn = new Parcel() {
-            TrackingId = "this_will_be_newly_generated"      
-        };
-        var submissionLogic = new SubmissionLogic();
+        // arrange
+        var validator = new SubmissionValidator();
+        var parcel = GenerateInvalidParcelwithInvalidWeight();
 
-        //act
-        var invalidParcelResult = submissionLogic.SubmitParcel(invalidParcel);
+        // act
+        var result = validator.TestValidate(parcel);
 
-        //assert
-        Assert.AreNotEqual(invalidParcelResult, validParcelReturn);        
+        // assert
+        result.ShouldHaveValidationErrorFor(x => x.Weight);
     }
+
+    [Test]
+    public void SubmitParcel_InvalidSubmission_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var parcel = GenerateInvalidParcelwithInvalidWeight();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var submissionLogic = new SubmissionLogic(repository, mapper);
+
+        // act
+        var result = submissionLogic.SubmitParcel(parcel) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
+
+    [Test]
+    public void SubmitParcel_ValidSubmission_ReturnsTrue()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var parcel = GenerateValidParcel();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var submissionLogic = new SubmissionLogic(repository, mapper);
+
+        // act
+        var result = submissionLogic.SubmitParcel(parcel) as BusinessLogic.Entities.Parcel;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual(trackingId, result.TrackingId);
+    }
+
 }
