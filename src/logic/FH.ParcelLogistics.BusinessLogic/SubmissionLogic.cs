@@ -5,6 +5,8 @@ using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore.Metadata;
 using AutoMapper;
+using RandomDataGenerator.Randomizers;
+using RandomDataGenerator.FieldOptions;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -50,6 +52,11 @@ public class SubmissionLogic : ISubmissionLogic
         _mapper = mapper;
     }
 
+    private string GenerateValidTrackingId(){
+        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
+        return idGenerator.Generate();
+    }
+
     public object SubmitParcel(Parcel parcel)
     {
         // Validate parcel
@@ -60,6 +67,8 @@ public class SubmissionLogic : ISubmissionLogic
             };
         }
 
+        parcel.TrackingId = GenerateValidTrackingId();
+        parcel.State = Parcel.ParcelState.Pickup; 
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
         var result = _parcelRepository.Submit(dbParcel); 
 

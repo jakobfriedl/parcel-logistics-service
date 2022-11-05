@@ -41,43 +41,16 @@ public class TrackingLogic : ITrackingLogic
             };
         }
 
-        // TODO: Check if parcel exists
-        // if (...){
-        //     return new Error(){
-        //         StatusCode = 404,
-        //         ErrorMessage = "Parcel does not exist with this tracking ID.",
-        //     };
-        // }
-
-        // TODO: Change hardcoded return type
-        return new Parcel()
-        {
-            State = Parcel.ParcelState.Pickup,
-            VisitedHops = new List<HopArrival>(){
-                new HopArrival() {
-                    Code = "TEST1",
-                    Description = "Test1",
-                    DateTime = DateTime.Now,
-                },
-                new HopArrival() {
-                    Code = "TEST2",
-                    Description = "Test2",
-                    DateTime = DateTime.Now,
-                },
-            },
-            FutureHops = new List<HopArrival>(){
-                new HopArrival() {
-                    Code = "TEST3",
-                    Description = "Test3",
-                    DateTime = DateTime.Now,
-                },
-                new HopArrival() {
-                    Code = "TEST4",
-                    Description = "Test4",
-                    DateTime = DateTime.Now,
-                }
-            },
-        };
+        // Get parcel with supplied tracking id, if tracking id does not exist, return 404
+        try{
+            var parcel = _parcelRepository.GetByTrackingId(trackingId);
+            return _mapper.Map<Parcel>(parcel);
+        } catch(InvalidOperationException){
+            return new Error(){
+                StatusCode = 404,
+                ErrorMessage = "Parcel does not exist with this tracking ID.",
+            };
+        }
     }
 }
 

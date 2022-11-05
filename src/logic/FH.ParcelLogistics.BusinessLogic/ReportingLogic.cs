@@ -79,17 +79,13 @@ public class ReportingLogic : IReportingLogic
         try {
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
             parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            var hop = _hopRepository.GetByCode(code);
+    
+        } catch (InvalidOperationException){
+            return new Error(){
+                StatusCode = 404,
+                ErrorMessage = "Parcel does not exist with this tracking ID or hop with code not found."
+            }; 
         }
-
-        // TODO: Check if parcel or hop exists
-        // if(...){
-        //     return new Error(){
-        //         StatusCode = 404,
-        //         ErrorMessage = "Parcel does not exist with this tracking ID or hop with code not found."
-        //     }; 
-        // }
-        
         return "Successfully reported hop."; 
     }
 }

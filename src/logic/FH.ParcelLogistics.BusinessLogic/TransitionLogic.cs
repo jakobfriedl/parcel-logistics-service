@@ -71,14 +71,21 @@ public class TransitionLogic : ITransitionLogic
             }; 
         }
 
-        // TODO: Check if parcel already exists
-        // if(true){
-        //     return new Error(){
-        //         StatusCode = 409,
-        //         ErrorMessage = "A parcel with the specified trackingID is already in the system.",
-        //     }; 
-        // }
+        try{
+            var parcelById = _parcelRepository.GetByTrackingId(trackingId);
+        } catch (InvalidOperationException e){
+            if (e.Message == "Sequence contains no elements"){
+                parcel.TrackingId = trackingId;
+                parcel.State = Parcel.ParcelState.Pickup; 
+                var dbParcel = _mapper.Map<DataAccess.Entities.Parcel>(parcel);
+                _parcelRepository.Submit(dbParcel);
+                return parcel; 
+            }
+        }
 
-        return new Parcel(){ TrackingId = trackingId };
+        return new Error(){
+            StatusCode = 409,
+            ErrorMessage = "A parcel with the specified trackingID is already in the system.",
+        }; 
     }
 }
