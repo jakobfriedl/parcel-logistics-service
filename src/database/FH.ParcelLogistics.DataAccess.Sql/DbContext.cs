@@ -25,7 +25,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         if(!optionsBuilder.IsConfigured){
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json")
                 .Build(); 
 
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("DBConnection"), o => {
