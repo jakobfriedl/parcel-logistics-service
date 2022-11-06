@@ -2,7 +2,7 @@ namespace FH.ParcelLogistics.DataAccess.Tests;
 
 using NUnit.Framework;
 
-public class Tests
+public class HopRepositoryTests
 {
     [SetUp]
     public void Setup()
