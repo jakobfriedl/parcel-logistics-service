@@ -93,7 +93,7 @@ public class TrackingLogicTests
     }
 
     [Test]
-    public void TrackParcel_InvalidTrackingId_ReturnsError()
+    public void TrackParcel_InvalidTrackingId_Returns400()
     {
         // arrange
         var trackingId = GenerateInvalidTrackingId();
@@ -116,4 +116,25 @@ public class TrackingLogicTests
         Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
         Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
     }
+
+    [Test]
+    public void TrackParcel_ParcelNotFound_Returns404(){
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Throws<InvalidOperationException>();
+        var hopRepositoryMock = new Mock<IHopRepository>();
+        var parcelRepository = parcelRepositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var trackingLogic = new TrackingLogic(parcelRepository, mapper);
+
+        // act
+        var result = trackingLogic.TrackParcel(trackingId) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
+        Assert.AreEqual("Parcel does not exist with this tracking ID.", result?.ErrorMessage);
+    }      
 }

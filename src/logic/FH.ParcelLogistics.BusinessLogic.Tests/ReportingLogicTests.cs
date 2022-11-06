@@ -216,4 +216,52 @@ public class ReportingLogicTests
         Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
         Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
     }
+
+    [Test]
+    public void ReportParcelHop_ParcelNotFound_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var hopCode = GenerateValidHopCode();
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Throws<InvalidOperationException>();
+        var hopRepositoryMock = new Mock<IHopRepository>();
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
+        Assert.AreEqual("Parcel does not exist with this tracking ID or hop with code not found.", result?.ErrorMessage);
+    }
+
+    [Test]
+    public void ReportParcelDelivery_ParcelNotFound_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Throws<InvalidOperationException>();
+        var hopRepositoryMock = new Mock<IHopRepository>();
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
+        Assert.AreEqual("Parcel does not exist with this tracking ID.", result?.ErrorMessage);
+    }
+
 }
