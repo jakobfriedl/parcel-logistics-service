@@ -79,7 +79,6 @@ public class ReportingLogic : IReportingLogic
         try {
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
             parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-    
         } catch (InvalidOperationException){
             return new Error(){
                 StatusCode = 404,

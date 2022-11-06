@@ -36,6 +36,10 @@ public class HopRepository : IHopRepository
         return true;
     }
 
+    public bool Export() {
+        throw new NotImplementedException();
+    }
+
     // HopArrival
     public HopArrival CreateHopArrival(HopArrival hopArrival){
         _context.HopArrivals.Add(hopArrival);

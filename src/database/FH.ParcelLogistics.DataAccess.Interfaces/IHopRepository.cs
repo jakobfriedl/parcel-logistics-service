@@ -5,6 +5,7 @@ public interface IHopRepository
 {
     // Hop, Truck, Warehouse 
     bool Import(Hop hop);
+    bool Export(); 
     Hop CreateHop(Hop hop);
     Hop UpdateHop(Hop hop);
     Hop GetByCode(string code);

@@ -113,15 +113,18 @@ public class ReportingLogicTests
     {
         // arrange
         var trackingId = GenerateValidTrackingId();
-        var repositoryMock = new Mock<IParcelRepository>();
-        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
             .Returns(Builder<DataAccess.Entities.Parcel>
                 .CreateNew()
                 .With(x => x.TrackingId = trackingId)
                 .Build());
-        var repository = repositoryMock.Object;
+        var hopRepositoryMock = new Mock<IHopRepository>();
+
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(repository, mapper);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
 
         // act
         var result = reportingLogic.ReportParcelDelivery(trackingId);
@@ -137,15 +140,18 @@ public class ReportingLogicTests
         // arrange
         var trackingId = GenerateValidTrackingId();
         var hopCode = GenerateValidHopCode();
-        var repositoryMock = new Mock<IParcelRepository>();
-        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
             .Returns(Builder<DataAccess.Entities.Parcel>
                 .CreateNew()
                 .With(x => x.TrackingId = trackingId)
                 .Build()); 
-        var repository = repositoryMock.Object;
+        var hopRepositoryMock = new Mock<IHopRepository>();
+        
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(repository, mapper);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
 
         // act
         var result = reportingLogic.ReportParcelHop(trackingId, hopCode);
