@@ -9,6 +9,7 @@ using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using NuGet.Frameworks;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
 using RandomDataGenerator.Randomizers;
@@ -68,26 +69,51 @@ public class TrackingLogicTests
         result.ShouldHaveValidationErrorFor(x => x);
     }
 
-    // [Test]
-    // public void TrackParcel_ValidTrackingId_ReturnsTrackingState()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var repositoryMock = new Mock<IParcelRepository>();
-    //     repositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-    //         .Returns(Builder<DataAccess.Entities.Parcel>
-    //             .CreateNew()
-    //             .With(x => x.TrackingId = trackingId)
-    //             .Build());
-    //     var repository = repositoryMock.Object;
-    //     var mapper = CreateAutoMapper();
-    //     var trackingLogic = new TrackingLogic(repository, mapper);
+    [Test]
+    public void TrackParcel_ValidTrackingId_ReturnsTrackingState()
+    {
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var trackingLogic = new TrackingLogic(repository, mapper);
 
-    //     // act
-    //     var result = trackingLogic.TrackParcel(trackingId) as ObjectResult;
+        // act
+        var result = trackingLogic.TrackParcel(trackingId) as Parcel;
 
-    //     // assert
-    //     Assert.NotNull(result);
-    //     Assert.That(result, Is.TypeOf<Parcel>());
-    // }
+        // assert
+        Assert.NotNull(result);
+        Assert.That(result, Is.TypeOf<Parcel>());
+    }
+
+    [Test]
+    public void TrackParcel_InvalidTrackingId_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var trackingLogic = new TrackingLogic(repository, mapper);
+
+        // act
+        var result = trackingLogic.TrackParcel(trackingId) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.That(result, Is.TypeOf<Error>());
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
 }

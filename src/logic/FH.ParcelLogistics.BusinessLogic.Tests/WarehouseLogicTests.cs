@@ -53,7 +53,8 @@ public class WarehouseLogicTests
         return GeoCoordinate;
     }
 
-    private Hop GenerateValidHop(){
+    private Hop GenerateValidHop()
+    {
         var hop = Builder<Hop>.CreateNew()
             .With(x => x.HopType = GenerateRandomRegex(@"^[A-Z][a-zA-Z]*"))
             .With(x => x.Code = GenerateRandomRegex(@"^[A-Z]{4}\d{1,4}$"))
@@ -171,7 +172,8 @@ public class WarehouseLogicTests
     }
 
     [Test]
-    public void ExportWarehouses_Valid_ShouldReturnValidWarehouse(){
+    public void ExportWarehouses_Valid_ShouldReturnValidWarehouse()
+    {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
         repositoryMock.Setup(x => x.Export())
@@ -180,7 +182,7 @@ public class WarehouseLogicTests
         var mapper = CreateAutoMapper();
 
         var warehouseLogic = new WarehouseLogic(repository, mapper);
-        
+
         // act
         var result = warehouseLogic.ExportWarehouses();
 
@@ -190,7 +192,8 @@ public class WarehouseLogicTests
     }
 
     [Test]
-    public void GetWarehouse_ValidWarehouseCode_ShouldReturnValidHop(){
+    public void GetWarehouse_ValidWarehouseCode_ShouldReturnValidHop()
+    {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
         repositoryMock.Setup(x => x.GetByCode(It.IsAny<string>()))
@@ -201,7 +204,7 @@ public class WarehouseLogicTests
         var mapper = CreateAutoMapper();
 
         var warehouseLogic = new WarehouseLogic(repository, mapper);
-        
+
         // act
         var result = warehouseLogic.GetWarehouse(GenerateRandomRegex(@"^[A-Z]{4}\d{1,4}$"));
 
@@ -211,7 +214,8 @@ public class WarehouseLogicTests
     }
 
     [Test]
-    public void ImportWarehouses_ValidWarehouse_ShouldReturnSuccess(){
+    public void ImportWarehouses_ValidWarehouse_ShouldReturnSuccess()
+    {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
         repositoryMock.Setup(x => x.Import(It.IsAny<DataAccess.Entities.Warehouse>()))
@@ -220,7 +224,7 @@ public class WarehouseLogicTests
         var mapper = CreateAutoMapper();
 
         var warehouseLogic = new WarehouseLogic(repository, mapper);
-        
+
         // act
         var result = warehouseLogic.ImportWarehouses(GenerateValidWarehouse());
 
