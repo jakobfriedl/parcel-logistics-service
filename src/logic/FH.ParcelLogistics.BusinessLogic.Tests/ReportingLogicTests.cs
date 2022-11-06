@@ -7,6 +7,7 @@ using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
@@ -135,6 +136,33 @@ public class ReportingLogicTests
     }
 
     [Test]
+    public void ReportParcelDelivery_InvalidTrackingId_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var hopRepositoryMock = new Mock<IHopRepository>();
+
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual(400, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
+
+    [Test]
     public void ReportParcelHop_ValidTrackingIdAndHopCode_ReturnsSuccess()
     {
         // arrange
@@ -145,9 +173,9 @@ public class ReportingLogicTests
             .Returns(Builder<DataAccess.Entities.Parcel>
                 .CreateNew()
                 .With(x => x.TrackingId = trackingId)
-                .Build()); 
+                .Build());
         var hopRepositoryMock = new Mock<IHopRepository>();
-        
+
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
@@ -159,5 +187,33 @@ public class ReportingLogicTests
         // assert
         Assert.NotNull(result);
         Assert.AreEqual("Successfully reported hop.", result);
+    }
+
+    [Test]
+    public void ReportParcelHop_InalidTrackingIdAndHopCode_ReturnsError()
+    {
+        // arrange
+        var trackingId = GenerateInvalidTrackingId();
+        var hopCode = GenerateInvalidHopCode();
+        var parcelRepositoryMock = new Mock<IParcelRepository>();
+        parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
+            .Returns(Builder<DataAccess.Entities.Parcel>
+                .CreateNew()
+                .With(x => x.TrackingId = trackingId)
+                .Build());
+        var hopRepositoryMock = new Mock<IHopRepository>();
+
+        var parcelRepository = parcelRepositoryMock.Object;
+        var hopRepository = hopRepositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+
+        // act
+        var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
     }
 }
