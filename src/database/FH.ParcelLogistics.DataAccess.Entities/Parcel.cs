@@ -6,7 +6,7 @@ namespace FH.ParcelLogistics.DataAccess.Entities;
 
 public class Parcel
 {
-    public int ParcelId { get; private set; }
+    public int ParcelId { get; set; }
     public float Weight { get; set; }
     public Recipient Recipient { get; set; }
     public Recipient Sender { get; set; }

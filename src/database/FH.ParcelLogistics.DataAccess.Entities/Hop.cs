@@ -6,7 +6,7 @@ namespace FH.ParcelLogistics.DataAccess.Entities;
 
 public partial class Hop
 {
-    public int HopId { get; private set; }
+    public int HopId { get; set; }
     public string HopType { get; set; }
     public string Code { get; set; }
     public string Description { get; set; }
