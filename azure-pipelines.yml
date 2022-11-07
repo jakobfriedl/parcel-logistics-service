@@ -10,7 +10,6 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  disable.coverage.autogenerate: false 
   buildConfiguration: 'Release'
 
 steps:
@@ -27,33 +26,16 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
     publishTestResults: true
-
-- task: DotNetCoreCLI@2 
-  displayName: 'Create .NET local manifest' 
-  inputs: 
-    command: custom 
-    custom: new 
-    arguments: 'tool-manifest'
-
-- task: DotNetCoreCLI@2 
-  displayName: 'Install ReportGenerator' 
-  inputs: 
-    command: custom 
-    custom: tool 
-    arguments: 'install --global dotnet-reportgenerator-globaltool' 
-
-- task: DotNetCoreCLI@2 
-  displayName: 'Merge code coverage files' 
-  inputs: 
-    command: custom 
-    custom: tool 
-    arguments: 'run reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/build_reports/code_coverage -reporttypes:HtmlInline_AzurePipelines;Cobertura' 
-  
+- task: reportgenerator@5
+  displayName: "Merge Codecoverage Results"
+  inputs:
+    reports: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    targetdir: '$(Build.SourcesDirectory)/coverageresults'
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(Build.SourcesDirectory)/coverageresults/Cobertura.xml'
 
 - task: CopyFiles@2
   inputs:
