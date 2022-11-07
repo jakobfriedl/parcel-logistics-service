@@ -10,6 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
+  disable.coverage.autogenerate: true 
   buildConfiguration: 'Release'
 
 steps:
