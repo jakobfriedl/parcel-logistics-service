@@ -10,7 +10,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  disable.coverage.autogenerate: true 
+  disable.coverage.autogenerate: false 
   buildConfiguration: 'Release'
 
 steps:
@@ -27,6 +27,13 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
     publishTestResults: true
+
+- task: DotNetCoreCLI@2 
+  displayName: 'Create .NET local manifest' 
+  inputs: 
+    command: custom 
+    custom: new 
+    arguments: 'tool-manifest'
 
 - task: DotNetCoreCLI@2 
   displayName: 'Install ReportGenerator' 
