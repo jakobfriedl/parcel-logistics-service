@@ -26,24 +26,19 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
     publishTestResults: true
-- task: DotNetCoreCLI@2
-  displayName: "publishWebProject"
-  inputs:  
-    command: 'publish'
-    publishWebProjects: true
+  
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
-# - task: CopyFiles@2
-#   inputs:
-#     targetFolder: '$(Build.ArtifactStagingDirectory)'    
+- task: CopyFiles@2
+  inputs:
+    targetFolder: '$(Build.ArtifactStagingDirectory)'    
 
 - task: PublishBuildArtifacts@1
   inputs:
-    #PathtoPublish: './src/services/FH.ParcelLogistics.Services/bin/$(buildConfiguration)/'
-    PathtoPublish: '$(System.DefaultWorkingDirectory)/**/*.zip' 
+    PathtoPublish: './src/services/FH.ParcelLogistics.Services/bin/$(buildConfiguration)/'
     ArtifactName: 'drop'
     publishLocation: 'Container'
