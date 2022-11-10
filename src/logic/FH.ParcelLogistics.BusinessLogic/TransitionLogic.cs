@@ -52,10 +52,6 @@ public class TransitionLogic : ITransitionLogic
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper;
 
-    public TransitionLogic(IMapper mapper){
-        _parcelRepository = new ParcelRepository(new DbContext());
-        _mapper = mapper;
-    }
     public TransitionLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
         _mapper = mapper;

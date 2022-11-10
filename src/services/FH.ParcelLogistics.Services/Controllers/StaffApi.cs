@@ -33,11 +33,6 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		private readonly IMapper _mapper;
 		private readonly IReportingLogic _reportingLogic; 
 
-		[ActivatorUtilitiesConstructor]
-		public StaffApiController(IMapper mapper) { 
-			_mapper = mapper; 
-			_reportingLogic = new BusinessLogic.ReportingLogic(mapper);
-		}
 		public StaffApiController(IMapper mapper, IReportingLogic reportingLogic) { 
 			_mapper = mapper; 
 			_reportingLogic = reportingLogic;

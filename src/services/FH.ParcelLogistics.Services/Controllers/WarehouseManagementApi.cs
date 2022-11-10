@@ -34,11 +34,6 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		private readonly IMapper _mapper;
 		private readonly IWarehouseLogic _warehouseLogic; 
 
-		[ActivatorUtilitiesConstructor]
-		public WarehouseManagementApiController(IMapper mapper) { 
-			_mapper = mapper; 
-			_warehouseLogic = new BusinessLogic.WarehouseLogic(mapper);
-		}
 		public WarehouseManagementApiController(IMapper mapper, IWarehouseLogic warehouseLogic) { 
 			_mapper = mapper; 
 			_warehouseLogic = warehouseLogic;

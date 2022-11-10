@@ -44,10 +44,6 @@ public class SubmissionLogic : ISubmissionLogic
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper; 
 
-    public SubmissionLogic(IMapper mapper){
-        _parcelRepository = new ParcelRepository(new DbContext());
-        _mapper = mapper;
-    }
     public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
         _mapper = mapper;

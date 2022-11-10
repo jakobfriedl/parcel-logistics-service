@@ -21,11 +21,7 @@ public class TrackingLogic : ITrackingLogic
     private readonly TrackingStateValidator _trackingStateValidator = new TrackingStateValidator();
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper;
-
-    public TrackingLogic(IMapper mapper){
-        _parcelRepository = new ParcelRepository(new DbContext());
-        _mapper = mapper;
-    }
+    
     public TrackingLogic(IParcelRepository parcelRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
         _mapper = mapper;

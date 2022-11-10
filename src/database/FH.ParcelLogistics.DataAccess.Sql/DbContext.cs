@@ -21,18 +21,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         Database.EnsureCreated();
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){
-        if(!optionsBuilder.IsConfigured){
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json")
-                .Build(); 
-
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DBConnection"), o => {
-                o.UseNetTopologySuite();
-            });
-        }   
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         modelBuilder.Entity<Recipient>(e => {

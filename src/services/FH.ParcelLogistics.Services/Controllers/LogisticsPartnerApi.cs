@@ -36,11 +36,6 @@ namespace FH.ParcelLogistics.Services.Controllers
         private readonly IMapper _mapper;
         private readonly ITransitionLogic _transitionLogic; 
 
-		[ActivatorUtilitiesConstructor]
-        public LogisticsPartnerApiController(IMapper mapper) { 
-            _mapper = mapper; 
-            _transitionLogic = new BusinessLogic.TransitionLogic(mapper);
-        }
         public LogisticsPartnerApiController(IMapper mapper, ITransitionLogic transitionLogic) { 
             _mapper = mapper; 
             _transitionLogic = transitionLogic;

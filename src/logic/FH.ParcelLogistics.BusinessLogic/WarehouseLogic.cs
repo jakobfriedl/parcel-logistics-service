@@ -36,10 +36,6 @@ public class WarehouseLogic : IWarehouseLogic
     private readonly IHopRepository _hopRepository;
     private readonly IMapper _mapper;
 
-    public WarehouseLogic(IMapper mapper){
-        _hopRepository = new HopRepository(new DbContext());
-        _mapper = mapper;
-    }
     public WarehouseLogic(IHopRepository hopRepository, IMapper mapper){
         _hopRepository = hopRepository;
         _mapper = mapper;

@@ -15,11 +15,14 @@ using FH.ParcelLogistics.Services.Filters;
 using FH.ParcelLogistics.Services.OpenApi;
 using FH.ParcelLogistics.Services.Formatters;
 using FH.ParcelLogistics.Services.MappingProfiles;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using FH.ParcelLogistics.DataAccess.Sql;
 using Microsoft.EntityFrameworkCore;
+using FH.ParcelLogistics.BusinessLogic;
+using FH.ParcelLogistics.DataAccess.Interfaces;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -56,10 +59,23 @@ namespace FH.ParcelLogistics.Services {
 			services.AddSingleton(mapper);
 			services.AddMvc(); 
 
-			// DBContext
-			// services.AddDbContext<DataAccess.Sql.DbContext>(options => {
-			// 	options.UseSqlServer(Configuration.GetConnectionString("DBConnection"));
-			// });
+			// Business logic services
+			services.AddTransient<IReportingLogic, ReportingLogic>();
+			services.AddTransient<ISubmissionLogic, SubmissionLogic>();
+			services.AddTransient<ITrackingLogic, TrackingLogic>();
+			services.AddTransient<ITransitionLogic, TransitionLogic>();
+			services.AddTransient<IWarehouseLogic, WarehouseLogic>();
+
+			// Data access repositories
+			services.AddScoped<IParcelRepository, ParcelRepository>();
+			services.AddScoped<IHopRepository, HopRepository>();
+
+			// DbContext
+			services.AddDbContext<DataAccess.Sql.DbContext>( optionsBuilder => {
+					optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DBConnection"), o => {
+					o.UseNetTopologySuite();
+				});
+			}); 
 
 			// Add framework services.
 			services

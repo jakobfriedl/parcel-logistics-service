@@ -30,11 +30,6 @@ public class ReportingLogic : IReportingLogic
     private readonly IHopRepository _hopRepository;
     private readonly IMapper _mapper;
     
-    public ReportingLogic(IMapper mapper){
-        _parcelRepository = new ParcelRepository(new DbContext());
-        _hopRepository = new HopRepository(new DbContext());
-        _mapper = mapper;
-    }
     public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper){
         _parcelRepository = parcelRepository;
         _hopRepository = hopRepository;
