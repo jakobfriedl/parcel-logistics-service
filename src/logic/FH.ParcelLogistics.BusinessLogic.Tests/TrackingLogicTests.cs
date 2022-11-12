@@ -130,7 +130,7 @@ public class TrackingLogicTests
         var hopRepositoryMock = new Mock<IHopRepository>();
         var parcelRepository = parcelRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<TrackingLogic>>().Object;
+        var logger = new Mock<ILogger<ITrackingLogic>>().Object;
         var trackingLogic = new TrackingLogic(parcelRepository, mapper, logger);
 
         // act

@@ -207,7 +207,7 @@ public class TransitionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<TransitionLogic>>();
+        var logger = new Mock<ILogger<ITransitionLogic>>();
         var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
         // act

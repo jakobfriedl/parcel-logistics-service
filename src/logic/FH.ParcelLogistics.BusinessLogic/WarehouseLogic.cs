@@ -35,20 +35,20 @@ public class WarehouseLogic : IWarehouseLogic
     private readonly WarehouseCodeValidator _warehouseCodeValidator = new WarehouseCodeValidator();
     private readonly IHopRepository _hopRepository;
     private readonly IMapper _mapper;
-    private readonly ILogger<WarehouseLogic> _logger;
+    private readonly ILogger<IWarehouseLogic> _logger;
 
-    public WarehouseLogic(IHopRepository hopRepository, IMapper mapper, ILogger<WarehouseLogic> logger){
+    public WarehouseLogic(IHopRepository hopRepository, IMapper mapper, ILogger<IWarehouseLogic> logger){
         _hopRepository = hopRepository;
         _mapper = mapper;
         _logger = logger;
     }
 
     public object ExportWarehouses(){
-        _logger.LogDebug("ExportWarehouses called");
+        _logger.LogDebug($"ExportWarehouses called");
 
         // TODO: check for errors
         // if (...) {
-        //     _logger.LogDebug("ExportWarehouses failed");
+        //     _logger.LogDebug($"ExportWarehouses failed");
         //     return new Error(){
         //         StatusCode = 400,
         //         ErrorMessage = "The operation failed due to an error."
@@ -86,11 +86,10 @@ public class WarehouseLogic : IWarehouseLogic
     }
 
     public object GetWarehouse(string code){
-        _logger.LogDebug("GetWarehouse called with code: {code}", code);
+        _logger.LogDebug($"GetWarehouse called with code: {code}");
         // Validate warehouse
         if(!_warehouseCodeValidator.Validate(code).IsValid){
-            _logger.LogDebug("GetWarehouse failed for code: {code}", code);
-            _logger.LogError("GetWarehouse failed for code: {code}", code);
+            _logger.LogError($"GetWarehouse failed for code: {code}");
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
@@ -119,17 +118,16 @@ public class WarehouseLogic : IWarehouseLogic
     }
 
     public object ImportWarehouses(Warehouse warehouse){
-        _logger.LogDebug("ImportWarehouses called with warehouse: {warehouse}", warehouse);
+        _logger.LogDebug($"ImportWarehouses called with warehouse: {warehouse}");
         // Validate warehouse
         if(!_warehouseValidator.Validate(warehouse).IsValid){
-            _logger.LogDebug("ImportWarehouses failed for warehouse: {warehouse}", warehouse);
-            _logger.LogError("ImportWarehouses failed for warehouse: {warehouse}", warehouse);
+            _logger.LogError($"ImportWarehouses failed for warehouse: {warehouse}");
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
             };
         }
-        _logger.LogDebug("ImportWarehouses succeeded for warehouse: {warehouse}", warehouse);
+        _logger.LogDebug($"ImportWarehouses succeeded for warehouse: {warehouse}");
         return "Successfully loaded."; 
     }
 }

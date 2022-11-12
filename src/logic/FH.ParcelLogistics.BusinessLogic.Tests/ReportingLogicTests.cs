@@ -210,7 +210,7 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<ReportingLogic>>();
+        var logger = new Mock<ILogger<IReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act

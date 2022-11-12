@@ -157,7 +157,7 @@ public class SubmissionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<SubmissionLogic>>();
+        var logger = new Mock<ILogger<ISubmissionLogic>>();
         var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
 
         // act

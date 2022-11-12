@@ -51,9 +51,9 @@ public class TransitionLogic : ITransitionLogic
     private readonly TransitionValidator _transitionValidator = new TransitionValidator();
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper;
-    private readonly ILogger<TransitionLogic> _logger;
+    private readonly ILogger<ITransitionLogic> _logger;
 
-    public TransitionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<TransitionLogic> logger){
+    public TransitionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ITransitionLogic> logger){
         _parcelRepository = parcelRepository;
         _mapper = mapper;
         _logger = logger;
@@ -61,38 +61,36 @@ public class TransitionLogic : ITransitionLogic
 
     public object TransitionParcel(string trackingId, Parcel parcel)
     {
-        _logger.LogDebug("TransitionParcel: {trackingId}", trackingId);
+        _logger.LogDebug($"TransitionParcel: {trackingId}");
         // Validate trackingId and parcel
         if (!_trackingIDValidator.Validate(trackingId).IsValid || !_transitionValidator.Validate(parcel).IsValid){
-            _logger.LogDebug("TransitionParcel: {trackingId} - Validation failed", trackingId);
-            _logger.LogWarning("TransitionParcel: {trackingId} - Validation failed", trackingId);
+            _logger.LogError($"TransitionParcel: {trackingId} - Validation failed");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error.",
             }; 
         }
-        _logger.LogDebug("TransitionParcel: {trackingId} - Validation successful", trackingId);
+        _logger.LogDebug($"TransitionParcel: {trackingId} - Validation successful");
 
         try{
-            _logger.LogDebug("TransitionParcel: {trackingId} - Try to get parcel", trackingId);
+            _logger.LogDebug($"TransitionParcel: {trackingId} - Try to get parcel");
             var parcelById = _parcelRepository.GetByTrackingId(trackingId);
-            _logger.LogDebug("TransitionParcel: {trackingId} - Parcel found", trackingId);
+            _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel found");
         } catch (InvalidOperationException e){
             if (e.Message == "Sequence contains no elements"){
-                _logger.LogDebug("TransitionParcel: {trackingId} - Parcel found for Transition", trackingId);
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel found for Transition");
                 parcel.TrackingId = trackingId;
-                _logger.LogDebug("TransitionParcel: {trackingId} - Try to add parcel", trackingId);
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Try to add parcel");
                 parcel.State = Parcel.ParcelState.Pickup;
-                _logger.LogDebug("TransitionParcel: {trackingId} - Parcel added", trackingId);
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel added");
                 var dbParcel = _mapper.Map<DataAccess.Entities.Parcel>(parcel);
-                _logger.LogDebug("TransitionParcel: {trackingId} - Try to save parcel", trackingId);
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Try to save parcel");
                 _parcelRepository.Submit(dbParcel);
-                _logger.LogDebug("TransitionParcel: {trackingId} - Parcel saved", trackingId);
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel saved");
                 return parcel; 
             }
         }
-        _logger.LogDebug("TransitionParcel: {trackingId} - Parcel not found for Transition", trackingId);
-        _logger.LogError("TransitionParcel: {trackingId} - Parcel not found for Transition", trackingId);
+        _logger.LogError($"TransitionParcel: {trackingId} - Parcel not found for Transition");
         return new Error(){
             StatusCode = 409,
             ErrorMessage = "A parcel with the specified trackingID is already in the system.",

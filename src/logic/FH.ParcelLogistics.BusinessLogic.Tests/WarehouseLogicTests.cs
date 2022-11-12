@@ -223,7 +223,7 @@ public class WarehouseLogicTests
             .Returns(true);
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var logger = new Mock<ILogger<IWarehouseLogic>>();
         var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
         // act

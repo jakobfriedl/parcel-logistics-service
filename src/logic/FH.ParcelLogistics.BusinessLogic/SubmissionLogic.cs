@@ -44,9 +44,9 @@ public class SubmissionLogic : ISubmissionLogic
     private readonly SubmissionValidator _submissionValidator = new SubmissionValidator();
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper; 
-    private readonly ILogger<SubmissionLogic> _logger;
+    private readonly ILogger<ISubmissionLogic> _logger;
 
-    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<SubmissionLogic> logger){
+    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ISubmissionLogic> logger){
         _parcelRepository = parcelRepository;
         _mapper = mapper;
         _logger = logger;
@@ -59,28 +59,27 @@ public class SubmissionLogic : ISubmissionLogic
 
     public object SubmitParcel(Parcel parcel)
     {
-        _logger.LogDebug("SubmitParcel called with {parcel}", parcel);
+        _logger.LogDebug($"SubmitParcel called with {parcel}");
         // Validate parcel
         if (!_submissionValidator.Validate(parcel).IsValid)
         {
-            _logger.LogDebug("Parcel {parcel} is not valid", parcel);
-            _logger.LogWarning("Parcel {parcel} is not valid", parcel);
+            _logger.LogError($"Parcel {parcel} is not valid");
             return new Error()
             {
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             };
         }
-        _logger.LogDebug("Parcel {parcel} is valid", parcel);
+        _logger.LogDebug($"Parcel {parcel} is valid");
 
         parcel.TrackingId = GenerateValidTrackingId();
-        _logger.LogDebug("Generated TrackingId {trackingId} for parcel {parcel}", parcel.TrackingId, parcel);
+        _logger.LogDebug($"Generated TrackingId {parcel.TrackingId} for parcel {parcel}");
         parcel.State = Parcel.ParcelState.Pickup; 
-        _logger.LogDebug("Set State to {state} for parcel {parcel}", parcel.State, parcel);
+        _logger.LogDebug($"Set State to {parcel.State} for parcel {parcel}");
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
-        _logger.LogDebug("Mapped parcel {parcel} to dbParcel {dbParcel}", parcel, dbParcel);
+        _logger.LogDebug($"Mapped parcel {parcel} to dbParcel {dbParcel}");
         var result = _parcelRepository.Submit(dbParcel); 
-        _logger.LogDebug("Submitted parcel {parcel} to dbParcel {dbParcel}", parcel, dbParcel);
+        _logger.LogDebug($"Submitted parcel {parcel} to dbParcel {dbParcel}");
 
         // TODO: Check if sender and receiver exist
         // if (...){
@@ -90,7 +89,7 @@ public class SubmissionLogic : ISubmissionLogic
         //     }
         // }
 
-        _logger.LogDebug("Parcel {parcel} was submitted successfully", parcel);
+        _logger.LogDebug($"Parcel {parcel} was submitted successfully");
         return _mapper.Map<Parcel>(result); 
     }
 }
