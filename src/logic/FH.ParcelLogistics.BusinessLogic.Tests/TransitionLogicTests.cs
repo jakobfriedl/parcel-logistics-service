@@ -8,6 +8,7 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
@@ -152,7 +153,8 @@ public class TransitionLogicTests
             .Throws<InvalidOperationException>();
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var transitionLogic = new TransitionLogic(repository, mapper);
+        var logger = new Mock<ILogger<TransitionLogic>>();
+        var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
         // act
         var result = transitionLogic.TransitionParcel(trackingId, parcel) as Error;
@@ -179,7 +181,8 @@ public class TransitionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var transitionLogic = new TransitionLogic(repository, mapper);
+        var logger = new Mock<ILogger<TransitionLogic>>();
+        var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
         // act
         var result = transitionLogic.TransitionParcel(trackingId, parcel) as BusinessLogic.Entities.Parcel;
@@ -204,7 +207,8 @@ public class TransitionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var transitionLogic = new TransitionLogic(repository, mapper);
+        var logger = new Mock<ILogger<TransitionLogic>>();
+        var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
         // act
         var result = transitionLogic.TransitionParcel(trackingId, parcel) as Error;

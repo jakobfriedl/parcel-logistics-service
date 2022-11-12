@@ -8,6 +8,7 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
@@ -125,7 +126,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelDelivery(trackingId);
@@ -151,7 +153,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;
@@ -179,7 +182,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelHop(trackingId, hopCode);
@@ -206,7 +210,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
@@ -230,7 +235,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
@@ -253,7 +259,8 @@ public class ReportingLogicTests
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper);
+        var logger = new Mock<ILogger<ReportingLogic>>();
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
         var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;

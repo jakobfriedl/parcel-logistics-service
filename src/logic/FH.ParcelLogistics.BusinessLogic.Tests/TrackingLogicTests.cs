@@ -8,6 +8,7 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NuGet.Frameworks;
 using NUnit.Framework;
@@ -82,7 +83,8 @@ public class TrackingLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var trackingLogic = new TrackingLogic(repository, mapper);
+        var logger = new Mock<ILogger<TrackingLogic>>().Object;
+        var trackingLogic = new TrackingLogic(repository, mapper, logger);
 
         // act
         var result = trackingLogic.TrackParcel(trackingId) as Parcel;
@@ -105,7 +107,8 @@ public class TrackingLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var trackingLogic = new TrackingLogic(repository, mapper);
+        var logger = new Mock<ILogger<TrackingLogic>>().Object;
+        var trackingLogic = new TrackingLogic(repository, mapper, logger);
 
         // act
         var result = trackingLogic.TrackParcel(trackingId) as Error;
@@ -127,7 +130,8 @@ public class TrackingLogicTests
         var hopRepositoryMock = new Mock<IHopRepository>();
         var parcelRepository = parcelRepositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var trackingLogic = new TrackingLogic(parcelRepository, mapper);
+        var logger = new Mock<ILogger<TrackingLogic>>().Object;
+        var trackingLogic = new TrackingLogic(parcelRepository, mapper, logger);
 
         // act
         var result = trackingLogic.TrackParcel(trackingId) as Error;

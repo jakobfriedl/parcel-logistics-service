@@ -7,6 +7,7 @@ using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
@@ -130,7 +131,8 @@ public class SubmissionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var submissionLogic = new SubmissionLogic(repository, mapper);
+        var logger = new Mock<ILogger<SubmissionLogic>>();
+        var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
 
         // act
         var result = submissionLogic.SubmitParcel(parcel) as Error;
@@ -155,7 +157,8 @@ public class SubmissionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var submissionLogic = new SubmissionLogic(repository, mapper);
+        var logger = new Mock<ILogger<SubmissionLogic>>();
+        var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
 
         // act
         var result = submissionLogic.SubmitParcel(parcel) as BusinessLogic.Entities.Parcel;

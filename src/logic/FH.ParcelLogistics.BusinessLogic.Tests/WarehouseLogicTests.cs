@@ -7,6 +7,7 @@ using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
@@ -180,8 +181,8 @@ public class WarehouseLogicTests
             .Returns(true);
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-
-        var warehouseLogic = new WarehouseLogic(repository, mapper);
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
         // act
         var result = warehouseLogic.ExportWarehouses();
@@ -202,8 +203,8 @@ public class WarehouseLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-
-        var warehouseLogic = new WarehouseLogic(repository, mapper);
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
         // act
         var result = warehouseLogic.GetWarehouse(GenerateRandomRegex(@"^[A-Z]{4}\d{1,4}$"));
@@ -222,8 +223,8 @@ public class WarehouseLogicTests
             .Returns(true);
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-
-        var warehouseLogic = new WarehouseLogic(repository, mapper);
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
         // act
         var result = warehouseLogic.ImportWarehouses(GenerateValidWarehouse());
