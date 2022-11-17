@@ -214,6 +214,30 @@ public class WarehouseLogicTests
     }
 
     [Test]
+    public void GetWarehouse_InvalidWarehouseCode_ShouldReturnError()
+    {
+        // arrange
+        var repositoryMock = new Mock<IHopRepository>();
+        repositoryMock.Setup(x => x.GetByCode(It.IsAny<string>()))
+            .Returns(Builder<DataAccess.Entities.Warehouse>
+                .CreateNew()
+                .Build());
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
+
+        // act
+        var result = warehouseLogic.GetWarehouse(GenerateRandomRegex(@"^[a-z]{2}$")) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
+
+
+    [Test]
     public void ImportWarehouses_ValidWarehouse_ShouldReturnSuccess()
     {
         // arrange
@@ -231,4 +255,25 @@ public class WarehouseLogicTests
         Assert.NotNull(result);
         Assert.AreEqual("Successfully loaded.", result);
     }
+
+    [Test]
+    public void ImportWarehouses_InvalidWarehouse_ShouldReturnError()
+    {
+        // arrange
+        var repositoryMock = new Mock<IHopRepository>();
+        repositoryMock.Setup(x => x.Import(It.IsAny<DataAccess.Entities.Warehouse>()));
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<IWarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
+
+        // act
+        var result = warehouseLogic.ImportWarehouses(GenerateInvalidWarehouse()) as Error;
+
+        // assert
+        Assert.NotNull(result);
+        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+    }
+
 }

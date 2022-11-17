@@ -44,7 +44,7 @@ public class ReportingLogic : IReportingLogic
         _logger.LogDebug($"ReportParcelDelivery called with trackingId: {trackingId}");
         // Validate trackingId
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid){
-            _logger.LogError($"ReportParcelDelivery failed with trackingId: {trackingId}");
+            _logger.LogError($"ReportParcelDelivery validation failed with trackingId: {trackingId}");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
@@ -53,14 +53,14 @@ public class ReportingLogic : IReportingLogic
         _logger.LogDebug($"ReportParcelDelivery validated trackingId: {trackingId}");
         // Get parcel with supplied tracking id and update state, if tracking id does not exist, return 404
         try{
-            _logger.LogDebug($"ReportParcelDelivery getting parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery getting parcel from DB with trackingId: {trackingId}");
             var parcel = _parcelRepository.GetByTrackingId(trackingId); 
-            _logger.LogDebug($"ReportParcelDelivery got parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery got parcel from DB with trackingId: {trackingId}");
             parcel.State = DataAccess.Entities.Parcel.ParcelState.Delivered; 
             var updatedParcel = _parcelRepository.Update(parcel); 
-            _logger.LogDebug($"ReportParcelDelivery updated parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery updated parcel in DB with trackingId: {trackingId}");
         } catch(InvalidOperationException){
-            _logger.LogError($"Parcel does not exist with this tracking ID: {trackingId}");
+            _logger.LogError($"Parcel was not found in DB with this tracking ID: {trackingId}");
             return new Error(){
                 StatusCode = 404,
                 ErrorMessage = "Parcel does not exist with this tracking ID."
@@ -75,7 +75,7 @@ public class ReportingLogic : IReportingLogic
         _logger.LogDebug($"ReportParcelHop called with trackingId: {trackingId} and code: {code}");
         // Validate trackingId and code
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid || !_hopValidator.Validate(code).IsValid){
-            _logger.LogError($"ReportParcelHop failed with trackingId: {trackingId} and code: {code}");
+            _logger.LogError($"ReportParcelHop validation failed with trackingId: {trackingId} and code: {code}");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
@@ -84,13 +84,13 @@ public class ReportingLogic : IReportingLogic
         _logger.LogDebug($"ReportParcelHop validated trackingId: {trackingId} and code: {code}");
 
         try {
-            _logger.LogDebug($"ReportParcelHop getting parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop getting parcel from DB with trackingId: {trackingId}");
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
-            _logger.LogDebug($"ReportParcelHop got parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop got parcel from DB with trackingId: {trackingId}");
             parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            _logger.LogDebug($"ReportParcelHop updating parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop updating parcel in DB with trackingId: {trackingId}");
         } catch (InvalidOperationException){
-            _logger.LogError($"Parcel does not exist with this tracking ID: {trackingId}");
+            _logger.LogError($"Parcel does not exist in DB with this tracking ID: {trackingId}");
             return new Error(){
                 StatusCode = 404,
                 ErrorMessage = "Parcel does not exist with this tracking ID or hop with code not found."

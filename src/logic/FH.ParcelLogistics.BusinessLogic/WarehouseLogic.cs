@@ -121,7 +121,7 @@ public class WarehouseLogic : IWarehouseLogic
         _logger.LogDebug($"ImportWarehouses called with warehouse: {warehouse}");
         // Validate warehouse
         if(!_warehouseValidator.Validate(warehouse).IsValid){
-            _logger.LogError($"ImportWarehouses failed for warehouse: {warehouse}");
+            _logger.LogError($"ImportWarehouses validation failed for warehouse: {warehouse}");
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
