@@ -177,8 +177,7 @@ public class WarehouseLogicTests
     {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(x => x.Export())
-            .Returns(true);
+        repositoryMock.Setup(x => x.Export());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<WarehouseLogic>>();
@@ -219,8 +218,7 @@ public class WarehouseLogicTests
     {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(x => x.Import(It.IsAny<DataAccess.Entities.Warehouse>()))
-            .Returns(true);
+        repositoryMock.Setup(x => x.Import(It.IsAny<DataAccess.Entities.Warehouse>()));
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<IWarehouseLogic>>();

@@ -114,9 +114,6 @@ public class HopRepositoryTests
         var hopRepository = new HopRepository(_contextMock);
 
         // act
-        var hops = hopRepository.Export();
-
-        // assert
-        Assert.True(hops);
+        hopRepository.Export();
     }
 }

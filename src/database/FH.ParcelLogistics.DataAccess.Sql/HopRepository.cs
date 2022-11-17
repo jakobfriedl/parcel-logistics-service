@@ -30,13 +30,12 @@ public class HopRepository : IHopRepository
 
     public Hop GetById(int id) => _context.Hops.Find(id);
 
-    public bool Import(Hop hop){
+    public void Import(Hop hop){
         _context.Hops.Add(hop);
         _context.SaveChanges();
-        return true;
     }
 
-    public bool Export() {
+    public void Export() {
         throw new NotImplementedException();
     }
 
