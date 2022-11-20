@@ -44,7 +44,7 @@ public class WarehouseLogic : IWarehouseLogic
     }
 
     public object ExportWarehouses(){
-        _logger.LogDebug($"ExportWarehouses called");
+        _logger.LogDebug($"ExportWarehouses");
 
         // TODO: check for errors
         // if (...) {
@@ -86,10 +86,10 @@ public class WarehouseLogic : IWarehouseLogic
     }
 
     public object GetWarehouse(string code){
-        _logger.LogDebug($"GetWarehouse called with code: {code}");
+        _logger.LogDebug($"GetWarehouse: [code:{code}]");
         // Validate warehouse
         if(!_warehouseCodeValidator.Validate(code).IsValid){
-            _logger.LogError($"GetWarehouse failed for code: {code}");
+            _logger.LogError($"GetWarehouse: [code:{code}] - Invalid warehouse code");
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
@@ -118,16 +118,16 @@ public class WarehouseLogic : IWarehouseLogic
     }
 
     public object ImportWarehouses(Warehouse warehouse){
-        _logger.LogDebug($"ImportWarehouses called with warehouse: {warehouse}");
+        _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}]");
         // Validate warehouse
         if(!_warehouseValidator.Validate(warehouse).IsValid){
-            _logger.LogError($"ImportWarehouses validation failed for warehouse: {warehouse}");
+            _logger.LogError($"ImportWarehouses: [warehouse:{warehouse}] - Invalid warehouse");
             return new Error(){
                 StatusCode = 400, 
                 ErrorMessage = "The operation failed due to an error."
             };
         }
-        _logger.LogDebug($"ImportWarehouses succeeded for warehouse: {warehouse}");
+        _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}] - Successfully imported warehouse");
         return "Successfully loaded."; 
     }
 }

@@ -41,62 +41,64 @@ public class ReportingLogic : IReportingLogic
 
     public object ReportParcelDelivery(string trackingId)
     {
-        _logger.LogDebug($"ReportParcelDelivery called with trackingId: {trackingId}");
+        _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}]");
         // Validate trackingId
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid){
-            _logger.LogError($"ReportParcelDelivery validation failed with trackingId: {trackingId}");
+            _logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] - Invalid trackingId");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             }; 
         }
-        _logger.LogDebug($"ReportParcelDelivery validated trackingId: {trackingId}");
+        _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Validated trackingId");
+
         // Get parcel with supplied tracking id and update state, if tracking id does not exist, return 404
         try{
-            _logger.LogDebug($"ReportParcelDelivery getting parcel from DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Checking if parcel exists in database");
             var parcel = _parcelRepository.GetByTrackingId(trackingId); 
-            _logger.LogDebug($"ReportParcelDelivery got parcel from DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} found in database");
             parcel.State = DataAccess.Entities.Parcel.ParcelState.Delivered; 
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} updated to state:Delivered");
             var updatedParcel = _parcelRepository.Update(parcel); 
-            _logger.LogDebug($"ReportParcelDelivery updated parcel in DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel updated in database");
         } catch(InvalidOperationException){
-            _logger.LogError($"Parcel was not found in DB with this tracking ID: {trackingId}");
+            _logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel was not found in database");
             return new Error(){
                 StatusCode = 404,
                 ErrorMessage = "Parcel does not exist with this tracking ID."
             }; 
         }
-        _logger.LogDebug($"ReportParcelDelivery succeeded with trackingId: {trackingId}");
+        _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel delivery reported");
         return "Successfully reported hop.";
     }
 
     public object ReportParcelHop(string trackingId, string code)
     {
-        _logger.LogDebug($"ReportParcelHop called with trackingId: {trackingId} and code: {code}");
+        _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], code: {code}");
         // Validate trackingId and code
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid || !_hopValidator.Validate(code).IsValid){
-            _logger.LogError($"ReportParcelHop validation failed with trackingId: {trackingId} and code: {code}");
+            _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}] - Invalid trackingId or code");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             }; 
         }
-        _logger.LogDebug($"ReportParcelHop validated trackingId: {trackingId} and code: {code}");
+        _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}] - Validated trackingId and code");
 
         try {
-            _logger.LogDebug($"ReportParcelHop getting parcel from DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Checking if parcel exists in database");
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
-            _logger.LogDebug($"ReportParcelHop got parcel from DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} found in database");
             parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            _logger.LogDebug($"ReportParcelHop updating parcel in DB with trackingId: {trackingId}");
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:InTransport");
         } catch (InvalidOperationException){
-            _logger.LogError($"Parcel does not exist in DB with this tracking ID: {trackingId}");
+            _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel was not found in database");
             return new Error(){
                 StatusCode = 404,
                 ErrorMessage = "Parcel does not exist with this tracking ID or hop with code not found."
             }; 
         }
-        _logger.LogDebug($"ReportParcelHop succeeded with trackingId: {trackingId} and code: {code}");
+        _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel hop reported");
         return "Successfully reported hop."; 
     }
 }

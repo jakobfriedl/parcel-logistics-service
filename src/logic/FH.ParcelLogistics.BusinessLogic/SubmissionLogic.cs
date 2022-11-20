@@ -59,27 +59,27 @@ public class SubmissionLogic : ISubmissionLogic
 
     public object SubmitParcel(Parcel parcel)
     {
-        _logger.LogDebug($"SubmitParcel called with {parcel}");
+        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}]");
         // Validate parcel
         if (!_submissionValidator.Validate(parcel).IsValid)
         {
-            _logger.LogError($"Parcel {parcel} is not valid");
+            _logger.LogError($"SubmitParcel: [parcel:{parcel}] - Invalid parcel");
             return new Error()
             {
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error."
             };
         }
-        _logger.LogDebug($"Parcel {parcel} is valid");
+        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Valid parcel");
 
         parcel.TrackingId = GenerateValidTrackingId();
-        _logger.LogDebug($"Generated TrackingId {parcel.TrackingId} for parcel {parcel}");
+        _logger.LogDebug($"SubmitParcel: Generated TrackingId {parcel.TrackingId} for [parcel:{parcel}]");
         parcel.State = Parcel.ParcelState.Pickup; 
-        _logger.LogDebug($"Set State to {parcel.State} for parcel {parcel}");
+        _logger.LogDebug($"SubmitParcel: Set State to {parcel.State} for parcel {parcel}");
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
-        _logger.LogDebug($"Mapped parcel {parcel} to dbParcel {dbParcel}");
+        _logger.LogDebug($"SubmitParcel: Mapped business layer entity to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");
         var result = _parcelRepository.Submit(dbParcel); 
-        _logger.LogDebug($"Submitted parcel {parcel} to dbParcel {dbParcel}");
+        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Parcel submitted");
 
         // TODO: Check if sender and receiver exist
         // if (...){
@@ -89,7 +89,7 @@ public class SubmissionLogic : ISubmissionLogic
         //     }
         // }
 
-        _logger.LogDebug($"Parcel {parcel} was submitted successfully");
+        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Returning newly created parcel");
         return _mapper.Map<Parcel>(result); 
     }
 }
