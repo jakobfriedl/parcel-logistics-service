@@ -61,10 +61,10 @@ public class TransitionLogic : ITransitionLogic
 
     public object TransitionParcel(string trackingId, Parcel parcel)
     {
-        _logger.LogDebug($"TransitionParcel: {trackingId}");
+        _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}]");
         // Validate trackingId and parcel
         if (!_trackingIDValidator.Validate(trackingId).IsValid || !_transitionValidator.Validate(parcel).IsValid){
-            _logger.LogError($"TransitionParcel: {trackingId} - Validation failed");
+            _logger.LogError($"TransitionParcel: [trackingId:{trackingId}] - Invalid parcel or trackingId");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error.",
@@ -73,24 +73,24 @@ public class TransitionLogic : ITransitionLogic
         _logger.LogDebug($"TransitionParcel: {trackingId} - Validation successful");
 
         try{
-            _logger.LogDebug($"TransitionParcel: {trackingId} - Try to get parcel");
+            _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - Checking if parcel exists in database");
             var parcelById = _parcelRepository.GetByTrackingId(trackingId);
             _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel found");
         } catch (InvalidOperationException e){
             if (e.Message == "Sequence contains no elements"){
-                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel found for Transition");
+                _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - Inserting new parcel into database");
                 parcel.TrackingId = trackingId;
-                _logger.LogDebug($"TransitionParcel: {trackingId} - Try to add parcel");
+                _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - TrackingId set on parcel");
                 parcel.State = Parcel.ParcelState.Pickup;
-                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel added");
+                _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - Parcel state set to state:Pickup");
                 var dbParcel = _mapper.Map<DataAccess.Entities.Parcel>(parcel);
-                _logger.LogDebug($"TransitionParcel: {trackingId} - Try to save parcel");
+                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel business layer entity mapped to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");
                 _parcelRepository.Submit(dbParcel);
-                _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel saved");
+                _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - Parcel submitted");
                 return parcel; 
             }
         }
-        _logger.LogError($"TransitionParcel: {trackingId} - Parcel not found for Transition");
+        _logger.LogError($"TransitionParcel: Parcel with [trackingId:{trackingId}] already exists in the system.");
         return new Error(){
             StatusCode = 409,
             ErrorMessage = "A parcel with the specified trackingID is already in the system.",

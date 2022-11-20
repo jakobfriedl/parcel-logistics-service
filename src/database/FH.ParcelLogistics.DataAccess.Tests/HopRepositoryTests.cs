@@ -9,6 +9,9 @@ using FizzWare.NBuilder;
 using FH.ParcelLogistics.DataAccess.Entities;
 using FH.ParcelLogistics.DataAccess.Sql;
 using System.Reflection;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 public class HopRepositoryTests
 {
@@ -67,7 +70,8 @@ public class HopRepositoryTests
         Assert.Pass();
 
         // arrange
-        var hopRepository = new HopRepository(_contextMock);
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
         // act
         var hop = hopRepository.GetById(1);
@@ -82,7 +86,8 @@ public class HopRepositoryTests
         Assert.Pass();
 
         // arrange
-        var hopRepository = new HopRepository(_contextMock);
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
         // act
         var hop = hopRepository.GetByCode("BB22");
@@ -97,7 +102,8 @@ public class HopRepositoryTests
         Assert.Pass();
 
         // arrange
-        var hopRepository = new HopRepository(_contextMock);
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
         // act
         var hops = hopRepository.GetHops();
@@ -111,7 +117,8 @@ public class HopRepositoryTests
         Assert.Pass();
 
         // arrange
-        var hopRepository = new HopRepository(_contextMock);
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
         // act
         hopRepository.Export();

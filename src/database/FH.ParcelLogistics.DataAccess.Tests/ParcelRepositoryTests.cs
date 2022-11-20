@@ -12,6 +12,8 @@ using EntityFrameworkCore.Testing.Moq;
 using EntityFrameworkCore.Testing.Moq.Helpers;
 using RandomDataGenerator.Randomizers;
 using RandomDataGenerator.FieldOptions;
+using FH.ParcelLogistics.DataAccess.Interfaces;
+using Microsoft.Extensions.Logging;
 
 public class ParcelRepositoryTests
 {
@@ -53,7 +55,8 @@ public class ParcelRepositoryTests
     [Test]
     public void GetById_Id1_ReturnsParcel1(){
         // arrange
-        var parcelRepository = new ParcelRepository(_contextMock);
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger);
 
         // act
         var parcel = parcelRepository.GetById(1);
@@ -66,7 +69,8 @@ public class ParcelRepositoryTests
     [Test]
     public void GetByTrackingId_305P2O7EC_ReturnsParcel3(){
         // arrange
-        var parcelRepository = new ParcelRepository(_contextMock);
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger);
 
         // act
         var parcel = parcelRepository.GetByTrackingId("305P2O7EC");
@@ -79,7 +83,8 @@ public class ParcelRepositoryTests
     [Test]
     public void GetParcels_ReturnsAllParcels(){
         // arrange
-        var parcelRepository = new ParcelRepository(_contextMock);
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger);
 
         // act
         var parcels = parcelRepository.GetParcels();
@@ -92,7 +97,8 @@ public class ParcelRepositoryTests
     public void Submit_ReturnsParcel(){
         // arrange
         var trackingId = GenerateValidTrackingId();
-        var parcelRepository = new ParcelRepository(_contextMock);
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger);
         var parcel = Builder<Parcel>
             .CreateNew()
             .With(_ => _.ParcelId = 4)

@@ -32,25 +32,25 @@ public class TrackingLogic : ITrackingLogic
 
     public object TrackParcel(string trackingId)
     {
-        _logger.LogDebug($"TrackParcel called with trackingId: {trackingId}");
+        _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}]");
         // Validate trackingId
         if (!_trackingStateValidator.Validate(trackingId).IsValid){
-            _logger.LogError($"TrackParcel failed with trackingId: {trackingId}");
+            _logger.LogError($"TrackParcel: [trackingId: {trackingId}] - Invalid trackingId");
             return new Error(){
                 StatusCode = 400,
                 ErrorMessage = "The operation failed due to an error.",
             };
         }
-        _logger.LogDebug($"TrackParcel validated trackingId: {trackingId}");
+        _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}] - Validated trackingId");
 
         // Get parcel with supplied tracking id, if tracking id does not exist, return 404
         try{
-            _logger.LogDebug($"TrackParcel getting parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}] - Trying to get parcel from database");
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
-            _logger.LogDebug($"TrackParcel got parcel with trackingId: {trackingId}");
+            _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} found in database");
             return _mapper.Map<Parcel>(parcel);
         } catch(InvalidOperationException){
-            _logger.LogError($"TrackParcel failed with trackingId: {trackingId}");
+            _logger.LogError($"TrackParcel: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} not found in database");
             return new Error(){
                 StatusCode = 404,
                 ErrorMessage = "Parcel does not exist with this tracking ID.",
