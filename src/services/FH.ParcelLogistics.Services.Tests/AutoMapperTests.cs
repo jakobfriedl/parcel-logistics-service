@@ -12,7 +12,7 @@ public class AutoMapperTests
     [SetUp]
     public void Setup(){
         _config = new MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });

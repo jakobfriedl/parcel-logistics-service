@@ -14,13 +14,14 @@ using Microsoft.AspNetCore.Mvc;
 using Castle.Components.DictionaryAdapter.Xml;
 using FizzWare.NBuilder;
 using FH.ParcelLogistics.Services.DTOs;
+using Microsoft.Extensions.Logging;
 
 [TestFixture]
 public class SenderApiControllerTests
 {
     private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
@@ -42,7 +43,8 @@ public class SenderApiControllerTests
         
         var submissionLogic = submissionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var senderApi = new SenderApiController(mapper, submissionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var senderApi = new SenderApiController(mapper, submissionLogic, logger);
 
         // act
         var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
@@ -57,14 +59,12 @@ public class SenderApiControllerTests
         // arrange
         var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
         submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
         
         var submissionLogic = submissionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var senderApi = new SenderApiController(mapper, submissionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var senderApi = new SenderApiController(mapper, submissionLogic, logger);
 
         // act
         var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>
@@ -82,14 +82,12 @@ public class SenderApiControllerTests
         // arrange
         var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
         submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
         
         var submissionLogic = submissionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var senderApi = new SenderApiController(mapper, submissionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var senderApi = new SenderApiController(mapper, submissionLogic, logger);
 
         // act
         var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>

@@ -58,9 +58,12 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			try{
 				var result = _warehouseLogic.ExportWarehouses();
 				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Warehouse>(result)).Value); 
-			} catch (Exception e) {
+			} catch (BLValidationException e) {
 				_logger.LogError(e, "ExportWarehouse: Error while exporting warehouses");
 				return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+			} catch(BLNotFoundException e){
+				_logger.LogError(e, $"ExportWarehouse: No Hierachy loaded yet");
+				return StatusCode(StatusCodes.Status404NotFound, new Error(){ErrorMessage = e.Message});
 			}
 		}
 
@@ -84,6 +87,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"GetWarehouse: [code:{code}] invalid");
 				return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+			} catch(BLNotFoundException e){
+				_logger.LogError(e, $"GetWarehouse: [code:{code}] not found");
+				return StatusCode(StatusCodes.Status404NotFound, new Error(){ErrorMessage = e.Message});
 			}
 		}
 

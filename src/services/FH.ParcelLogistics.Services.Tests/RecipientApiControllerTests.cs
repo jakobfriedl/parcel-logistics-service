@@ -12,12 +12,13 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using FizzWare.NBuilder;
+using Microsoft.Extensions.Logging;
 
 public class RecipientApiControllerTests
 {
     private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
@@ -47,7 +48,8 @@ public class RecipientApiControllerTests
 
         var trackingLogic = trackingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var recipientApi = new RecipientApiController(mapper, trackingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var recipientApi = new RecipientApiController(mapper, trackingLogic, logger);
 
         // act
         var result = recipientApi.TrackParcel(validId) as ObjectResult;
@@ -64,14 +66,12 @@ public class RecipientApiControllerTests
 
         var trackingLogicMock = new Mock<BusinessLogic.Interfaces.ITrackingLogic>();
         trackingLogicMock.Setup(x => x.TrackParcel(invalidId))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
             
         var trackingLogic = trackingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var recipientApi = new RecipientApiController(mapper, trackingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var recipientApi = new RecipientApiController(mapper, trackingLogic, logger);
 
         // act
         var result = recipientApi.TrackParcel(invalidId) as ObjectResult;
@@ -88,14 +88,12 @@ public class RecipientApiControllerTests
 
         var trackingLogicMock = new Mock<BusinessLogic.Interfaces.ITrackingLogic>();
         trackingLogicMock.Setup(x => x.TrackParcel(validId))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
             
         var trackingLogic = trackingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var recipientApi = new RecipientApiController(mapper, trackingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var recipientApi = new RecipientApiController(mapper, trackingLogic, logger);
 
         // act
         var result = recipientApi.TrackParcel(validId) as ObjectResult;

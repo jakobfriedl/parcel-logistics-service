@@ -67,7 +67,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"SubmitParcel: Address of sender/receiver not found");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+				return StatusCode(StatusCodes.Status404NotFound, new Error { ErrorMessage = e.Message });
 			} 	
 		}
 	}
