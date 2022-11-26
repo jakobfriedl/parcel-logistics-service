@@ -16,6 +16,8 @@ public class HopRepository : IHopRepository
 
     // Hop, Truck, Warehouse
     public Hop CreateHop(Hop hop){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"CreateHop: Adding hop to set");
         _context.Hops.Add(hop);
         _logger.LogDebug($"CreateHop: Save changes to database"); 
@@ -24,6 +26,8 @@ public class HopRepository : IHopRepository
     }
 
     public Hop UpdateHop(Hop hop){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"UpdateHop: Updating hop");
         _context.Hops.Update(hop);
         _logger.LogDebug($"UpdateHop: Save changes to database"); 
@@ -32,21 +36,29 @@ public class HopRepository : IHopRepository
     }
 
     public IEnumerable<Hop> GetHops(){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"GetHops: Get all hops from database");
         return _context.Hops.ToList();
     }
 
     public Hop GetByCode(string code){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"GetByCode: [code:{code}] Get hop by code");
         return _context.Hops.Single(_ => _.Code == code);
     }
 
     public Hop GetById(int id){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"GetById: [id:{id}] Get hop by id");
         return _context.Hops.Find(id);
     }
 
     public void Import(Hop hop){
+        _context.Database.EnsureCreated();
+
         _logger.LogDebug($"Import: Adding hop to set");
         _context.Hops.Add(hop);
         _logger.LogDebug($"Import: Save changes to database"); 
@@ -54,39 +66,8 @@ public class HopRepository : IHopRepository
     }
 
     public void Export() {
+        _context.Database.EnsureCreated();
+
         throw new NotImplementedException();
-    }
-
-    // HopArrival
-    public HopArrival CreateHopArrival(HopArrival hopArrival){
-        _logger.LogDebug($"CreateHopArrival: Adding hopArrival to set");
-        _context.HopArrivals.Add(hopArrival);
-        _logger.LogDebug($"CreateHopArrival: Save changes to database"); 
-        _context.SaveChanges();
-        return hopArrival;
-    }
-
-    public HopArrival GetHopArrivalByCode(string code){
-        _logger.LogDebug($"GetHopArrivalByCode: [code:{code}] - Get HopArrival by code");
-        return _context.HopArrivals.Single(_ => _.Code == code);
-    }
-
-    public HopArrival GetHopArrivalById(int id){
-        _logger.LogDebug($"GetHopArrivalById: [id:{id}] - Get HopArrival by id");
-        return _context.HopArrivals.Find(id);
-    } 
-
-    // WarehouseNextHops
-    public WarehouseNextHops CreateWarehouseNextHops(WarehouseNextHops warehouseNextHops){
-        _logger.LogDebug($"CreateWarehouseNextHops: Adding warehouseNextHops to set");
-        _context.WarehouseNextHops.Add(warehouseNextHops);
-        _logger.LogDebug($"CreateWarehouseNextHops: Save changes to database"); 
-        _context.SaveChanges();
-        return warehouseNextHops;
-    }
-
-    public WarehouseNextHops GetWarehouseNextHopsById(int id){
-        _logger.LogDebug($"GetWarehouseNextHopsById: [id:{id}] - Get warehouseNextHops by id");
-        return _context.WarehouseNextHops.Find(id);  
     }
 }

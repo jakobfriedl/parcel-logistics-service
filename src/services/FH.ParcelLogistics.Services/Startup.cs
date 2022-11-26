@@ -50,7 +50,6 @@ namespace FH.ParcelLogistics.Services {
 		public void ConfigureServices(IServiceCollection services) {
 			// AutoMapper
 			var config = new MapperConfiguration(cfg => {
-				cfg.AddProfile<HelperProfile>();
 				cfg.AddProfile<HopProfile>();
 				cfg.AddProfile<ParcelProfile>();
 				cfg.AddProfile<GeoProfile>();

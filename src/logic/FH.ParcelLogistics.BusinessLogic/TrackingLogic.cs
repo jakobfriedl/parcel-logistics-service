@@ -30,16 +30,13 @@ public class TrackingLogic : ITrackingLogic
         _logger = logger;
     }
 
-    public object TrackParcel(string trackingId)
+    public Parcel TrackParcel(string trackingId)
     {
         _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}]");
         // Validate trackingId
         if (!_trackingStateValidator.Validate(trackingId).IsValid){
             _logger.LogError($"TrackParcel: [trackingId: {trackingId}] - Invalid trackingId");
-            return new Error(){
-                StatusCode = 400,
-                ErrorMessage = "The operation failed due to an error.",
-            };
+            throw new BLValidationException("The operation failed due to an error.");
         }
         _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}] - Validated trackingId");
 
@@ -49,12 +46,9 @@ public class TrackingLogic : ITrackingLogic
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
             _logger.LogDebug($"TrackParcel: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} found in database");
             return _mapper.Map<Parcel>(parcel);
-        } catch(InvalidOperationException){
+        } catch(DALNotFoundException e){
             _logger.LogError($"TrackParcel: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} not found in database");
-            return new Error(){
-                StatusCode = 404,
-                ErrorMessage = "Parcel does not exist with this tracking ID.",
-            };
+            throw new BLNotFoundException("Parcel does not exist with this tracking ID.", e);
         }
     }
 }

@@ -22,6 +22,8 @@ using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -29,13 +31,14 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	/// </summary>
 	[ApiController]
 	public class StaffApiController : ControllerBase {
-
 		private readonly IMapper _mapper;
 		private readonly IReportingLogic _reportingLogic; 
+		private readonly ILogger<ControllerBase> _logger;
 
-		public StaffApiController(IMapper mapper, IReportingLogic reportingLogic) { 
+		public StaffApiController(IMapper mapper, IReportingLogic reportingLogic, ILogger<ControllerBase> logger) { 
 			_mapper = mapper; 
 			_reportingLogic = reportingLogic;
+			_logger = logger;
 		}
 
 		/// <summary>
@@ -51,13 +54,16 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerOperation("ReportParcelDelivery")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			var result = _reportingLogic.ReportParcelDelivery(trackingId);
-
-			if (result is BusinessLogic.Entities.Error) {
-				var error =  _mapper.Map<DTOs.Error>(result); 
-            	return StatusCode((int)error.StatusCode, error);
+			try {
+				_reportingLogic.ReportParcelDelivery(trackingId);
+				return StatusCode(StatusCodes.Status200OK);
+			} catch(BLValidationException e){
+				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] invalid");
+				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+			} catch(BLNotFoundException e) {
+				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] not found");
+				return StatusCode(StatusCodes.Status404NotFound, new Error() { ErrorMessage = e.Message });
 			}
-			return StatusCode(StatusCodes.Status200OK);
 		}
 
 		/// <summary>
@@ -76,14 +82,17 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult ReportParcelHop(
 			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
 			[FromRoute(Name = "code")] [Required] [RegularExpression(@"^[A-Z]{4}\d{1,4}$")] string code) 
-		{
-			var result = _reportingLogic.ReportParcelHop(trackingId, code);
-
-			if (result is BusinessLogic.Entities.Error) {
-				var error =  _mapper.Map<DTOs.Error>(result); 
-            	return StatusCode((int)error.StatusCode, error);
+		{	
+			try {
+				_reportingLogic.ReportParcelHop(trackingId, code);
+				return StatusCode(StatusCodes.Status200OK);
+			} catch(BLValidationException e){
+				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] invalid");
+				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+			} catch(BLNotFoundException e) {
+				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] not found");
+				return StatusCode(StatusCodes.Status404NotFound, new Error() { ErrorMessage = e.Message });
 			}
-			return StatusCode(StatusCodes.Status200OK);
 		}
-	}
+    }
 }

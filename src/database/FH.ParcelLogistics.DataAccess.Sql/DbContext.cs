@@ -10,16 +10,10 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public virtual DbSet<Parcel> Parcels { get; set; }
     public virtual DbSet<Hop> Hops { get; set; }
-    
-    // TODO: Remove DbSets
-    public virtual DbSet<Recipient> Recipients { get; set; }
-    public virtual DbSet<HopArrival> HopArrivals { get; set; }
-    public virtual DbSet<WarehouseNextHops> WarehouseNextHops { get; set; }
-    
-    public DbContext(DbContextOptions<DbContext> options) : base(options){
-        Database.EnsureCreated();
-    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
+
+    public DbContext(DbContextOptions<DbContext> options) : base(options){}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder){
         modelBuilder.Entity<Recipient>(e => {

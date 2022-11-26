@@ -20,7 +20,7 @@ public class WarehouseLogicTests
     {
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });
@@ -31,6 +31,14 @@ public class WarehouseLogicTests
     {
         var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = pattern });
         return idGenerator.Generate();
+    }
+    
+    private string GenerateValidCode(){
+        return GenerateRandomRegex(@"^[A-Z0-9]{4}$");
+    }
+
+    private string GenerateInvalidCode(){
+        return GenerateRandomRegex(@"^[A-Z0-9]{5}$"); 
     }
 
     private int GeneratePositiveInt()
@@ -217,6 +225,7 @@ public class WarehouseLogicTests
     public void GetWarehouse_InvalidWarehouseCode_ShouldReturnError()
     {
         // arrange
+        var code = GenerateInvalidCode();
         var repositoryMock = new Mock<IHopRepository>();
         repositoryMock.Setup(x => x.GetByCode(It.IsAny<string>()))
             .Returns(Builder<DataAccess.Entities.Warehouse>
@@ -227,13 +236,8 @@ public class WarehouseLogicTests
         var logger = new Mock<ILogger<WarehouseLogic>>();
         var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
-        // act
-        var result = warehouseLogic.GetWarehouse(GenerateRandomRegex(@"^[a-z]{2}$")) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => warehouseLogic.GetWarehouse(code));
     }
 
 
@@ -248,12 +252,8 @@ public class WarehouseLogicTests
         var logger = new Mock<ILogger<IWarehouseLogic>>();
         var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
-        // act
-        var result = warehouseLogic.ImportWarehouses(GenerateValidWarehouse());
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual("Successfully loaded.", result);
+        // act & assert
+        Assert.DoesNotThrow(() => warehouseLogic.ImportWarehouses(GenerateValidWarehouse()));
     }
 
     [Test]
@@ -268,12 +268,6 @@ public class WarehouseLogicTests
         var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
 
         // act
-        var result = warehouseLogic.ImportWarehouses(GenerateInvalidWarehouse()) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => warehouseLogic.ImportWarehouses(GenerateInvalidWarehouse()));
     }
-
 }
