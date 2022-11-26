@@ -1,4 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+
 [Serializable]
+[ExcludeFromCodeCoverage]
 public class BLConflictException : Exception{
     public BLConflictException() { }
     public BLConflictException(string message) : base(message) { }
