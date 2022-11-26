@@ -1,4 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+
 [Serializable]
+[ExcludeFromCodeCoverage]
 public class DALNotFoundException : Exception{
     public DALNotFoundException() { }
     public DALNotFoundException(string message) : base(message) { }

@@ -1,4 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
+
 [Serializable]
+[ExcludeFromCodeCoverage]
 public class BLNotFoundException : Exception{
     public BLNotFoundException() { }
     public BLNotFoundException(string message) : base(message) { }
