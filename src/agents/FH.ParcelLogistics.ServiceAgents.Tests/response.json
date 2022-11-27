@@ -1,0 +1,16 @@
+[
+  {
+    "place_id": 44375676,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+    "osm_type": "node",
+    "osm_id": 3664315650,
+    "boundingbox": ["48.2391164", "48.2392164", "16.3773909", "16.3774909"],
+    "lat": "48.2391664",
+    "lon": "16.3774409",
+    "display_name": "FH Technikum Wien, 6, Höchstädtplatz, KG Brigittenau, Brigittenau, Wien, 1200, Österreich",
+    "class": "amenity",
+    "type": "university",
+    "importance": 0.8043651946830115,
+    "icon": "https://nominatim.openstreetmap.org/ui/mapicons/education_university.p.20.png"
+  }
+]
