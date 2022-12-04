@@ -67,13 +67,13 @@ namespace FH.ParcelLogistics.Services.Controllers
             
             try{
                 var result = _transitionLogic.TransitionParcel(trackingId, parcelEntity);
-                return StatusCode(StatusCodes.Status200OK, _mapper.Map<NewParcelInfo>(result));
+                return Ok(_mapper.Map<NewParcelInfo>(result));
             } catch(BLValidationException e){
                 _logger.LogError(e, $"TransitionParcel: [trackingId:{trackingId}] invalid");
-                return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+                return BadRequest(new Error(){ErrorMessage = e.Message});
             } catch(BLConflictException e){
                 _logger.LogError(e, $"TransitionParcel: [trackingId:{trackingId}] already in the system");
-                return StatusCode(StatusCodes.Status409Conflict, new Error(){ErrorMessage = e.Message});
+                return Conflict(new Error(){ErrorMessage = e.Message});
             }
         }
     }

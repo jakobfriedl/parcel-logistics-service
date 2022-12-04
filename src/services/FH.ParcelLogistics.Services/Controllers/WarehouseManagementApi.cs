@@ -57,13 +57,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult ExportWarehouses() {
 			try{
 				var result = _warehouseLogic.ExportWarehouses();
-				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Warehouse>(result)).Value); 
+				return Ok(_mapper.Map<DTOs.Warehouse>(result));
 			} catch (BLValidationException e) {
 				_logger.LogError(e, "ExportWarehouse: Error while exporting warehouses");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"ExportWarehouse: No Hierachy loaded yet");
-				return StatusCode(StatusCodes.Status404NotFound, new Error(){ErrorMessage = e.Message});
+				return NotFound(new Error(){ErrorMessage = e.Message});
 			}
 		}
 
@@ -83,13 +83,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult GetWarehouse([FromRoute(Name = "code")] [Required] string code) {
 			try{
 				var result = _warehouseLogic.GetWarehouse(code);
-				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.Hop>(result)).Value); 
+				return Ok(_mapper.Map<DTOs.Warehouse>(result));
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"GetWarehouse: [code:{code}] invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"GetWarehouse: [code:{code}] not found");
-				return StatusCode(StatusCodes.Status404NotFound, new Error(){ErrorMessage = e.Message});
+				return NotFound(new Error(){ErrorMessage = e.Message});
 			}
 		}
 
@@ -110,10 +110,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			
 			try{
 				_warehouseLogic.ImportWarehouses(warehouseEntity);
-				return StatusCode(StatusCodes.Status200OK);
+				return Ok();
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"ImportWarehouses: Warehouse invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error(){ErrorMessage = e.Message});
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			}
 		}
 	}

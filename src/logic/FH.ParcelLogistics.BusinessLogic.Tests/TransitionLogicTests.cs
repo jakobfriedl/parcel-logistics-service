@@ -8,6 +8,7 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -149,7 +150,8 @@ public class TransitionLogicTests
         var parcel = GenerateValidParcel();
         var trackingId = GenerateValidTrackingId();
         var repositoryMock = new Mock<IParcelRepository>();
-        repositoryMock.Setup(x => x.GetByTrackingId(trackingId)); 
+        DataAccess.Entities.Parcel outParcel = null;
+        repositoryMock.Setup(x => x.TryGetByTrackingId(trackingId, out outParcel)).Returns(true); 
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<TransitionLogic>>();

@@ -56,13 +56,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
 			try {
 				_reportingLogic.ReportParcelDelivery(trackingId);
-				return StatusCode(StatusCodes.Status200OK);
+				return Ok();
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] not found");
-				return StatusCode(StatusCodes.Status404NotFound, new Error() { ErrorMessage = e.Message });
+				return NotFound(new Error(){ErrorMessage = e.Message});
 			}
 		}
 
@@ -85,13 +85,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		{	
 			try {
 				_reportingLogic.ReportParcelHop(trackingId, code);
-				return StatusCode(StatusCodes.Status200OK);
+				return Ok();
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] not found");
-				return StatusCode(StatusCodes.Status404NotFound, new Error() { ErrorMessage = e.Message });
+				return NotFound(new Error(){ErrorMessage = e.Message});
 			}
 		}
     }

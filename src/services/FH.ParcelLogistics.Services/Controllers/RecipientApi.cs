@@ -57,13 +57,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult TrackParcel([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
 			try{
 				var result = _trackingLogic.TrackParcel(trackingId);
-				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.TrackingInformation>(result)).Value);
+				return Ok(_mapper.Map<DTOs.TrackingInformation>(result));
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"TrackParcel: [trackingId:{trackingId}] invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+				return BadRequest(new Error { ErrorMessage = e.Message });
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"TrackParcel: [trackingId:{trackingId}] not found");
-				return StatusCode(StatusCodes.Status404NotFound, new Error { ErrorMessage = e.Message });
+				return NotFound(new Error { ErrorMessage = e.Message });
 			}
 		}
 	}

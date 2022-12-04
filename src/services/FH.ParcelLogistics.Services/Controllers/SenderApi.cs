@@ -61,13 +61,13 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
 			try{
 				var result = _submissionLogic.SubmitParcel(parcelEntity);
-				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 
+				return Created("", _mapper.Map<DTOs.NewParcelInfo>(result));
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"SubmitParcel: Parcel invalid");
-				return StatusCode(StatusCodes.Status400BadRequest, new Error { ErrorMessage = e.Message });
+				return BadRequest(new Error { ErrorMessage = e.Message });
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"SubmitParcel: Address of sender/receiver not found");
-				return StatusCode(StatusCodes.Status404NotFound, new Error { ErrorMessage = e.Message });
+				return NotFound(new Error { ErrorMessage = e.Message });
 			} 	
 		}
 	}

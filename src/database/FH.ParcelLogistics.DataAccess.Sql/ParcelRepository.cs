@@ -35,9 +35,18 @@ public class ParcelRepository : IParcelRepository
             return _context.Parcels.Single(_ => _.TrackingId == trackingId);
         } catch (InvalidOperationException e) {
             _logger.LogError($"GetByTrackingId: [trackingId:{trackingId}] Parcel not found");
-            throw new DALNotFoundException($"Parcel with trackingId {trackingId} not found");
+            throw new DALNotFoundException($"Parcel with trackingId {trackingId} not found", e);
         }
     }
+
+    public bool TryGetByTrackingId(string trackingId, out Parcel parcel){
+        _context.Database.EnsureCreated();
+
+        _logger.LogDebug($"TryGetByTrackingId: [trackingId:{trackingId}] Try to get parcel by trackingId");
+        parcel = _context.Parcels.SingleOrDefault(_ => _.TrackingId == trackingId);
+        return parcel != null;
+    }
+
     public IEnumerable<Parcel> GetParcels(){
         _context.Database.EnsureCreated();
     
