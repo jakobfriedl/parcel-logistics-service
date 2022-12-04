@@ -4,5 +4,5 @@ namespace FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 public interface ITransitionLogic
 {
-    object TransitionParcel(string trackingId, Parcel parcel);
+    Parcel TransitionParcel(string trackingId, Parcel parcel);
 }

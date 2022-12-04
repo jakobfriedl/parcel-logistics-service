@@ -9,4 +9,5 @@ public interface IParcelRepository
     IEnumerable<Parcel> GetParcels(); 
     Parcel GetById(int id);
     Parcel GetByTrackingId(string trackingId);
+    bool TryGetByTrackingId(string trackingId, out Parcel parcel);
 }

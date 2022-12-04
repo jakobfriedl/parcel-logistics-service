@@ -4,5 +4,5 @@ using FH.ParcelLogistics.BusinessLogic.Entities;
 
 public interface ISubmissionLogic
 {
-    object SubmitParcel(Parcel parcel);
+    Parcel SubmitParcel(Parcel parcel);
 }

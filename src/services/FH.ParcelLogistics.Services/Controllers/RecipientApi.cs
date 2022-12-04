@@ -22,6 +22,7 @@ using FH.ParcelLogistics.Services.DTOs;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -32,10 +33,12 @@ namespace FH.ParcelLogistics.Services.Controllers {
 
 		private readonly IMapper _mapper;
 		private readonly ITrackingLogic _trackingLogic;
+		private readonly ILogger<ControllerBase> _logger;
 		
-		public RecipientApiController(IMapper mapper, ITrackingLogic trackingLogic) { 
-			_mapper = mapper; 
+		public RecipientApiController(IMapper mapper, ITrackingLogic trackingLogic, ILogger<ControllerBase> logger) { 
+			_mapper = mapper;
 			_trackingLogic = trackingLogic;
+			_logger = logger;
 		}
 
 		/// <summary>
@@ -52,14 +55,16 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 200, type: typeof(TrackingInformation), description: "Parcel exists, here&#39;s the tracking information.")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
 		public virtual IActionResult TrackParcel([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
-			var result = _trackingLogic.TrackParcel(trackingId);
-
-			if (result is BusinessLogic.Entities.Parcel) {
-				return StatusCode(StatusCodes.Status200OK, new ObjectResult(_mapper.Map<DTOs.TrackingInformation>(result)).Value);
+			try{
+				var result = _trackingLogic.TrackParcel(trackingId);
+				return Ok(_mapper.Map<DTOs.TrackingInformation>(result));
+			} catch(BLValidationException e){
+				_logger.LogError(e, $"TrackParcel: [trackingId:{trackingId}] invalid");
+				return BadRequest(new Error { ErrorMessage = e.Message });
+			} catch(BLNotFoundException e){
+				_logger.LogError(e, $"TrackParcel: [trackingId:{trackingId}] not found");
+				return NotFound(new Error { ErrorMessage = e.Message });
 			}
-			
-			var error =  _mapper.Map<DTOs.Error>(result); 
-            return StatusCode((int)error.StatusCode, error);
 		}
 	}
 }

@@ -13,13 +13,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FizzWare.NBuilder;
+using Microsoft.Extensions.Logging;
 
 [TestFixture]
 public class StaffApiControllerTests
 {
     private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
@@ -52,12 +53,11 @@ public class StaffApiControllerTests
         var validId = GenerateValidTrackingId();
 
         var reportingLogicMock = new Mock<IReportingLogic>();
-        reportingLogicMock.Setup(x => x.ReportParcelDelivery(validId))
-            .Returns("Successfully reported Hop"); 
-
+        reportingLogicMock.Setup(x => x.ReportParcelDelivery(validId));
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelDelivery(validId) as StatusCodeResult;
@@ -73,14 +73,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelDelivery(invalidId))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelDelivery(invalidId) as ObjectResult;
@@ -97,14 +95,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelDelivery(validId))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelDelivery(validId) as ObjectResult;
@@ -121,12 +117,12 @@ public class StaffApiControllerTests
         var validCode = GenerateValidCode();
 
         var reportingLogicMock = new Mock<IReportingLogic>();
-        reportingLogicMock.Setup(x => x.ReportParcelHop(validId, validCode))
-            .Returns("Successfully reported Hop");
+        reportingLogicMock.Setup(x => x.ReportParcelHop(validId, validCode));
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelHop(validId, validCode) as StatusCodeResult;
@@ -143,14 +139,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelHop(invalidId, validCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelHop(invalidId, validCode) as ObjectResult;
@@ -168,14 +162,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelHop(validId, invalidCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelHop(validId, invalidCode) as ObjectResult;
@@ -193,14 +185,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelHop(invalidId, invalidCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelHop(invalidId, invalidCode) as ObjectResult;
@@ -218,14 +208,12 @@ public class StaffApiControllerTests
 
         var reportingLogicMock = new Mock<IReportingLogic>();
         reportingLogicMock.Setup(x => x.ReportParcelHop(validId, validCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
 
         var reportingLogic = reportingLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var staffApi = new StaffApiController(mapper, reportingLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
         var result = staffApi.ReportParcelHop(validId, validCode) as ObjectResult;

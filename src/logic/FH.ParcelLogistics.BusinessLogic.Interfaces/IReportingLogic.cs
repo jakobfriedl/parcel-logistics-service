@@ -2,6 +2,6 @@ namespace FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 public interface IReportingLogic
 {
-    object ReportParcelDelivery(string trackingId);
-    object ReportParcelHop(string trackingId, string code);
+    void ReportParcelDelivery(string trackingId);
+    void ReportParcelHop(string trackingId, string code);
 }

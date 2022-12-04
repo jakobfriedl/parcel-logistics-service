@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -32,13 +33,14 @@ namespace FH.ParcelLogistics.Services.Controllers
     [ApiController]
     public class LogisticsPartnerApiController : ControllerBase
     {
-
         private readonly IMapper _mapper;
         private readonly ITransitionLogic _transitionLogic; 
+        private readonly ILogger<ControllerBase> _logger;
 
-        public LogisticsPartnerApiController(IMapper mapper, ITransitionLogic transitionLogic) { 
+        public LogisticsPartnerApiController(IMapper mapper, ITransitionLogic transitionLogic, ILogger<ControllerBase> logger) { 
             _mapper = mapper; 
             _transitionLogic = transitionLogic;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,19 +58,23 @@ namespace FH.ParcelLogistics.Services.Controllers
         [SwaggerOperation("TransitionParcel")]
         [SwaggerResponse(statusCode: 200, type: typeof(NewParcelInfo), description: "Successfully transitioned the parcel")]
         [SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
+        [SwaggerResponse(statusCode: 409, type: typeof(Error), description: "A parcel with the specified trackingID is already in the system.")]
         public virtual IActionResult TransitionParcel(
             [FromRoute(Name = "trackingId")][Required][RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
             [FromBody] Parcel parcel)
         {
             var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
-            var result = _transitionLogic.TransitionParcel(trackingId, parcelEntity);
-
-            if (result is BusinessLogic.Entities.Parcel){
-                return StatusCode(StatusCodes.Status200OK, _mapper.Map<NewParcelInfo>(result));
+            
+            try{
+                var result = _transitionLogic.TransitionParcel(trackingId, parcelEntity);
+                return Ok(_mapper.Map<NewParcelInfo>(result));
+            } catch(BLValidationException e){
+                _logger.LogError(e, $"TransitionParcel: [trackingId:{trackingId}] invalid");
+                return BadRequest(new Error(){ErrorMessage = e.Message});
+            } catch(BLConflictException e){
+                _logger.LogError(e, $"TransitionParcel: [trackingId:{trackingId}] already in the system");
+                return Conflict(new Error(){ErrorMessage = e.Message});
             }
-
-            var error =  _mapper.Map<DTOs.Error>(result); 
-            return StatusCode((int)error.StatusCode, error);
         }
     }
 }

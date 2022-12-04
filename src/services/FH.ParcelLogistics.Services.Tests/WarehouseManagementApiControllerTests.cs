@@ -14,12 +14,13 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Host;
 using Microsoft.AspNetCore.Mvc;
 using FizzWare.NBuilder;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.Extensions.Logging;
 
 public class WarehouseManagementApiControllerTests
 {
     private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
@@ -55,7 +56,8 @@ public class WarehouseManagementApiControllerTests
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.ExportWarehouses() as ObjectResult;
@@ -70,14 +72,12 @@ public class WarehouseManagementApiControllerTests
         // arrange
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
         warehouseLogicMock.Setup(x => x.ExportWarehouses())
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.ExportWarehouses() as ObjectResult;
@@ -92,14 +92,12 @@ public class WarehouseManagementApiControllerTests
         // arrange
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
         warehouseLogicMock.Setup(x => x.ExportWarehouses())
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.ExportWarehouses() as ObjectResult;
@@ -113,12 +111,12 @@ public class WarehouseManagementApiControllerTests
     public void ImportWarehouses_ValidWarehouse_Returns200(){
         // arrange
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
-        warehouseLogicMock.Setup(x => x.ImportWarehouses(It.IsAny<BusinessLogic.Entities.Warehouse>()))
-            .Returns("Successfully loaded.");
+        warehouseLogicMock.Setup(x => x.ImportWarehouses(It.IsAny<BusinessLogic.Entities.Warehouse>()));
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.ImportWarehouses(Builder<DTOs.Warehouse>
@@ -135,14 +133,12 @@ public class WarehouseManagementApiControllerTests
         // arrange
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
         warehouseLogicMock.Setup(x => x.ImportWarehouses(It.IsAny<BusinessLogic.Entities.Warehouse>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.ImportWarehouses(Builder<DTOs.Warehouse>
@@ -166,7 +162,8 @@ public class WarehouseManagementApiControllerTests
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.GetWarehouse(validCode) as ObjectResult;
@@ -183,14 +180,12 @@ public class WarehouseManagementApiControllerTests
 
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
         warehouseLogicMock.Setup(x => x.GetWarehouse(invalidCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.GetWarehouse(invalidCode) as ObjectResult;
@@ -207,14 +202,12 @@ public class WarehouseManagementApiControllerTests
 
         var warehouseLogicMock = new Mock<IWarehouseLogic>();
         warehouseLogicMock.Setup(x => x.GetWarehouse(validCode))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 404)
-                        .Build());
+            .Throws<BLNotFoundException>();
 
         var warehouseLogic = warehouseLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var warehouseApi = new WarehouseManagementApiController(mapper, warehouseLogic, logger);
 
         // act
         var result = warehouseApi.GetWarehouse(validCode) as ObjectResult;

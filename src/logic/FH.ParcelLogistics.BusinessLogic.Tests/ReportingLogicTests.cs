@@ -23,7 +23,7 @@ public class ReportingLogicTests
     {
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>(); 
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });
@@ -130,11 +130,10 @@ public class ReportingLogicTests
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act
-        var result = reportingLogic.ReportParcelDelivery(trackingId);
+        reportingLogic.ReportParcelDelivery(trackingId);
 
         // assert
-        Assert.NotNull(result);
-        Assert.AreEqual("Successfully reported hop.", result);
+        Assert.DoesNotThrow(() => reportingLogic.ReportParcelDelivery(trackingId));
     }
 
     [Test]
@@ -156,13 +155,8 @@ public class ReportingLogicTests
         var logger = new Mock<ILogger<ReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
-        // act
-        var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual(400, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => reportingLogic.ReportParcelDelivery(trackingId));
     }
 
     [Test]
@@ -185,12 +179,8 @@ public class ReportingLogicTests
         var logger = new Mock<ILogger<ReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
-        // act
-        var result = reportingLogic.ReportParcelHop(trackingId, hopCode);
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual("Successfully reported hop.", result);
+        // act & assert
+        Assert.DoesNotThrow(() => reportingLogic.ReportParcelHop(trackingId, hopCode));
     }
 
     [Test]
@@ -213,13 +203,8 @@ public class ReportingLogicTests
         var logger = new Mock<ILogger<IReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
-        // act
-        var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => reportingLogic.ReportParcelHop(trackingId, hopCode));
     }
 
     [Test]
@@ -230,7 +215,7 @@ public class ReportingLogicTests
         var hopCode = GenerateValidHopCode();
         var parcelRepositoryMock = new Mock<IParcelRepository>();
         parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-            .Throws<InvalidOperationException>();
+            .Throws<DALNotFoundException>();
         var hopRepositoryMock = new Mock<IHopRepository>();
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
@@ -238,13 +223,8 @@ public class ReportingLogicTests
         var logger = new Mock<ILogger<ReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
-        // act
-        var result = reportingLogic.ReportParcelHop(trackingId, hopCode) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
-        Assert.AreEqual("Parcel does not exist with this tracking ID or hop with code not found.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Parcel does not exist with this tracking ID or hop with code not found."), () => reportingLogic.ReportParcelHop(trackingId, hopCode));
     }
 
     [Test]
@@ -254,7 +234,7 @@ public class ReportingLogicTests
         var trackingId = GenerateValidTrackingId();
         var parcelRepositoryMock = new Mock<IParcelRepository>();
         parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-            .Throws<InvalidOperationException>();
+            .Throws<DALNotFoundException>();
         var hopRepositoryMock = new Mock<IHopRepository>();
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
@@ -262,13 +242,7 @@ public class ReportingLogicTests
         var logger = new Mock<ILogger<ReportingLogic>>();
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
-        // act
-        var result = reportingLogic.ReportParcelDelivery(trackingId) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
-        Assert.AreEqual("Parcel does not exist with this tracking ID.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Parcel does not exist with this tracking ID."), () => reportingLogic.ReportParcelDelivery(trackingId));
     }
-
 }

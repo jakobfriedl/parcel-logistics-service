@@ -24,6 +24,7 @@ using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -33,10 +34,12 @@ namespace FH.ParcelLogistics.Services.Controllers {
 	public class SenderApiController : ControllerBase {
 		private readonly IMapper _mapper; 
 		private readonly ISubmissionLogic _submissionLogic;
+		private readonly ILogger<ControllerBase> _logger;
 
-		public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic) { 
+		public SenderApiController(IMapper mapper, ISubmissionLogic submissionLogic, ILogger<ControllerBase> logger) { 
 			_mapper = mapper; 
 			_submissionLogic = submissionLogic; 
+			_logger = logger;
 		}
 
 		/// <summary>
@@ -56,14 +59,16 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[SwaggerResponse(statusCode: 404, type: typeof(DTOs.Error), description: "The address of sender or receiver was not found.")]
 		public virtual IActionResult SubmitParcel([FromBody] DTOs.Parcel parcel) {
 			var parcelEntity = _mapper.Map<BusinessLogic.Entities.Parcel>(parcel);
-			var result = _submissionLogic.SubmitParcel(parcelEntity);
-
-			if(result is BusinessLogic.Entities.Parcel){
-				return StatusCode(StatusCodes.Status201Created, new ObjectResult(_mapper.Map<DTOs.NewParcelInfo>(result)).Value); 
-			}
-
-			var error = _mapper.Map<DTOs.Error>(result); 
-            return StatusCode((int)error.StatusCode, error);
+			try{
+				var result = _submissionLogic.SubmitParcel(parcelEntity);
+				return Created("", _mapper.Map<DTOs.NewParcelInfo>(result));
+			} catch(BLValidationException e){
+				_logger.LogError(e, $"SubmitParcel: Parcel invalid");
+				return BadRequest(new Error { ErrorMessage = e.Message });
+			} catch(BLNotFoundException e){
+				_logger.LogError(e, $"SubmitParcel: Address of sender/receiver not found");
+				return NotFound(new Error { ErrorMessage = e.Message });
+			} 	
 		}
 	}
 }

@@ -22,7 +22,7 @@ public class SubmissionLogicTests
     {
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });
@@ -134,13 +134,8 @@ public class SubmissionLogicTests
         var logger = new Mock<ILogger<SubmissionLogic>>();
         var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
 
-        // act
-        var result = submissionLogic.SubmitParcel(parcel) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => submissionLogic.SubmitParcel(parcel));
     }
 
     [Test]

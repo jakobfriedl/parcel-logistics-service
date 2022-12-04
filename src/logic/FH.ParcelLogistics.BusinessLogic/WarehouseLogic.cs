@@ -43,7 +43,7 @@ public class WarehouseLogic : IWarehouseLogic
         _logger = logger;
     }
 
-    public object ExportWarehouses(){
+    public Hop ExportWarehouses(){
         _logger.LogDebug($"ExportWarehouses");
 
         // TODO: check for errors
@@ -85,15 +85,12 @@ public class WarehouseLogic : IWarehouseLogic
         };
     }
 
-    public object GetWarehouse(string code){
+    public Hop GetWarehouse(string code){
         _logger.LogDebug($"GetWarehouse: [code:{code}]");
         // Validate warehouse
         if(!_warehouseCodeValidator.Validate(code).IsValid){
             _logger.LogError($"GetWarehouse: [code:{code}] - Invalid warehouse code");
-            return new Error(){
-                StatusCode = 400, 
-                ErrorMessage = "The operation failed due to an error."
-            };
+            throw new BLValidationException("The operation failed due to an error.");
         }
 
         // TODO: Check if hop exists
@@ -117,17 +114,13 @@ public class WarehouseLogic : IWarehouseLogic
         };
     }
 
-    public object ImportWarehouses(Warehouse warehouse){
+    public void ImportWarehouses(Warehouse warehouse){
         _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}]");
         // Validate warehouse
         if(!_warehouseValidator.Validate(warehouse).IsValid){
             _logger.LogError($"ImportWarehouses: [warehouse:{warehouse}] - Invalid warehouse");
-            return new Error(){
-                StatusCode = 400, 
-                ErrorMessage = "The operation failed due to an error."
-            };
+            throw new BLValidationException("The operation failed due to an error.");
         }
         _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}] - Successfully imported warehouse");
-        return "Successfully loaded."; 
     }
 }

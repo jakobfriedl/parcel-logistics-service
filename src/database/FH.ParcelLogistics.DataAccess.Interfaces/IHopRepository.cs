@@ -11,14 +11,4 @@ public interface IHopRepository
     Hop GetByCode(string code);
     Hop GetById(int id);
     IEnumerable<Hop> GetHops(); 
-
-    // HopArrival
-    HopArrival CreateHopArrival(HopArrival hopArrival);
-    HopArrival GetHopArrivalByCode(string code);
-    HopArrival GetHopArrivalById(int id);
-
-    // WarehouseNextHops
-    WarehouseNextHops CreateWarehouseNextHops(WarehouseNextHops warehouseNextHops);
-    WarehouseNextHops GetWarehouseNextHopsById(int id);
-
 }

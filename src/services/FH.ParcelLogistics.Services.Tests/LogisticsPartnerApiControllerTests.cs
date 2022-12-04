@@ -14,12 +14,13 @@ using Microsoft.AspNetCore.Mvc;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FizzWare.NBuilder;
 using FH.ParcelLogistics.Services.DTOs;
+using Microsoft.Extensions.Logging;
 
 public class LogisticsPartnerApiControllerTests
 {
     private IMapper CreateAutoMapper(){
         var config = new AutoMapper.MapperConfiguration(cfg => {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<HopProfile>();
             cfg.AddProfile<ParcelProfile>();
         });
@@ -50,7 +51,8 @@ public class LogisticsPartnerApiControllerTests
         
         var transitionLogic = transitionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic, logger);
 
         // act
         var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
@@ -68,14 +70,12 @@ public class LogisticsPartnerApiControllerTests
 
         var transitionLogicMock = new Mock<ITransitionLogic>();
         transitionLogicMock.Setup(x => x.TransitionParcel(invalidId, It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
         
         var transitionLogic = transitionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic, logger);
 
         // act
         var result = logisticsPartnerApi.TransitionParcel(invalidId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
@@ -92,14 +92,12 @@ public class LogisticsPartnerApiControllerTests
 
         var transitionLogicMock = new Mock<ITransitionLogic>();
         transitionLogicMock.Setup(x => x.TransitionParcel(validId, It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
         
         var transitionLogic = transitionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic, logger);
 
         // act
         var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>
@@ -119,14 +117,12 @@ public class LogisticsPartnerApiControllerTests
 
         var transitionLogicMock = new Mock<ITransitionLogic>();
         transitionLogicMock.Setup(x => x.TransitionParcel(invalidId, It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 400)
-                        .Build());
+            .Throws<BLValidationException>();
         
         var transitionLogic = transitionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic, logger);
 
         // act
         var result = logisticsPartnerApi.TransitionParcel(invalidId, Builder<DTOs.Parcel>
@@ -146,14 +142,12 @@ public class LogisticsPartnerApiControllerTests
 
         var transitionLogicMock = new Mock<ITransitionLogic>();
         transitionLogicMock.Setup(x => x.TransitionParcel(validId, It.IsAny<BusinessLogic.Entities.Parcel>()))
-            .Returns(Builder<BusinessLogic.Entities.Error>
-                        .CreateNew()
-                        .With(x => x.StatusCode = 409)
-                        .Build());
+            .Throws<BLConflictException>();
         
         var transitionLogic = transitionLogicMock.Object;
         var mapper = CreateAutoMapper();
-        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic);
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var logisticsPartnerApi = new LogisticsPartnerApiController(mapper, transitionLogic, logger);
 
         // act
         var result = logisticsPartnerApi.TransitionParcel(validId, Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;

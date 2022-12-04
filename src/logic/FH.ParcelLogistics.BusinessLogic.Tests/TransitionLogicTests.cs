@@ -8,6 +8,7 @@ using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -22,7 +23,7 @@ public class TransitionLogicTests
     {
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });
@@ -149,19 +150,15 @@ public class TransitionLogicTests
         var parcel = GenerateValidParcel();
         var trackingId = GenerateValidTrackingId();
         var repositoryMock = new Mock<IParcelRepository>();
-        repositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-            .Throws<InvalidOperationException>();
+        DataAccess.Entities.Parcel outParcel = null;
+        repositoryMock.Setup(x => x.TryGetByTrackingId(trackingId, out outParcel)).Returns(true); 
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<TransitionLogic>>();
         var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
-        // act
-        var result = transitionLogic.TransitionParcel(trackingId, parcel) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.Conflict, result?.StatusCode);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLConflictException>().And.Message.EqualTo("A parcel with the specified trackingID is already in the system."), () => transitionLogic.TransitionParcel(trackingId, parcel));
     }
 
     [Test]
@@ -172,7 +169,7 @@ public class TransitionLogicTests
         var trackingId = GenerateValidTrackingId();
         var repositoryMock = new Mock<IParcelRepository>();
         repositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-            .Throws(new InvalidOperationException("Sequence contains no elements"));
+            .Throws<DALNotFoundException>();
         repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
             .Returns(Builder<DataAccess.Entities.Parcel>
                 .CreateNew()
@@ -210,12 +207,7 @@ public class TransitionLogicTests
         var logger = new Mock<ILogger<ITransitionLogic>>();
         var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
 
-        // act
-        var result = transitionLogic.TransitionParcel(trackingId, parcel) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert 
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => transitionLogic.TransitionParcel(trackingId, parcel));
     }
 }

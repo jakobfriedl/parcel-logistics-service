@@ -35,6 +35,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.DataAcce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.DataAccess.Tests", "src\database\FH.ParcelLogistics.DataAccess.Tests\FH.ParcelLogistics.DataAccess.Tests.csproj", "{E5BCFC1B-8519-4081-BEEC-67B29CD721A9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "agents", "agents", "{70DF8537-A90D-48DB-9F4A-4B0618939928}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.ServiceAgents", "src\agents\FH.ParcelLogistics.ServiceAgents\FH.ParcelLogistics.ServiceAgents.csproj", "{58F6AB5E-FAA7-4C91-89C4-139FDE32762D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.ServiceAgents.Interfaces", "src\agents\FH.ParcelLogistics.ServiceAgents.Interfaces\FH.ParcelLogistics.ServiceAgents.Interfaces.csproj", "{95B49F70-B185-42DE-969B-E348127C3D55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.ServiceAgents.Tests", "src\agents\FH.ParcelLogistics.ServiceAgents.Tests\FH.ParcelLogistics.ServiceAgents.Tests.csproj", "{4DE5D77A-FA73-4934-9999-A4E279C47199}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +97,18 @@ Global
 		{E5BCFC1B-8519-4081-BEEC-67B29CD721A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5BCFC1B-8519-4081-BEEC-67B29CD721A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5BCFC1B-8519-4081-BEEC-67B29CD721A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58F6AB5E-FAA7-4C91-89C4-139FDE32762D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F6AB5E-FAA7-4C91-89C4-139FDE32762D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F6AB5E-FAA7-4C91-89C4-139FDE32762D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F6AB5E-FAA7-4C91-89C4-139FDE32762D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B49F70-B185-42DE-969B-E348127C3D55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B49F70-B185-42DE-969B-E348127C3D55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B49F70-B185-42DE-969B-E348127C3D55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B49F70-B185-42DE-969B-E348127C3D55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DE5D77A-FA73-4934-9999-A4E279C47199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DE5D77A-FA73-4934-9999-A4E279C47199}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DE5D77A-FA73-4934-9999-A4E279C47199}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DE5D77A-FA73-4934-9999-A4E279C47199}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +132,9 @@ Global
 		{E71AD76F-A41E-4428-8D89-9AAA1F97EA9A} = {8E17A42A-170C-4D75-BC6C-EDA49C04113E}
 		{1F18BAA7-E536-44ED-9D74-3D8D69C29F15} = {8E17A42A-170C-4D75-BC6C-EDA49C04113E}
 		{E5BCFC1B-8519-4081-BEEC-67B29CD721A9} = {8E17A42A-170C-4D75-BC6C-EDA49C04113E}
+		{70DF8537-A90D-48DB-9F4A-4B0618939928} = {1C540961-7E6C-4E79-B2A1-A729D457FE9E}
+		{58F6AB5E-FAA7-4C91-89C4-139FDE32762D} = {70DF8537-A90D-48DB-9F4A-4B0618939928}
+		{95B49F70-B185-42DE-969B-E348127C3D55} = {70DF8537-A90D-48DB-9F4A-4B0618939928}
+		{4DE5D77A-FA73-4934-9999-A4E279C47199} = {70DF8537-A90D-48DB-9F4A-4B0618939928}
 	EndGlobalSection
 EndGlobal

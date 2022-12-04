@@ -29,5 +29,6 @@
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj" />
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic\FH.ParcelLogistics.BusinessLogic.csproj" />
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Interfaces\FH.ParcelLogistics.BusinessLogic.Interfaces.csproj" />
+    <ProjectReference Include="..\FH.ParcelLogistics.Services.Interfaces\FH.ParcelLogistics.Services.Interfaces.csproj" />
   </ItemGroup>
 </Project>

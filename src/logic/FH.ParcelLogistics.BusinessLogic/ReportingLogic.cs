@@ -39,16 +39,13 @@ public class ReportingLogic : IReportingLogic
         _logger = logger;
     }
 
-    public object ReportParcelDelivery(string trackingId)
+    public void ReportParcelDelivery(string trackingId)
     {
         _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}]");
         // Validate trackingId
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid){
             _logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] - Invalid trackingId");
-            return new Error(){
-                StatusCode = 400,
-                ErrorMessage = "The operation failed due to an error."
-            }; 
+            throw new BLValidationException("The operation failed due to an error.");
         }
         _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Validated trackingId");
 
@@ -61,27 +58,20 @@ public class ReportingLogic : IReportingLogic
             _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} updated to state:Delivered");
             var updatedParcel = _parcelRepository.Update(parcel); 
             _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel updated in database");
-        } catch(InvalidOperationException){
+        } catch(DALNotFoundException e){
             _logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel was not found in database");
-            return new Error(){
-                StatusCode = 404,
-                ErrorMessage = "Parcel does not exist with this tracking ID."
-            }; 
+            throw new BLNotFoundException("Parcel does not exist with this tracking ID.", e);
         }
         _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel delivery reported");
-        return "Successfully reported hop.";
     }
 
-    public object ReportParcelHop(string trackingId, string code)
+    public void ReportParcelHop(string trackingId, string code)
     {
         _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], code: {code}");
         // Validate trackingId and code
         if (!_reportTrackingIDValidator.Validate(trackingId).IsValid || !_hopValidator.Validate(code).IsValid){
             _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}] - Invalid trackingId or code");
-            return new Error(){
-                StatusCode = 400,
-                ErrorMessage = "The operation failed due to an error."
-            }; 
+            throw new BLValidationException("The operation failed due to an error.");
         }
         _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}] - Validated trackingId and code");
 
@@ -91,14 +81,10 @@ public class ReportingLogic : IReportingLogic
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} found in database");
             parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:InTransport");
-        } catch (InvalidOperationException){
+        } catch (DALNotFoundException e){
             _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel was not found in database");
-            return new Error(){
-                StatusCode = 404,
-                ErrorMessage = "Parcel does not exist with this tracking ID or hop with code not found."
-            }; 
+            throw new BLNotFoundException("Parcel does not exist with this tracking ID or hop with code not found.", e);
         }
         _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel hop reported");
-        return "Successfully reported hop."; 
     }
 }

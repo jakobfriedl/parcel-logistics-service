@@ -23,7 +23,7 @@ public class TrackingLogicTests
     {
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.AddProfile<HelperProfile>();
+            cfg.AddProfile<GeoProfile>();
             cfg.AddProfile<ParcelProfile>();
             cfg.AddProfile<HopProfile>();
         });
@@ -110,14 +110,8 @@ public class TrackingLogicTests
         var logger = new Mock<ILogger<TrackingLogic>>().Object;
         var trackingLogic = new TrackingLogic(repository, mapper, logger);
 
-        // act
-        var result = trackingLogic.TrackParcel(trackingId) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.That(result, Is.TypeOf<Error>());
-        Assert.AreEqual((int)HttpStatusCode.BadRequest, result?.StatusCode);
-        Assert.AreEqual("The operation failed due to an error.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => trackingLogic.TrackParcel(trackingId));
     }
 
     [Test]
@@ -126,19 +120,14 @@ public class TrackingLogicTests
         var trackingId = GenerateValidTrackingId();
         var parcelRepositoryMock = new Mock<IParcelRepository>();
         parcelRepositoryMock.Setup(x => x.GetByTrackingId(trackingId))
-            .Throws<InvalidOperationException>();
+            .Throws<DALNotFoundException>();
         var hopRepositoryMock = new Mock<IHopRepository>();
         var parcelRepository = parcelRepositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<ITrackingLogic>>().Object;
         var trackingLogic = new TrackingLogic(parcelRepository, mapper, logger);
 
-        // act
-        var result = trackingLogic.TrackParcel(trackingId) as Error;
-
-        // assert
-        Assert.NotNull(result);
-        Assert.AreEqual((int)HttpStatusCode.NotFound, result?.StatusCode);
-        Assert.AreEqual("Parcel does not exist with this tracking ID.", result?.ErrorMessage);
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Parcel does not exist with this tracking ID."), () => trackingLogic.TrackParcel(trackingId));
     }      
 }

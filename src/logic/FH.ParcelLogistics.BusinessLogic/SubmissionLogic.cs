@@ -1,3 +1,4 @@
+using System.Data;
 using AutoMapper;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
@@ -57,18 +58,13 @@ public class SubmissionLogic : ISubmissionLogic
         return idGenerator.Generate();
     }
 
-    public object SubmitParcel(Parcel parcel)
+    public Parcel SubmitParcel(Parcel parcel)
     {
         _logger.LogDebug($"SubmitParcel: [parcel:{parcel}]");
         // Validate parcel
-        if (!_submissionValidator.Validate(parcel).IsValid)
-        {
+        if (!_submissionValidator.Validate(parcel).IsValid){
             _logger.LogError($"SubmitParcel: [parcel:{parcel}] - Invalid parcel");
-            return new Error()
-            {
-                StatusCode = 400,
-                ErrorMessage = "The operation failed due to an error."
-            };
+            throw new BLValidationException("The operation failed due to an error.");
         }
         _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Valid parcel");
 
@@ -78,6 +74,7 @@ public class SubmissionLogic : ISubmissionLogic
         _logger.LogDebug($"SubmitParcel: Set State to {parcel.State} for parcel {parcel}");
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
         _logger.LogDebug($"SubmitParcel: Mapped business layer entity to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");
+        
         var result = _parcelRepository.Submit(dbParcel); 
         _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Parcel submitted");
 
