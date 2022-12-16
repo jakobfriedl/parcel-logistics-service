@@ -10,5 +10,5 @@ public interface IHopRepository
     Hop UpdateHop(Hop hop);
     Hop GetByCode(string code);
     Hop GetById(int id);
-    IEnumerable<Hop> GetHops(); 
+    Hop GetHopHierarchy(); 
 }

@@ -8,7 +8,7 @@ using BingMapsRESTToolkit;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
 
-public class BingEncodingAgend  : IGeoEncodingAgent 
+public class BingEncodingAgent  : IGeoEncodingAgent 
 {
     public GeoCoordinate EncodeAddress(Recipient address)
     {

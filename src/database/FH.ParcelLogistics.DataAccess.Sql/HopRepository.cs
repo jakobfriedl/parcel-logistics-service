@@ -3,6 +3,7 @@ namespace FH.ParcelLogistics.DataAccess.Sql;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using DataAccess.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParcelLogistics.DataAccess.Interfaces;
 public class HopRepository : IHopRepository
@@ -35,28 +36,50 @@ public class HopRepository : IHopRepository
         return hop;
     }
 
-    public IEnumerable<Hop> GetHops(){
+    public Hop GetHopHierarchy(){
         _context.Database.EnsureCreated();
+        _logger.LogDebug($"GetHopHierarchy: Get all hops from database");
 
-        _logger.LogDebug($"GetHops: Get all hops from database");
-        return _context.Hops.ToList();
+        var result = _context.Hops.OfType<Warehouse>()
+            .Include(_ => _.NextHops)
+            .ThenInclude(_ => _.Hop)
+            .ToList()
+            .SingleOrDefault(_ => _.Level == 0); // Get root warehouse (level 0)
+
+        if (result is null){
+            _logger.LogError($"GetHopHierarchy: Root warehouse not found.");
+            throw new DALNotFoundException("Root warehouse not found.");
+        }
+
+        return result; 
     }
 
     public Hop GetByCode(string code){
         _context.Database.EnsureCreated();
 
         _logger.LogDebug($"GetByCode: [code:{code}] Get hop by code");
-        return _context.Hops.Single(_ => _.Code == code);
+        try {
+            return _context.Hops.Single(_ => _.Code == code);
+        } catch (InvalidOperationException e) {
+            _logger.LogError($"GetByCode: [code:{code}] Hop not found");
+            throw new DALNotFoundException($"Hop with code {code} not found", e);
+        }
     }
 
     public Hop GetById(int id){
         _context.Database.EnsureCreated();
-
+    
         _logger.LogDebug($"GetById: [id:{id}] Get hop by id");
-        return _context.Hops.Find(id);
+        try {
+            return _context.Hops.Find(id);
+        } catch(InvalidOperationException e) {
+            _logger.LogError($"GetById: [id:{id}] Hop not found");
+            throw new DALNotFoundException($"Hop with id {id} not found", e);
+        }
     }
 
     public void Import(Hop hop){
+        _context.Database.EnsureDeleted(); 
         _context.Database.EnsureCreated();
 
         _logger.LogDebug($"Import: Adding hop to set");

@@ -98,7 +98,7 @@ public class HopRepositoryTests
     }
 
     [Test]
-    public void GetHops_ReturnsAllHops(){
+    public void GetHopHierarchy_ReturnsAllHops(){
         Assert.Pass();
 
         // arrange
@@ -106,7 +106,7 @@ public class HopRepositoryTests
         var hopRepository = new HopRepository(_contextMock, logger);
 
         // act
-        var hops = hopRepository.GetHops();
+        var hops = hopRepository.GetHopHierarchy();
 
         // assert
         Assert.AreEqual(3, hops.Count());

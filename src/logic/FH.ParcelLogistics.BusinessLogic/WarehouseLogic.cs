@@ -46,43 +46,12 @@ public class WarehouseLogic : IWarehouseLogic
     public Hop ExportWarehouses(){
         _logger.LogDebug($"ExportWarehouses");
 
-        // TODO: check for errors
-        // if (...) {
-        //     _logger.LogDebug($"ExportWarehouses failed");
-        //     return new Error(){
-        //         StatusCode = 400,
-        //         ErrorMessage = "The operation failed due to an error."
-        //     };
-        // }
-
-        return new Warehouse(){
-            HopType = "Warehouse",
-            Code = "Test",
-            Description = "Test",
-            ProcessingDelayMins = 1,
-            LocationName = "Test",
-            LocationCoordinates = new GeoCoordinate(){
-                Lat = 1,
-                Lon = 1,
-            },
-            Level = 0,
-            NextHops = new List<WarehouseNextHops>(){
-                new WarehouseNextHops(){
-                    TraveltimeMins = 1,
-                    Hop = new Hop(){
-                        HopType = "Hop",
-                        Code = "Test",
-                        Description = "Test",
-                        ProcessingDelayMins = 1,
-                        LocationName = "Test",
-                        LocationCoordinates = new GeoCoordinate(){
-                            Lat = 1,
-                            Lon = 1,
-                        },
-                    }
-                },
-            },
-        };
+        try{
+            return _mapper.Map<BusinessLogic.Entities.Hop>(_hopRepository.GetHopHierarchy()); 
+        } catch (DALNotFoundException e){
+            _logger.LogError($"Export Warehouses: Root warehouse not found");
+            throw new BLNotFoundException($"Root warehouse not found", e);
+        }
     }
 
     public Hop GetWarehouse(string code){
@@ -121,6 +90,9 @@ public class WarehouseLogic : IWarehouseLogic
             _logger.LogError($"ImportWarehouses: [warehouse:{warehouse}] - Invalid warehouse");
             throw new BLValidationException("The operation failed due to an error.");
         }
+
+        // TODO: Add warehouses to database 
+    
         _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}] - Successfully imported warehouse");
     }
 }

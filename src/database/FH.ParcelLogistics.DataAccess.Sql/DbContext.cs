@@ -22,13 +22,13 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         });
 
         modelBuilder.Entity<Parcel>(e => { 
-            e.HasKey(_ => _.ParcelId);
-            e.Property(_ => _.ParcelId).ValueGeneratedOnAdd();
-            e.Property(_ => _.Weight).IsRequired();
-            e.HasOne<Recipient>(_ => _.Recipient); 
-            e.HasOne<Recipient>(_ => _.Sender);   
-            e.HasMany<HopArrival>(_ => _.VisitedHops);
-            e.HasMany<HopArrival>(_ => _.FutureHops);  
+            e.HasKey(p => p.ParcelId);
+            e.Property(p => p.ParcelId).ValueGeneratedOnAdd();
+            e.Property(p => p.Weight).IsRequired();
+            e.HasOne<Recipient>(p => p.Recipient); 
+            e.HasOne<Recipient>(p => p.Sender);   
+            e.HasMany<HopArrival>(p => p.VisitedHops);
+            e.HasMany<HopArrival>(p => p.FutureHops);  
         });
 
         modelBuilder.Entity<Hop>()
@@ -45,17 +45,24 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             .HasValue<Truck>("Region")
             .HasValue<Truck>("NumberPlate");
 
-        modelBuilder.Entity<Hop>()
-            .Property(_ => _.LocationCoordinates).HasColumnType("geometry");
+        modelBuilder.Entity<Warehouse>()
+            .HasMany(wh => wh.NextHops);
 
-        modelBuilder.Entity<Hop>()
-            .Property(_ => _.Region).HasColumnType("geometry");
+        modelBuilder.Entity<Truck>()
+            .Property(t => t.Region)
+            .HasColumnType("geometry")
+            .HasColumnName("RegionGeometry");
+
+        modelBuilder.Entity<Transferwarehouse>()
+            .Property(twh => twh.Region)
+            .HasColumnType("geometry")
+            .HasColumnName("RegionGeometry");
 
         modelBuilder.Entity<WarehouseNextHops>(e => {
-            e.HasKey(_ => _.WarehouseNextHopsId);
-            e.Property(_ => _.WarehouseNextHopsId).ValueGeneratedOnAdd();
-            e.Property(_ => _.TraveltimeMins).IsRequired();
-            e.HasOne<Hop>(_ => _.Hop); 
+            e.HasKey(whnh => whnh.WarehouseNextHopsId);
+            e.Property(whnh => whnh.WarehouseNextHopsId).ValueGeneratedOnAdd();
+            e.Property(whnh => whnh.TraveltimeMins).IsRequired();
+            e.HasOne<Hop>(whnh => whnh.Hop); 
         });
     }   
 }

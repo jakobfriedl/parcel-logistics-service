@@ -79,8 +79,23 @@ public class ReportingLogic : IReportingLogic
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Checking if parcel exists in database");
             var parcel = _parcelRepository.GetByTrackingId(trackingId);
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} found in database");
-            parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:InTransport");
+
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Checking if hop exists in database");
+            var hop = _hopRepository.GetByCode(code);
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Hop with code:{code} found in database");
+
+            if (hop.HopType == "warehouse"){
+                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
+            } else if (hop.HopType == "truck") {
+                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
+            } else if (hop.HopType == "transferwarehouse") {
+                // Todo
+            }
+
+            
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:{parcel.State}");
+            var updatedParcel = _parcelRepository.Update(parcel);
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel updated in database");
         } catch (DALNotFoundException e){
             _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel was not found in database");
             throw new BLNotFoundException("Parcel does not exist with this tracking ID or hop with code not found.", e);

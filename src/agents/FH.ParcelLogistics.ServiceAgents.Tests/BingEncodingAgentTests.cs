@@ -49,7 +49,7 @@ public class NominatimEncodingAgentTests
     {
         // arrange
         var recipient = GenerateValidRecipientObject();
-        var encodingAgent = new BingEncodingAgend();
+        var encodingAgent = new BingEncodingAgent();
 
         // act
         var geoLocation = encodingAgent.EncodeAddress(recipient);
@@ -64,7 +64,7 @@ public class NominatimEncodingAgentTests
     // {
     //     // arrange
     //     var recipient = GenerateInvalidRecipientObject();
-    //     var encodingAgent = new BingEncodingAgend();
+    //     var encodingAgent = new BingEncodingAgent();
 
     //     // act
     //     var geoLocation = encodingAgent.EncodeAddress(recipient);

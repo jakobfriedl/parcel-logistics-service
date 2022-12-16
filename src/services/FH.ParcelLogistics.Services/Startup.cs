@@ -23,6 +23,8 @@ using FH.ParcelLogistics.DataAccess.Sql;
 using Microsoft.EntityFrameworkCore;
 using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.ServiceAgents; 
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -64,6 +66,9 @@ namespace FH.ParcelLogistics.Services {
 			services.AddTransient<ITrackingLogic, TrackingLogic>();
 			services.AddTransient<ITransitionLogic, TransitionLogic>();
 			services.AddTransient<IWarehouseLogic, WarehouseLogic>();
+
+			// Geo Service Agent
+			services.AddTransient<IGeoEncodingAgent, BingEncodingAgent>();
 
 			// Data access repositories
 			services.AddScoped<IParcelRepository, ParcelRepository>();
