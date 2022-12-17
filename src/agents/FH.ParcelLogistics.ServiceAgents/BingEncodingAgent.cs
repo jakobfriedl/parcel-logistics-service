@@ -16,23 +16,28 @@ public class BingEncodingAgent  : IGeoEncodingAgent
 
         using WebClient client = new();
 
-        var response = client.DownloadString(URL);
-        DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Response));
-        using(var es = new MemoryStream(Encoding.UTF8.GetBytes(response)))
-        {
-            var result = (serializer.ReadObject(es) as Response);
-            Location location = (Location)result.ResourceSets.First().Resources.First();
-            if(location != null){
-                return new GeoCoordinate
-                {
-                    Lat = location.Point.Coordinates[0],
-                    Lon = location.Point.Coordinates[1]
-                };
-            }
-            else
+        try{
+            var response = client.DownloadString(URL);
+    
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Response));
+            using(var es = new MemoryStream(Encoding.UTF8.GetBytes(response)))
             {
-                throw new Exception($"No response for address: {address}");
+                var result = (serializer.ReadObject(es) as Response);
+                Location location = (Location)result.ResourceSets.First().Resources.First();
+                if(location != null){
+                    return new GeoCoordinate
+                    {
+                        Lat = location.Point.Coordinates[0],
+                        Lon = location.Point.Coordinates[1]
+                    };
+                }
+                else
+                {
+                    throw new AddressNotFoundException($"No response for address: {address}");
+                }
             }
+        } catch(Exception e){
+            throw new Exception($"Webclient failed to download string", e);
         }
     }
 }

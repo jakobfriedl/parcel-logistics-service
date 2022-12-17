@@ -4,6 +4,7 @@ using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
 using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using FluentValidation.TestHelper;
@@ -131,8 +132,13 @@ public class SubmissionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<SubmissionLogic>>();
-        var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
+        var logger = new Mock<ILogger<ISubmissionLogic>>().Object;
+        
+        var agentMock = new Mock<IGeoEncodingAgent>();
+        agentMock.Setup(x => x.EncodeAddress(It.IsAny<Recipient>()))
+            .Returns(Builder<GeoCoordinate>.CreateNew().Build());
+        var agent = agentMock.Object;
+        var submissionLogic = new SubmissionLogic(repository, mapper, logger, agent);
 
         // act & assert
         Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => submissionLogic.SubmitParcel(parcel));
@@ -152,8 +158,13 @@ public class SubmissionLogicTests
                 .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
-        var logger = new Mock<ILogger<ISubmissionLogic>>();
-        var submissionLogic = new SubmissionLogic(repository, mapper, logger.Object);
+        var logger = new Mock<ILogger<ISubmissionLogic>>().Object;
+        
+        var agentMock = new Mock<IGeoEncodingAgent>();
+        agentMock.Setup(x => x.EncodeAddress(It.IsAny<Recipient>()))
+            .Returns(Builder<GeoCoordinate>.CreateNew().Build());
+        var agent = agentMock.Object;
+        var submissionLogic = new SubmissionLogic(repository, mapper, logger, agent);
 
         // act
         var result = submissionLogic.SubmitParcel(parcel) as BusinessLogic.Entities.Parcel;
@@ -162,5 +173,4 @@ public class SubmissionLogicTests
         Assert.NotNull(result);
         Assert.AreEqual(trackingId, result.TrackingId);
     }
-
 }

@@ -19,7 +19,9 @@ public class HopProfile : Profile
             .IncludeBase<DTOs.Hop, BusinessLogic.Entities.Hop>()
             .ReverseMap();
 
-        CreateMap<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>().ReverseMap();
+        CreateMap<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
+            .ReverseMap();
+
         CreateMap<BusinessLogic.Entities.HopArrival, DataAccess.Entities.HopArrival>().ReverseMap();
 
     }

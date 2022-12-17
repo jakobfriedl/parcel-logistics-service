@@ -59,7 +59,7 @@ public class ParcelRepository : IParcelRepository
 
         if(parcel is null){
             _logger.LogError($"Submit: [parcel:{parcel}] Parcel is null");
-            throw new ArgumentNullException(this.GetType().Name, MethodBase.GetCurrentMethod().Name);
+            throw new DALException("Submit: Parcel is null");
         }
 
         _logger.LogDebug($"Submit: Adding parcel to set");
@@ -73,7 +73,7 @@ public class ParcelRepository : IParcelRepository
 
         if(parcel is null){
             _logger.LogError($"Update: [parcel:{parcel}] Parcel is null");
-            throw new ArgumentNullException(this.GetType().Name, MethodBase.GetCurrentMethod().Name);
+            throw new DALException("Update: Parcel is Nnull");
         }
 
         _logger.LogDebug($"Update: Updating parcel");

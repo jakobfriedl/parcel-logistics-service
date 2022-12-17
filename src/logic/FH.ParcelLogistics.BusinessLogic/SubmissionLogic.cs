@@ -1,10 +1,12 @@
 using System.Data;
 using AutoMapper;
 using AutoMapper;
+using BingMapsRESTToolkit;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
@@ -46,11 +48,13 @@ public class SubmissionLogic : ISubmissionLogic
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper; 
     private readonly ILogger<ISubmissionLogic> _logger;
+    private readonly IGeoEncodingAgent _encodingAgent;
 
-    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ISubmissionLogic> logger){
+    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ISubmissionLogic> logger, IGeoEncodingAgent encodingAgent){
         _parcelRepository = parcelRepository;
         _mapper = mapper;
         _logger = logger;
+        _encodingAgent = encodingAgent;
     }
 
     private string GenerateValidTrackingId(){
@@ -72,21 +76,25 @@ public class SubmissionLogic : ISubmissionLogic
         _logger.LogDebug($"SubmitParcel: Generated TrackingId {parcel.TrackingId} for [parcel:{parcel}]");
         parcel.State = Parcel.ParcelState.Pickup; 
         _logger.LogDebug($"SubmitParcel: Set State to {parcel.State} for parcel {parcel}");
+    
+        try{
+            var senderCoordinate = _encodingAgent.EncodeAddress(parcel.Sender);
+            var recipientCoordinate = _encodingAgent.EncodeAddress(parcel.Recipient);
+        } catch(AddressNotFoundException e){
+            _logger.LogError($"SubmitParcel: [parcel:{parcel}] - Sender or recipient address not found");
+            throw new BLNotFoundException("The address of sender or receiver was not found.");
+        }
+
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
         _logger.LogDebug($"SubmitParcel: Mapped business layer entity to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");
-        
-        var result = _parcelRepository.Submit(dbParcel); 
-        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Parcel submitted");
-
-        // TODO: Check if sender and receiver exist
-        // if (...){
-        //     return new Error(){
-        //         StatusCode = 404,
-        //         ErrorMessage = "The address of sender or receiver was not found."
-        //     }
-        // }
-
-        _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Returning newly created parcel");
-        return _mapper.Map<Parcel>(result); 
+        try {
+            var result = _parcelRepository.Submit(dbParcel); 
+            _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Parcel submitted");
+            _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Returning newly created parcel");
+            return _mapper.Map<Parcel>(result); 
+        } catch (DALException e){
+            _logger.LogError($"SubmitParcel: [parcel:{parcel}] - Failed to submit parcel");
+            throw new BLException("The operation failed due to an error.");
+        }
     }
 }

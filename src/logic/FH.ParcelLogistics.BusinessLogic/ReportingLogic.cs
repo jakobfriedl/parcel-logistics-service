@@ -84,14 +84,13 @@ public class ReportingLogic : IReportingLogic
             var hop = _hopRepository.GetByCode(code);
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Hop with code:{code} found in database");
 
-            if (hop.HopType == "warehouse"){
-                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            } else if (hop.HopType == "truck") {
-                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
-            } else if (hop.HopType == "transferwarehouse") {
-                // Todo
-            }
-
+            // if (hop.HopType == "warehouse"){
+            //     parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
+            // } else if (hop.HopType == "truck") {
+            //     parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
+            // } else if (hop.HopType == "transferwarehouse") {
+            //     // Todo
+            // }
             
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:{parcel.State}");
             var updatedParcel = _parcelRepository.Update(parcel);

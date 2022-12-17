@@ -90,7 +90,14 @@ public class TransitionLogic : ITransitionLogic
             var dbParcel = _mapper.Map<DataAccess.Entities.Parcel>(parcel);
 
             _logger.LogDebug($"TransitionParcel: {trackingId} - Parcel business layer entity mapped to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");
-            _parcelRepository.Submit(dbParcel);
+
+            try{
+                _parcelRepository.Submit(dbParcel);
+            } catch (DALException e){
+                _logger.LogError($"TransitionParcel: [trackingId:{trackingId}] - Error while inserting parcel into database. [Exception:{e}]");
+                throw new BLException("The operation failed due to an error.");
+            }
+            
             _logger.LogDebug($"TransitionParcel: [trackingId:{trackingId}] - Parcel submitted");
             return parcel;
         }

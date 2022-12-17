@@ -5,6 +5,7 @@ using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 namespace FH.ParcelLogistics.BusinessLogic;
 
@@ -91,7 +92,12 @@ public class WarehouseLogic : IWarehouseLogic
             throw new BLValidationException("The operation failed due to an error.");
         }
 
-        // TODO: Add warehouses to database 
+        try{
+            _hopRepository.Import(_mapper.Map<DataAccess.Entities.Hop>(warehouse)); 
+        } catch (Exception e){
+            _logger.LogError($"ImportWarehouses: [warehouse:{warehouse}] - Error importing warehouse");
+            throw new BLException($"Error importing warehouse", e);
+        }
     
         _logger.LogDebug($"ImportWarehouses: [warehouse:{warehouse}] - Successfully imported warehouse");
     }
