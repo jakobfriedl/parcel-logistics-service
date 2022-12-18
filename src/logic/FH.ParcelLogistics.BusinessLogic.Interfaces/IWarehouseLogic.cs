@@ -4,7 +4,7 @@ namespace FH.ParcelLogistics.BusinessLogic.Interfaces;
 
 public interface IWarehouseLogic
 {
-    Hop ExportWarehouses();
+    Warehouse ExportWarehouses();
     void ImportWarehouses(Warehouse warehouse);
     Hop GetWarehouse(string code);
 }

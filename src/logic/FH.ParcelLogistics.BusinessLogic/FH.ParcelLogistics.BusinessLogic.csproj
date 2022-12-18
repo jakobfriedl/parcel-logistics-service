@@ -4,6 +4,8 @@
     <ProjectReference Include="..\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj" />
     <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Interfaces\FH.ParcelLogistics.DataAccess.Interfaces.csproj" />
     <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Sql\FH.ParcelLogistics.DataAccess.Sql.csproj" />
+    <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents.Interfaces\FH.ParcelLogistics.ServiceAgents.Interfaces.csproj" />
+    <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents\FH.ParcelLogistics.ServiceAgents.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />

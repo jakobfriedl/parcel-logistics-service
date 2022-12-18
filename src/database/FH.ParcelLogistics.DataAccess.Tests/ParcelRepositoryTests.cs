@@ -2,18 +2,19 @@ namespace FH.ParcelLogistics.DataAccess.Tests;
 
 using System.Diagnostics;
 using System.Reflection.Emit;
-using NUnit.Framework;
-using FizzWare.NBuilder;
-using FH.ParcelLogistics.DataAccess.Entities;
-using Moq;
-using FH.ParcelLogistics.DataAccess.Sql;
-using Microsoft.EntityFrameworkCore;
 using EntityFrameworkCore.Testing.Moq;
 using EntityFrameworkCore.Testing.Moq.Helpers;
-using RandomDataGenerator.Randomizers;
-using RandomDataGenerator.FieldOptions;
+using FH.ParcelLogistics.DataAccess.Entities;
 using FH.ParcelLogistics.DataAccess.Interfaces;
+using FH.ParcelLogistics.DataAccess.Sql;
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using FizzWare.NBuilder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Moq;
+using NUnit.Framework;
+using RandomDataGenerator.FieldOptions;
+using RandomDataGenerator.Randomizers;
 
 public class ParcelRepositoryTests
 {
@@ -53,24 +54,11 @@ public class ParcelRepositoryTests
     }
 
     [Test]
-    public void GetById_Id1_ReturnsParcel1(){
-        // arrange
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger);
-
-        // act
-        var parcel = parcelRepository.GetById(1);
-
-        // assert
-        Assert.AreEqual(1, parcel.ParcelId);
-        Assert.AreEqual("ABCDEFGHI", parcel.TrackingId);
-    }
-
-    [Test]
     public void GetByTrackingId_305P2O7EC_ReturnsParcel3(){
         // arrange
         var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger);
+        var agent = new Mock<IGeoEncodingAgent>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
 
         // act
         var parcel = parcelRepository.GetByTrackingId("305P2O7EC");
@@ -84,7 +72,8 @@ public class ParcelRepositoryTests
     public void GetParcels_ReturnsAllParcels(){
         // arrange
         var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger);
+        var agent = new Mock<IGeoEncodingAgent>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
 
         // act
         var parcels = parcelRepository.GetParcels();
@@ -98,7 +87,8 @@ public class ParcelRepositoryTests
         // arrange
         var trackingId = GenerateValidTrackingId();
         var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger);
+        var agent = new Mock<IGeoEncodingAgent>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
         var parcel = Builder<Parcel>
             .CreateNew()
             .With(_ => _.ParcelId = 4)

@@ -25,6 +25,7 @@ using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>

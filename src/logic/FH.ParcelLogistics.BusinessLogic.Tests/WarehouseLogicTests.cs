@@ -185,7 +185,10 @@ public class WarehouseLogicTests
     {
         // arrange
         var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(x => x.Export());
+        repositoryMock.Setup(x => x.Export())
+            .Returns(Builder<DataAccess.Entities.Warehouse>
+            .CreateNew()
+            .Build());
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<WarehouseLogic>>();
@@ -195,7 +198,6 @@ public class WarehouseLogicTests
         var result = warehouseLogic.ExportWarehouses();
 
         // assert
-        Assert.NotNull(result);
         Assert.That(result, Is.TypeOf<Warehouse>());
     }
 
@@ -218,7 +220,7 @@ public class WarehouseLogicTests
 
         // assert
         Assert.NotNull(result);
-        Assert.That(result, Is.TypeOf<Hop>());
+        Assert.That(result, Is.TypeOf<Warehouse>());
     }
 
     [Test]

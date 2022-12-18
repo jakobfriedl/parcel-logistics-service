@@ -6,14 +6,19 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Data;
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using BingMapsRESTToolkit;
 
 public class ParcelRepository : IParcelRepository
 {
     private readonly DbContext _context;
     private readonly ILogger<IParcelRepository> _logger;
-    public ParcelRepository(DbContext context, ILogger<IParcelRepository> logger){
+    private readonly IGeoEncodingAgent _geoEncodingAgent;
+
+    public ParcelRepository(DbContext context, ILogger<IParcelRepository> logger, IGeoEncodingAgent geoEncodingAgent){
         _context = context;
         _logger = logger;
+        _geoEncodingAgent = geoEncodingAgent;
     }
 
     public Parcel GetById(int id){
@@ -59,7 +64,17 @@ public class ParcelRepository : IParcelRepository
 
         if(parcel is null){
             _logger.LogError($"Submit: [parcel:{parcel}] Parcel is null");
-            throw new ArgumentNullException(this.GetType().Name, MethodBase.GetCurrentMethod().Name);
+            throw new DALException("Submit: Parcel is null");
+        }
+
+        // Get address of sender and recipient
+        try{
+            var senderAddress = _geoEncodingAgent.EncodeAddress(parcel.Sender);
+            var recipientAddress = _geoEncodingAgent.EncodeAddress(parcel.Recipient);
+            parcel.FutureHops = PredictRoute(senderAddress, recipientAddress).ToList(); 
+        } catch (AddressNotFoundException e){
+            _logger.LogError($"Submit: [parcel:{parcel}] Address not found");
+            throw new DALException("Submit: Address not found", e);
         }
 
         _logger.LogDebug($"Submit: Adding parcel to set");
@@ -73,7 +88,7 @@ public class ParcelRepository : IParcelRepository
 
         if(parcel is null){
             _logger.LogError($"Update: [parcel:{parcel}] Parcel is null");
-            throw new ArgumentNullException(this.GetType().Name, MethodBase.GetCurrentMethod().Name);
+            throw new DALException("Update: Parcel is Null");
         }
 
         _logger.LogDebug($"Update: Updating parcel");
@@ -81,5 +96,13 @@ public class ParcelRepository : IParcelRepository
         _logger.LogDebug($"Update: Save changes to database");
         _context.SaveChanges();
         return parcel;
+    }
+
+    private IEnumerable<HopArrival> PredictRoute(NetTopologySuite.Geometries.Point senderAddress, NetTopologySuite.Geometries.Point recipientAddress){
+        
+        var senderTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(senderAddress));
+        var recipientTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(recipientAddress));
+
+        return new List<HopArrival>();
     }
 }

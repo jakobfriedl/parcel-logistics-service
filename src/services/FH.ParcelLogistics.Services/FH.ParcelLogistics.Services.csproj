@@ -30,5 +30,7 @@
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic\FH.ParcelLogistics.BusinessLogic.csproj" />
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Interfaces\FH.ParcelLogistics.BusinessLogic.Interfaces.csproj" />
     <ProjectReference Include="..\FH.ParcelLogistics.Services.Interfaces\FH.ParcelLogistics.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents\FH.ParcelLogistics.ServiceAgents.csproj" />
+    <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents.Interfaces\FH.ParcelLogistics.ServiceAgents.Interfaces.csproj" />
   </ItemGroup>
 </Project>
