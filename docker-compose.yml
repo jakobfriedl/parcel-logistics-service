@@ -8,8 +8,6 @@ services:
       - SA_PASSWORD=pass@word1
     ports: 
       - 1433:1433
-    volumes:
-      - /mnt/c/.Jakob/FHTW/5_Semester/Softwarekomponentensysteme/parcel-logistics-service/mysqldata:/var/opt/mssql/data/
   adminer:
     image: knom/adminer-mssql
     ports:

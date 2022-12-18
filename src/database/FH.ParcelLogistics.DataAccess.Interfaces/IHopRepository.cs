@@ -5,7 +5,7 @@ public interface IHopRepository
 {
     // Hop, Truck, Warehouse 
     void Import(Hop hop);
-    void Export(); 
+    Warehouse Export(); 
     Hop CreateHop(Hop hop);
     Hop UpdateHop(Hop hop);
     Hop GetByCode(string code);

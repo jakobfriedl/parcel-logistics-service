@@ -11,19 +11,19 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Newtonsoft.Json;
+using System.Xml;
+using AutoMapper;
+using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
-using AutoMapper;
-using System.Xml;
-using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -83,7 +83,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		public virtual IActionResult GetWarehouse([FromRoute(Name = "code")] [Required] string code) {
 			try{
 				var result = _warehouseLogic.GetWarehouse(code);
-				return Ok(_mapper.Map<DTOs.Warehouse>(result));
+                return Ok(_mapper.Map<DTOs.Hop>(result));
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"GetWarehouse: [code:{code}] invalid");
 				return BadRequest(new Error(){ErrorMessage = e.Message});

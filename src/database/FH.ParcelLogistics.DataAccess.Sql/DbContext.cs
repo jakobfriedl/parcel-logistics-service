@@ -16,53 +16,66 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
     public DbContext(DbContextOptions<DbContext> options) : base(options){}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder){
-        modelBuilder.Entity<Recipient>(e => {
-            e.HasKey(x => x.RecipientId);
-            e.Property(x => x.RecipientId).ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<Hop>(e =>
+        {
+            e.HasKey(c => c.HopId);
+            e.Property(c => c.HopId).ValueGeneratedOnAdd();
+            e.Property(c => c.LocationCoordinates).HasColumnType("geometry");
+
+            e.HasDiscriminator()
+                .HasValue<Warehouse>("Level")
+                .HasValue<Transferwarehouse>("Region")
+                .HasValue<Transferwarehouse>("LogisticsPartner")
+                .HasValue<Transferwarehouse>("LogisticsPartnerUrl")
+                .HasValue<Truck>("Region")
+                .HasValue<Truck>("PlateNumber");
         });
 
-        modelBuilder.Entity<Parcel>(e => { 
-            e.HasKey(p => p.ParcelId);
-            e.Property(p => p.ParcelId).ValueGeneratedOnAdd();
-            e.Property(p => p.Weight).IsRequired();
-            e.HasOne<Recipient>(p => p.Recipient); 
-            e.HasOne<Recipient>(p => p.Sender);   
-            e.HasMany<HopArrival>(p => p.VisitedHops);
-            e.HasMany<HopArrival>(p => p.FutureHops);  
+        modelBuilder.Entity<Parcel>(e =>
+           {
+               e.HasKey(c => c.TrackingId);
+               e.Property(c => c.TrackingId).ValueGeneratedOnAdd();
+               e.Property(c => c.TrackingId);
+               e.Property(c => c.Weight).IsRequired();
+               e.HasOne<Recipient>(c => c.Recipient);
+               e.HasOne<Recipient>(c => c.Sender);
+               e.HasMany<HopArrival>(c => c.VisitedHops);
+               e.HasMany<HopArrival>(c => c.FutureHops);
+               e.Property(c => c.State);
+           });
+
+
+        modelBuilder.Entity<WarehouseNextHops>(e =>
+        {
+            e.HasKey(c => c.WarehouseNextHopsId);
+            e.Property(c => c.WarehouseNextHopsId).ValueGeneratedOnAdd();
+            e.Property(c => c.TraveltimeMins);
+            e.HasOne<Hop>(c => c.Hop);
         });
 
-        modelBuilder.Entity<Hop>()
-            .HasDiscriminator<string>("HopType")
-            .HasValue<Hop>("Code")
-            .HasValue<Hop>("Description")
-            .HasValue<Hop>("ProcessingDelayMins")
-            .HasValue<Hop>("LocationName")
-            .HasValue<Hop>("LocationCoordinates")
-            .HasValue<Warehouse>("Level")
-            .HasValue<Transferwarehouse>("Region")
-            .HasValue<Transferwarehouse>("LogisticPartner")
-            .HasValue<Transferwarehouse>("LogisticPartnerUrl")
-            .HasValue<Truck>("Region")
-            .HasValue<Truck>("NumberPlate");
-
-        modelBuilder.Entity<Warehouse>()
-            .HasMany(wh => wh.NextHops);
+        modelBuilder.Entity<Recipient>(e =>
+        {
+            e.HasKey(c => c.RecipientId);
+            e.Property(c => c.RecipientId).ValueGeneratedOnAdd();
+        });
 
         modelBuilder.Entity<Truck>()
-            .Property(t => t.Region)
-            .HasColumnType("geometry")
-            .HasColumnName("RegionGeometry");
+             .Property(c => c.Region).HasColumnType("geometry");
+
 
         modelBuilder.Entity<Transferwarehouse>()
-            .Property(twh => twh.Region)
-            .HasColumnType("geometry")
-            .HasColumnName("RegionGeometry");
+            .Property(c => c.Region).HasColumnType("geometry");
 
-        modelBuilder.Entity<WarehouseNextHops>(e => {
-            e.HasKey(whnh => whnh.WarehouseNextHopsId);
-            e.Property(whnh => whnh.WarehouseNextHopsId).ValueGeneratedOnAdd();
-            e.Property(whnh => whnh.TraveltimeMins).IsRequired();
-            e.HasOne<Hop>(whnh => whnh.Hop); 
+
+        modelBuilder.Entity<HopArrival>(e =>
+        {
+            e.HasKey(c => c.HopArrivalId);
+            e.Property(c => c.HopArrivalId).ValueGeneratedOnAdd();
+            e.Property(c => c.Code);
+            e.Property(c => c.Description);
+            e.Property(c => c.DateTime).HasColumnType("datetime");
+
         });
     }   
 }

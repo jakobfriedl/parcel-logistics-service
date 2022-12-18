@@ -19,10 +19,16 @@ public class HopProfile : Profile
             .IncludeBase<DTOs.Hop, BusinessLogic.Entities.Hop>()
             .ReverseMap();
 
-        CreateMap<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
-            .ReverseMap();
-
         CreateMap<BusinessLogic.Entities.HopArrival, DataAccess.Entities.HopArrival>().ReverseMap();
 
+        CreateMap<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+
+        CreateMap<DataAccess.Entities.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+
+        CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+
+        CreateMap<DataAccess.Entities.Warehouse, BusinessLogic.Entities.Warehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+
+        CreateMap<DataAccess.Entities.WarehouseNextHops, BusinessLogic.Entities.WarehouseNextHops>().ReverseMap();        
     }
 }

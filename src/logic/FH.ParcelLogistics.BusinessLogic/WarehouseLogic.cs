@@ -44,11 +44,11 @@ public class WarehouseLogic : IWarehouseLogic
         _logger = logger;
     }
 
-    public Hop ExportWarehouses(){
+    public Warehouse ExportWarehouses(){
         _logger.LogDebug($"ExportWarehouses");
 
         try{
-            return _mapper.Map<BusinessLogic.Entities.Hop>(_hopRepository.GetHopHierarchy()); 
+            return _mapper.Map<BusinessLogic.Entities.Warehouse>(_hopRepository.Export()); 
         } catch (DALNotFoundException e){
             _logger.LogError($"Export Warehouses: Root warehouse not found");
             throw new BLNotFoundException($"Root warehouse not found", e);
@@ -63,25 +63,15 @@ public class WarehouseLogic : IWarehouseLogic
             throw new BLValidationException("The operation failed due to an error.");
         }
 
-        // TODO: Check if hop exists
-        // if(...){
-        //     return new Error(){
-        //         StatusCode = 404,
-        //         ErrorMessage = "No hop with the specified id could be found."
-        //     }; 
-        // }
-
-        return new Hop(){
-            HopType = "Hop",
-            Code = "Test",
-            Description = "Test",
-            ProcessingDelayMins = 1,
-            LocationName = "Test",
-            LocationCoordinates = new GeoCoordinate(){
-                Lat = 1,
-                Lon = 1,
-            },
-        };
+        try
+        {
+            return _mapper.Map<BusinessLogic.Entities.Hop>(_hopRepository.GetByCode(code));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"GetWarehouse: [code:{code}] - Error getting warehouse by code");
+            throw new BLException($"Error getting warehouse by code", e);
+        }
     }
 
     public void ImportWarehouses(Warehouse warehouse){
@@ -93,7 +83,7 @@ public class WarehouseLogic : IWarehouseLogic
         }
 
         try{
-            _hopRepository.Import(_mapper.Map<DataAccess.Entities.Hop>(warehouse)); 
+            _hopRepository.Import(_mapper.Map<DataAccess.Entities.Warehouse>(warehouse)); 
         } catch (Exception e){
             _logger.LogError($"ImportWarehouses: [warehouse:{warehouse}] - Error importing warehouse");
             throw new BLException($"Error importing warehouse", e);

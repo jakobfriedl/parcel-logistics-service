@@ -59,7 +59,7 @@ public class HopRepository : IHopRepository
 
         _logger.LogDebug($"GetByCode: [code:{code}] Get hop by code");
         try {
-            return _context.Hops.Single(_ => _.Code == code);
+            return _context.Hops.SingleOrDefault(_ => _.Code == code);
         } catch (InvalidOperationException e) {
             _logger.LogError($"GetByCode: [code:{code}] Hop not found");
             throw new DALNotFoundException($"Hop with code {code} not found", e);
@@ -88,9 +88,26 @@ public class HopRepository : IHopRepository
         _context.SaveChanges();
     }
 
-    public void Export() {
+    // public void Export() {
+    //     _context.Database.EnsureCreated();
+
+    //     throw new NotImplementedException();
+    // }
+    public Warehouse Export()
+    {
         _context.Database.EnsureCreated();
 
-        throw new NotImplementedException();
+        var result = _context.Hops.OfType<Warehouse>()
+            .Include(wh => wh.NextHops)
+            .ThenInclude(nxh => nxh.Hop)
+            .AsEnumerable()
+            .SingleOrDefault(w => w.Level == 0);
+
+        if (result == null)
+        {
+            throw new DALNotFoundException($"Hop not exported");
+        }
+
+        return result;
     }
 }
