@@ -5,6 +5,6 @@ using NetTopologySuite.Geometries;
 namespace FH.ParcelLogistics.DataAccess.Entities;
 public partial class Truck : Hop
 {
-    public Polygon Region { get; set; }
+    public Geometry Region { get; set; }
     public string NumberPlate { get; set; }
 }

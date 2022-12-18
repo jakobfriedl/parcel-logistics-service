@@ -47,8 +47,9 @@ public class WarehouseLogic : IWarehouseLogic
     public Warehouse ExportWarehouses(){
         _logger.LogDebug($"ExportWarehouses");
 
-        try{        
-            return _mapper.Map<BusinessLogic.Entities.Warehouse>(_hopRepository.Export()); 
+        try{      
+            var result = _hopRepository.Export();
+            return _mapper.Map<BusinessLogic.Entities.Warehouse>(result); 
         } catch (DALNotFoundException e){
             _logger.LogError($"Export Warehouses: Root warehouse not found");
             throw new BLNotFoundException($"Root warehouse not found", e);
