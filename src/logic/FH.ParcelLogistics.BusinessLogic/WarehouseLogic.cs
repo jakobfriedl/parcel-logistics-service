@@ -47,7 +47,7 @@ public class WarehouseLogic : IWarehouseLogic
     public Warehouse ExportWarehouses(){
         _logger.LogDebug($"ExportWarehouses");
 
-        try{
+        try{        
             return _mapper.Map<BusinessLogic.Entities.Warehouse>(_hopRepository.Export()); 
         } catch (DALNotFoundException e){
             _logger.LogError($"Export Warehouses: Root warehouse not found");
@@ -63,12 +63,9 @@ public class WarehouseLogic : IWarehouseLogic
             throw new BLValidationException("The operation failed due to an error.");
         }
 
-        try
-        {
+        try {
             return _mapper.Map<BusinessLogic.Entities.Hop>(_hopRepository.GetByCode(code));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             _logger.LogError($"GetWarehouse: [code:{code}] - Error getting warehouse by code");
             throw new BLException($"Error getting warehouse by code", e);
         }

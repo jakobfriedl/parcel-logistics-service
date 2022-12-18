@@ -25,7 +25,9 @@ public class HopProfile : Profile
 
         CreateMap<DataAccess.Entities.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 
-        CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+        CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
+            .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
+            .ReverseMap();
 
         CreateMap<DataAccess.Entities.Warehouse, BusinessLogic.Entities.Warehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 

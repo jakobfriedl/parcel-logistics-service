@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\logic\FH.ParcelLogistics.BusinessLogic.Entities\FH.ParcelLogistics.BusinessLogic.Entities.csproj" />
+    <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Entities\FH.ParcelLogistics.DataAccess.Entities.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>

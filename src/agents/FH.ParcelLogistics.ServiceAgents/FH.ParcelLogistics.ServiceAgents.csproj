@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FH.ParcelLogistics.ServiceAgents.Interfaces\FH.ParcelLogistics.ServiceAgents.Interfaces.csproj" />
+    <ProjectReference Include="..\..\database\FH.ParcelLogistics.DataAccess.Entities\FH.ParcelLogistics.DataAccess.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

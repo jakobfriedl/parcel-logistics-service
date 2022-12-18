@@ -84,13 +84,29 @@ public class ReportingLogic : IReportingLogic
             var hop = _hopRepository.GetByCode(code);
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Hop with code:{code} found in database");
 
-            // if (hop.HopType == "warehouse"){
-            //     parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
-            // } else if (hop.HopType == "truck") {
-            //     parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
-            // } else if (hop.HopType == "transferwarehouse") {
-            //     // Todo
-            // }
+            // Remove hop from future hops
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Removing hop from future hops");
+            
+            try{
+                var hopArrival = parcel.FutureHops.Find(_ => _.Code == code);
+                parcel.FutureHops.Remove(hopArrival); 
+                
+                // Add hop to visited hops
+                _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Adding hop to visited hops");
+                parcel.VisitedHops.Add(hopArrival);
+            } catch (NullReferenceException e){
+                _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Hop with code:{code} was not found in future hops");
+                throw new BLNotFoundException("Hop with this code does not exist in future hops.", e);
+            }
+
+            // Update parcel state
+            if (hop.HopType == "warehouse"){
+                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTransport;
+            } else if (hop.HopType == "truck") {
+                parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
+            } else if (hop.HopType == "transferwarehouse") {
+                parcel.State = DataAccess.Entities.Parcel.ParcelState.Transferred;
+            }
             
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:{parcel.State}");
             var updatedParcel = _parcelRepository.Update(parcel);

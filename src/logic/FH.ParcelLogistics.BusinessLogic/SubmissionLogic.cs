@@ -48,13 +48,11 @@ public class SubmissionLogic : ISubmissionLogic
     private readonly IParcelRepository _parcelRepository;
     private readonly IMapper _mapper; 
     private readonly ILogger<ISubmissionLogic> _logger;
-    private readonly IGeoEncodingAgent _encodingAgent;
 
-    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ISubmissionLogic> logger, IGeoEncodingAgent encodingAgent){
+    public SubmissionLogic(IParcelRepository parcelRepository, IMapper mapper, ILogger<ISubmissionLogic> logger){
         _parcelRepository = parcelRepository;
         _mapper = mapper;
         _logger = logger;
-        _encodingAgent = encodingAgent;
     }
 
     private string GenerateValidTrackingId(){
@@ -76,14 +74,6 @@ public class SubmissionLogic : ISubmissionLogic
         _logger.LogDebug($"SubmitParcel: Generated TrackingId {parcel.TrackingId} for [parcel:{parcel}]");
         parcel.State = Parcel.ParcelState.Pickup; 
         _logger.LogDebug($"SubmitParcel: Set State to {parcel.State} for parcel {parcel}");
-    
-        try{
-            var senderCoordinate = _encodingAgent.EncodeAddress(parcel.Sender);
-            var recipientCoordinate = _encodingAgent.EncodeAddress(parcel.Recipient);
-        } catch(AddressNotFoundException e){
-            _logger.LogError($"SubmitParcel: [parcel:{parcel}] - Sender or recipient address not found");
-            throw new BLNotFoundException("The address of sender or receiver was not found.");
-        }
 
         var dbParcel = _mapper.Map<Parcel, DataAccess.Entities.Parcel>(parcel);
         _logger.LogDebug($"SubmitParcel: Mapped business layer entity to DAL entity. [parcel:{parcel}] -> [dbParcel:{dbParcel}]");

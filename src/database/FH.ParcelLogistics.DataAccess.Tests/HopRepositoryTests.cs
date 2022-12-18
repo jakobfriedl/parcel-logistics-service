@@ -66,22 +66,6 @@ public class HopRepositoryTests
     }
 
     [Test]
-    public void GetHopById_Id1_ReturnsHop1(){
-        Assert.Pass();
-
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var hopRepository = new HopRepository(_contextMock, logger);
-
-        // act
-        var hop = hopRepository.GetById(1);
-
-        // assert
-        Assert.AreEqual(1, hop.HopId);
-        Assert.AreEqual("AA11", hop.Code);
-    }
-
-    [Test]
     public void GetHopByCode_CodeBB22_ReturnsHop2(){
         Assert.Pass();
 
@@ -98,22 +82,7 @@ public class HopRepositoryTests
     }
 
     [Test]
-    public void GetHopHierarchy_ReturnsAllHops(){
-        Assert.Pass();
-
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var hopRepository = new HopRepository(_contextMock, logger);
-
-        // act
-        var hops = hopRepository.GetHopHierarchy();
-
-        // assert
-        // Assert.AreEqual(3, hops.Count());
-    }
-
-    [Test]
-    public void Export_ReturnsTrue(){
+    public void Export_ReturnsHopHierarchy(){
         Assert.Pass();
 
         // arrange
@@ -122,5 +91,21 @@ public class HopRepositoryTests
 
         // act
         hopRepository.Export();
+    }
+
+    [Test]
+    public void Import_Successful(){
+        Assert.Pass();
+
+        // arrange
+        var hop = Builder<Warehouse>
+            .CreateNew()
+            .With(_ => _.Code = GenerateValidCode())
+            .Build();
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
+
+        // act
+        hopRepository.Import(hop);
     }
 }

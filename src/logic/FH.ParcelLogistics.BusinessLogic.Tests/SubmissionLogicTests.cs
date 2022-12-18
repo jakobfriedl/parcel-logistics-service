@@ -133,12 +133,7 @@ public class SubmissionLogicTests
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<ISubmissionLogic>>().Object;
-        
-        var agentMock = new Mock<IGeoEncodingAgent>();
-        agentMock.Setup(x => x.EncodeAddress(It.IsAny<Recipient>()))
-            .Returns(Builder<GeoCoordinate>.CreateNew().Build());
-        var agent = agentMock.Object;
-        var submissionLogic = new SubmissionLogic(repository, mapper, logger, agent);
+                var submissionLogic = new SubmissionLogic(repository, mapper, logger);
 
         // act & assert
         Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => submissionLogic.SubmitParcel(parcel));
@@ -159,12 +154,7 @@ public class SubmissionLogicTests
         var repository = repositoryMock.Object;
         var mapper = CreateAutoMapper();
         var logger = new Mock<ILogger<ISubmissionLogic>>().Object;
-        
-        var agentMock = new Mock<IGeoEncodingAgent>();
-        agentMock.Setup(x => x.EncodeAddress(It.IsAny<Recipient>()))
-            .Returns(Builder<GeoCoordinate>.CreateNew().Build());
-        var agent = agentMock.Object;
-        var submissionLogic = new SubmissionLogic(repository, mapper, logger, agent);
+        var submissionLogic = new SubmissionLogic(repository, mapper, logger);
 
         // act
         var result = submissionLogic.SubmitParcel(parcel) as BusinessLogic.Entities.Parcel;

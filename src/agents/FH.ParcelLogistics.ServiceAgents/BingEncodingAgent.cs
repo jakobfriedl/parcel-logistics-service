@@ -5,12 +5,14 @@ using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using BingMapsRESTToolkit;
+using FH.ParcelLogistics.DataAccess.Entities;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using System.Reflection.Metadata;
 
 public class BingEncodingAgent  : IGeoEncodingAgent 
 {
-    public GeoCoordinate EncodeAddress(Recipient address)
+    public NetTopologySuite.Geometries.Point EncodeAddress(DataAccess.Entities.Recipient address)
     {
         string URL = $"http://dev.virtualearth.net/REST/v1/Locations?country={address.Country}?postalCode={address.PostalCode}&locality={address.City}&addressLine={address.Street}&key=Ajt0S_IotTyCgaE_jWZauEzp7bw-l8RG4wlAQzobEioZJVEwtqD_d-y23_NhnNRF";
 
@@ -25,11 +27,7 @@ public class BingEncodingAgent  : IGeoEncodingAgent
                 var result = (serializer.ReadObject(es) as Response);
                 Location location = (Location)result.ResourceSets.First().Resources.First();
                 if(location != null){
-                    return new GeoCoordinate
-                    {
-                        Lat = location.Point.Coordinates[0],
-                        Lon = location.Point.Coordinates[1]
-                    };
+                    return new NetTopologySuite.Geometries.Point(location.Point.Coordinates[1], location.Point.Coordinates[0]);
                 }
                 else
                 {
