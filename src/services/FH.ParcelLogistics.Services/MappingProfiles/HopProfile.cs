@@ -30,13 +30,12 @@ public class HopProfile : Profile
 
         CreateMap<DataAccess.Entities.WarehouseNextHops, BusinessLogic.Entities.WarehouseNextHops>().ReverseMap();
 
-        // CreateMap<BusinessLogic.Entities.Truck, DataAccess.Entities.Truck>()
-        //     .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
-        //     .ForMember(dest => dest.Region, opt => opt.MapFrom<TruckResolver>());
+        CreateMap<BusinessLogic.Entities.Truck, DataAccess.Entities.Truck>()
+            .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
+            .ForMember(dest => dest.Region, opt => opt.MapFrom<CustomResolver>());
 
         CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
             .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
-            .ForMember(dest => dest.RegionGeoJson, opt => opt.MapFrom<TruckResolver>())
-            .ReverseMap();
+            .ForMember(dest => dest.RegionGeoJson, opt => opt.MapFrom<CustomResolver>());
     }
 }
