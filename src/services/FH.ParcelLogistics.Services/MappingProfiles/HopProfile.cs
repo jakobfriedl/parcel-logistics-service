@@ -2,6 +2,7 @@ namespace FH.ParcelLogistics.Services.MappingProfiles;
 
 using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
+using FH.ParcelLogistics.DataAccess.Entities;
 
 [ExcludeFromCodeCoverage]
 public class HopProfile : Profile
@@ -25,12 +26,17 @@ public class HopProfile : Profile
 
         CreateMap<DataAccess.Entities.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 
-        CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
-            .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
-            .ReverseMap();
-
         CreateMap<DataAccess.Entities.Warehouse, BusinessLogic.Entities.Warehouse>().IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 
-        CreateMap<DataAccess.Entities.WarehouseNextHops, BusinessLogic.Entities.WarehouseNextHops>().ReverseMap();        
+        CreateMap<DataAccess.Entities.WarehouseNextHops, BusinessLogic.Entities.WarehouseNextHops>().ReverseMap();
+
+        // CreateMap<BusinessLogic.Entities.Truck, DataAccess.Entities.Truck>()
+        //     .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
+        //     .ForMember(dest => dest.Region, opt => opt.MapFrom<TruckResolver>());
+
+        CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
+            .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
+            .ForMember(dest => dest.RegionGeoJson, opt => opt.MapFrom<TruckResolver>())
+            .ReverseMap();
     }
 }

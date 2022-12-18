@@ -44,20 +44,20 @@ public class NominatimEncodingAgentTests
     }
 
 
-    [Test]
-    public void Encode_WithValidRecipient_ReturnsValidGeoLocation()
-    {
-        // arrange
-        var recipient = GenerateValidRecipientObject();
-        var encodingAgent = new BingEncodingAgent();
+    // [Test]
+    // public void Encode_WithValidRecipient_ReturnsValidGeoLocation()
+    // {
+    //     // arrange
+    //     var recipient = GenerateValidRecipientObject();
+    //     var encodingAgent = new BingEncodingAgent();
 
-        // act
-        var geoLocation = encodingAgent.EncodeAddress(recipient);
+    //     // act
+    //     var geoLocation = encodingAgent.EncodeAddress(recipient);
 
-        // assert
-        Assert.IsNotNull(geoLocation);
-        Assert.IsInstanceOf<GeoCoordinate>(geoLocation);
-    }
+    //     // assert
+    //     Assert.IsNotNull(geoLocation);
+    //     Assert.IsInstanceOf<GeoCoordinate>(geoLocation);
+    // }
 
     // [Test]
     // public void Encode_WithValidRecipient_ReturnsInvalidGeoLocation()
