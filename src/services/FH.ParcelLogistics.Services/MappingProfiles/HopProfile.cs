@@ -3,6 +3,7 @@ namespace FH.ParcelLogistics.Services.MappingProfiles;
 using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using FH.ParcelLogistics.DataAccess.Entities;
+using NetTopologySuite.Geometries;
 
 [ExcludeFromCodeCoverage]
 public class HopProfile : Profile
@@ -45,10 +46,11 @@ public class HopProfile : Profile
         // Truck
         CreateMap<BusinessLogic.Entities.Truck, DataAccess.Entities.Truck>()
             .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
-            .ForMember(dest => dest.Region, opt => opt.MapFrom<TruckResolver>());
+            .ForMember(dest => dest.Region,opt=>opt.ConvertUsing<GeoJsonConverter, string>(p=>p.RegionGeoJson));
 
         CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
             .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
-            .ForMember(dest => dest.RegionGeoJson, opt => opt.MapFrom<TruckResolver>());
-    }
+            .ForMember(dest => dest.RegionGeoJson,opt=>opt.ConvertUsing<GeoJsonConverter, Geometry>(p=>p.Region));
+
+     }
 }

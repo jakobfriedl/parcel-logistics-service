@@ -8,28 +8,39 @@ using NetTopologySuite.IO;
 
 [ExcludeFromCodeCoverage]
 internal class GeoJsonConverter :
-        // IValueConverter<string, NetTopologySuite.Geometries.Geometry>,
-        // IValueConverter<NetTopologySuite.Geometries.Geometry, string>,
+        IValueConverter<string, NetTopologySuite.Geometries.Geometry>,
+        IValueConverter<NetTopologySuite.Geometries.Geometry, string>,
         ITypeConverter<NetTopologySuite.Geometries.Geometry, string>,
         ITypeConverter<string, NetTopologySuite.Geometries.Geometry>
 {
     public NetTopologySuite.Geometries.Geometry Convert(string source, Geometry destination, ResolutionContext context)
     {
-        var serializer = NetTopologySuite.IO.GeoJsonSerializer.CreateDefault();
-        var feature = (Feature)serializer.Deserialize(new StringReader(source), typeof(Feature));
-        return feature?.Geometry;
+       return this.Convert(source, context);
     }
 
     public string Convert(Geometry sourceMember, string destinationMember, ResolutionContext context)
     {
-        Feature feature = new(sourceMember, null);
+        return this.Convert(sourceMember, context);
+    }
 
-        var serializer = GeoJsonSerializer.CreateDefault();
+    public string Convert(Geometry sourceMember, ResolutionContext context)
+    {
+            Feature feature = new(sourceMember, null);
 
-        StringWriter writer = new();
-        serializer.Serialize(writer, feature);
-        writer.Flush();
+            var serializer = GeoJsonSerializer.CreateDefault();
 
-        return writer.ToString();
+            StringWriter writer = new();
+            serializer.Serialize(writer, feature);
+            writer.Flush();
+
+            return writer.ToString();
+        
+    }
+
+    public Geometry Convert(string sourceMember, ResolutionContext context)
+    {
+        var serializer = NetTopologySuite.IO.GeoJsonSerializer.CreateDefault();
+        var feature = (Feature)serializer.Deserialize(new StringReader(sourceMember), typeof(Feature));
+        return feature?.Geometry;
     }
 }
