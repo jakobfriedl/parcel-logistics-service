@@ -3,6 +3,7 @@ namespace FH.ParcelLogistics.DataAccess.Sql;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using DataAccess.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParcelLogistics.DataAccess.Interfaces;
@@ -28,8 +29,17 @@ public class HopRepository : IHopRepository
     }
 
     public void Import(Hop hop){
-        _context.Database.EnsureDeleted(); 
         _context.Database.EnsureCreated();
+
+        // Reset Database
+        _logger.LogDebug($"Import: Reset database");
+        try{
+            Reset();
+            _logger.LogDebug($"Import: Database reset");
+        } catch (SqlException e){
+            _logger.LogError($"Import: Database not reset");
+            throw new DALException($"Database not reset", e);
+        }
 
         _logger.LogDebug($"Import: Adding hop to set");
         try
@@ -80,5 +90,13 @@ public class HopRepository : IHopRepository
             _logger.LogError($"Export: Hop not exported");
             throw new DALNotFoundException($"Hop not exported", e);
         }
+    }
+
+    private void Reset(){
+        _context.Database.ExecuteSqlRaw("DELETE FROM Hops"); 
+        _context.Database.ExecuteSqlRaw("DELETE FROM WarehouseNextHops");
+        _context.Database.ExecuteSqlRaw("DELETE FROM HopArrival");
+        _context.Database.ExecuteSqlRaw("DELETE FROM Parcels");
+        _context.Database.ExecuteSqlRaw("DELETE FROM Recipient");
     }
 }
