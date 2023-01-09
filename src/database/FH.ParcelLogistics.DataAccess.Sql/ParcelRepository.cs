@@ -1,13 +1,13 @@
 namespace FH.ParcelLogistics.DataAccess.Sql;
 
-using ParcelLogistics.DataAccess.Interfaces;
-using DataAccess.Entities;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
 using System.Data;
-using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using System.Reflection;
 using BingMapsRESTToolkit;
+using DataAccess.Entities;
+using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using Microsoft.Extensions.Logging;
+using ParcelLogistics.DataAccess.Interfaces;
 
 public class ParcelRepository : IParcelRepository
 {
@@ -67,12 +67,21 @@ public class ParcelRepository : IParcelRepository
             throw new DALException("Submit: Parcel is null");
         }
 
-        // Get address of sender and recipient
-        try{
+        // Get address of sender and recipient and predict future hops
+        try
+        {
             var senderAddress = _geoEncodingAgent.EncodeAddress(parcel.Sender);
             var recipientAddress = _geoEncodingAgent.EncodeAddress(parcel.Recipient);
-            parcel.FutureHops = PredictRoute(senderAddress, recipientAddress).ToList(); 
-        } catch (AddressNotFoundException e){
+
+            // Predict future hops
+            var senderTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(senderAddress)).FirstOrDefault();
+            var recipientTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(recipientAddress)).FirstOrDefault();
+            
+            var parentA = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == 2477);
+
+            var futureHops = PredictRoute(senderTruck, recipientTruck).ToList(); 
+        } 
+        catch (AddressNotFoundException e){
             _logger.LogError($"Submit: [parcel:{parcel}] Address not found");
             throw new DALException("Submit: Address not found", e);
         }
@@ -83,6 +92,7 @@ public class ParcelRepository : IParcelRepository
         _context.SaveChanges();
         return parcel;
     }
+
     public Parcel Update(Parcel parcel){
         _context.Database.EnsureCreated();
 
@@ -98,11 +108,35 @@ public class ParcelRepository : IParcelRepository
         return parcel;
     }
 
-    private IEnumerable<HopArrival> PredictRoute(NetTopologySuite.Geometries.Point senderAddress, NetTopologySuite.Geometries.Point recipientAddress){
-        
-        var senderTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(senderAddress));
-        var recipientTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(recipientAddress));
+    private IList<Hop> PredictRoute(Hop hopA, Hop hopB){
+        // Find parent warehouse of sender and recipient
+        // var parentA = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == hopA.HopId);
+        // var parentB = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == hopB.HopId);
 
-        return new List<HopArrival>();
+        // if (parentA == parentB){
+        //     return new List<Hop>() { parentA }; 
+        // } else {
+        //     var route = PredictRoute(parentA, parentB);
+        //     route.Insert(0, parentA);
+        //     route.Add(parentB);
+
+        //     return route;
+        // }
+        return new List<Hop>();
     }
+
+    // private Hop Parent(Hop hop){
+    //     if(hop is null){
+    //         _logger.LogError($"FindParent: [Truck:{hop}] Truck is null");
+    //         throw new DALException("FindParent: Truck is null");
+    //     }
+
+    //     var parent = _context.Hops.Where(_ => _.Contains(hop.Region)).FirstOrDefault();
+    //     if(parent is null){
+    //         _logger.LogError($"FindParent: [Truck {hop}] Parent not found");
+    //         throw new DALException("FindParent: Parent not found");
+    //     }
+
+    //     return parent;
+    // }
 }

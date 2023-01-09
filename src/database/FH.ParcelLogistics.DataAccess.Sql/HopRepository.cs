@@ -76,22 +76,6 @@ public class HopRepository : IHopRepository
             throw new DALNotFoundException($"Hop not exported", e);
         }
     }
-
-    public Truck ExportTruck(){
-        _context.Database.EnsureCreated();
-        try
-        {
-            var result = _context.Hops.OfType<Truck>().FirstOrDefault();
-            return result;
-
-        }
-        catch (Exception e)
-        {
-            _logger.LogError($"Export: Hop not exported");
-            throw new DALNotFoundException($"Hop not exported", e);
-        }
-    }
-
     private void Reset(){
         _context.Database.ExecuteSqlRaw("DELETE FROM Hops"); 
         _context.Database.ExecuteSqlRaw("DELETE FROM WarehouseNextHops");

@@ -24,10 +24,15 @@ internal class GeoPointConverter :
         if (sourceMember == null)
             return null;
 
+        // return new GeoCoordinate()
+        // {
+        //     Lat = (double)sourceMember.Coordinate.X,
+        //     Lon = (double)sourceMember.Coordinate.Y
+        // };
         return new GeoCoordinate()
         {
-            Lat = (double)sourceMember.Coordinate.X,
-            Lon = (double)sourceMember.Coordinate.Y
+            Lat = (double)sourceMember.Coordinate.Y,
+            Lon = (double)sourceMember.Coordinate.X
         };
     }
 
@@ -36,6 +41,7 @@ internal class GeoPointConverter :
         if (sourceMember == null)
             return null;
 
-        return new Point((double)sourceMember.Lat, (double)sourceMember.Lon);
+        // return new Point((double)sourceMember.Lat, (double)sourceMember.Lon);
+        return new Point((double)sourceMember.Lon, (double)sourceMember.Lat);
     }
 }

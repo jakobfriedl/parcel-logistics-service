@@ -70,7 +70,13 @@ public class SubmissionLogic : ISubmissionLogic
         }
         _logger.LogDebug($"SubmitParcel: [parcel:{parcel}] - Valid parcel");
 
-        parcel.TrackingId = GenerateValidTrackingId();
+        // Generate TrackingId
+        var trackingId = "";
+        do {
+            trackingId = GenerateValidTrackingId();
+        } while(_parcelRepository.TryGetByTrackingId(trackingId, out _));
+        parcel.TrackingId = trackingId;
+
         _logger.LogDebug($"SubmitParcel: Generated TrackingId {parcel.TrackingId} for [parcel:{parcel}]");
         parcel.State = Parcel.ParcelState.Pickup; 
         _logger.LogDebug($"SubmitParcel: Set State to {parcel.State} for parcel {parcel}");
