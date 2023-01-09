@@ -6,6 +6,7 @@ using System.Reflection;
 using BingMapsRESTToolkit;
 using DataAccess.Entities;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParcelLogistics.DataAccess.Interfaces;
 
@@ -73,13 +74,29 @@ public class ParcelRepository : IParcelRepository
             var senderAddress = _geoEncodingAgent.EncodeAddress(parcel.Sender);
             var recipientAddress = _geoEncodingAgent.EncodeAddress(parcel.Recipient);
 
-            // Predict future hops
-            var senderTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(senderAddress)).FirstOrDefault();
-            var recipientTruck = _context.Hops.OfType<Truck>().Where(_ => _.Region.Contains(recipientAddress)).FirstOrDefault();
-            
-            var parentA = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == 2477);
+            // Find Truck of sender and recipient
+            var senderTruck =_context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
+            var recipientTruck = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
 
-            var futureHops = PredictRoute(senderTruck, recipientTruck).ToList(); 
+            var futureHops = PredictRoute(senderTruck, recipientTruck).ToList();
+
+            futureHops.Add(new HopArrival(){
+                HopArrivalId = recipientTruck.HopId,
+                Code = recipientTruck.Code,
+                Description = recipientTruck.Description,
+                DateTime = futureHops.Last().DateTime.AddMinutes(recipientTruck.ProcessingDelayMins)
+            });
+
+            futureHops.Insert(0, new HopArrival(){
+                HopArrivalId = senderTruck.HopId,
+                Code = senderTruck.Code,
+                Description = senderTruck.Description,
+                DateTime = DateTime.Now
+            });
+
+            parcel.FutureHops = futureHops;
+
+            var test = parcel;
         } 
         catch (AddressNotFoundException e){
             _logger.LogError($"Submit: [parcel:{parcel}] Address not found");
@@ -108,35 +125,57 @@ public class ParcelRepository : IParcelRepository
         return parcel;
     }
 
-    private IList<Hop> PredictRoute(Hop hopA, Hop hopB){
+    private IList<HopArrival> PredictRoute(Hop hopA, Hop hopB){
         // Find parent warehouse of sender and recipient
-        // var parentA = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == hopA.HopId);
-        // var parentB = _context.WarehouseNextHops.FirstOrDefault(_ => _.Hop.HopId == hopB.HopId);
+        var parentA = Parent(hopA);
+        var parentB = Parent(hopB);
 
-        // if (parentA == parentB){
-        //     return new List<Hop>() { parentA }; 
-        // } else {
-        //     var route = PredictRoute(parentA, parentB);
-        //     route.Insert(0, parentA);
-        //     route.Add(parentB);
+        // If parent warehouse is the same, return the parent warehouse
+        if (parentA == parentB){
+            return new List<HopArrival>() {
+                new HopArrival(){
+                    HopArrivalId = parentA.HopId,
+                    Code = parentA.Code,
+                    Description = parentA.Description,
+                    DateTime = DateTime.Now
+                }
+            }; 
+        } else {
+            var route = PredictRoute(parentA, parentB);
 
-        //     return route;
-        // }
-        return new List<Hop>();
+            var parentArrivalA = new HopArrival(){
+                HopArrivalId = parentA.HopId,
+                Code = parentA.Code,
+                Description = parentA.Description,
+                DateTime = DateTime.Now
+            };
+            var parentArrivalB = new HopArrival(){
+                HopArrivalId = parentB.HopId,
+                Code = parentB.Code,
+                Description = parentB.Description,
+                DateTime = DateTime.Now
+            };
+
+            route.Insert(0, parentArrivalA);
+            route.Add(parentArrivalB);
+
+            return route;
+        }
     }
 
-    // private Hop Parent(Hop hop){
-    //     if(hop is null){
-    //         _logger.LogError($"FindParent: [Truck:{hop}] Truck is null");
-    //         throw new DALException("FindParent: Truck is null");
-    //     }
+    private Hop Parent(Hop hop){
+        if(hop is null){
+            _logger.LogError($"FindParent: [Hop:{hop}] Hop is null");
+            throw new DALException("FindParent: Hop is null");
+        }
 
-    //     var parent = _context.Hops.Where(_ => _.Contains(hop.Region)).FirstOrDefault();
-    //     if(parent is null){
-    //         _logger.LogError($"FindParent: [Truck {hop}] Parent not found");
-    //         throw new DALException("FindParent: Parent not found");
-    //     }
+        var parent = _context.Hops.OfType<Warehouse>().Include(_ => _.NextHops).ThenInclude(_ => _.Hop).AsEnumerable().SingleOrDefault(_ => _.NextHops.Any(y => y.Hop.HopId == hop.HopId));
 
-    //     return parent;
-    // }
+        if(parent is null){
+            _logger.LogError($"FindParent: [Hop {hop}] Parent not found");
+            throw new DALException("FindParent: Parent not found");
+        }
+
+        return parent;
+    }
 }
