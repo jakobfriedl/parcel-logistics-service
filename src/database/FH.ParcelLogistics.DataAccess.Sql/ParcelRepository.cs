@@ -21,6 +21,7 @@ public class ParcelRepository : IParcelRepository
         _context = context;
         _logger = logger;
         _geoEncodingAgent = geoEncodingAgent;
+        _geoEncodingAgent = geoEncodingAgent;
     }
 
     public Parcel GetById(int id){
@@ -110,6 +111,7 @@ public class ParcelRepository : IParcelRepository
 
         if(parcel is null){
             _logger.LogError($"Update: [parcel:{parcel}] Parcel is null");
+            throw new DALException("Update: Parcel is Null");
             throw new DALException("Update: Parcel is Null");
         }
 

@@ -26,9 +26,16 @@ public class HopRepository : IHopRepository
             _logger.LogError($"GetByCode: [code:{code}] Hop not found");
             throw new DALNotFoundException($"Hop with code {code} not found", e);
         }
+        try {
+            return _context.Hops.SingleOrDefault(_ => _.Code == code);
+        } catch (InvalidOperationException e) {
+            _logger.LogError($"GetByCode: [code:{code}] Hop not found");
+            throw new DALNotFoundException($"Hop with code {code} not found", e);
+        }
     }
 
     public void Import(Hop hop){
+        _context.Database.EnsureDeleted(); 
         _context.Database.EnsureCreated();
 
         // Reset Database
@@ -42,6 +49,16 @@ public class HopRepository : IHopRepository
         }
 
         _logger.LogDebug($"Import: Adding hop to set");
+        try
+        {
+            _context.Hops.Add(hop);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Import: [hop:{hop}] Hop not added to set");
+            throw new DALNotFoundException($"Hop not added to set", e);
+        }
+
         try
         {
             _context.Hops.Add(hop);
@@ -76,6 +93,7 @@ public class HopRepository : IHopRepository
             throw new DALNotFoundException($"Hop not exported", e);
         }
     }
+    
     private void Reset(){
         _context.Database.ExecuteSqlRaw("DELETE FROM Hops"); 
         _context.Database.ExecuteSqlRaw("DELETE FROM WarehouseNextHops");

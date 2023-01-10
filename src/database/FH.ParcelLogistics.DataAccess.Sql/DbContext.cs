@@ -75,6 +75,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.Property(c => c.Code);
             e.Property(c => c.Description);
             e.Property(c => c.DateTime).HasColumnType("datetime");
+
         });
     }   
 }
