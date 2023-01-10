@@ -3,6 +3,8 @@ namespace FH.ParcelLogistics.DataAccess.Sql;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using DataAccess.Entities;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParcelLogistics.DataAccess.Interfaces;
 public class HopRepository : IHopRepository
@@ -14,60 +16,71 @@ public class HopRepository : IHopRepository
         _logger = logger;
     }
 
-    // Hop, Truck, Warehouse
-    public Hop CreateHop(Hop hop){
-        _context.Database.EnsureCreated();
-
-        _logger.LogDebug($"CreateHop: Adding hop to set");
-        _context.Hops.Add(hop);
-        _logger.LogDebug($"CreateHop: Save changes to database"); 
-        _context.SaveChanges();
-        return hop;
-    }
-
-    public Hop UpdateHop(Hop hop){
-        _context.Database.EnsureCreated();
-
-        _logger.LogDebug($"UpdateHop: Updating hop");
-        _context.Hops.Update(hop);
-        _logger.LogDebug($"UpdateHop: Save changes to database"); 
-        _context.SaveChanges();
-        return hop;
-    }
-
-    public IEnumerable<Hop> GetHops(){
-        _context.Database.EnsureCreated();
-
-        _logger.LogDebug($"GetHops: Get all hops from database");
-        return _context.Hops.ToList();
-    }
-
     public Hop GetByCode(string code){
         _context.Database.EnsureCreated();
 
         _logger.LogDebug($"GetByCode: [code:{code}] Get hop by code");
-        return _context.Hops.Single(_ => _.Code == code);
-    }
-
-    public Hop GetById(int id){
-        _context.Database.EnsureCreated();
-
-        _logger.LogDebug($"GetById: [id:{id}] Get hop by id");
-        return _context.Hops.Find(id);
+        try {
+            return _context.Hops.SingleOrDefault(_ => _.Code == code);
+        } catch (InvalidOperationException e) {
+            _logger.LogError($"GetByCode: [code:{code}] Hop not found");
+            throw new DALNotFoundException($"Hop with code {code} not found", e);
+        }
     }
 
     public void Import(Hop hop){
         _context.Database.EnsureCreated();
 
+        // Reset Database
+        _logger.LogDebug($"Import: Reset database");
+        try{
+            Reset();
+            _logger.LogDebug($"Import: Database reset");
+        } catch (SqlException e){
+            _logger.LogError($"Import: Database not reset");
+            throw new DALException($"Database not reset", e);
+        }
+
         _logger.LogDebug($"Import: Adding hop to set");
-        _context.Hops.Add(hop);
+        try
+        {
+            _context.Hops.Add(hop);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Import: [hop:{hop}] Hop not added to set");
+            throw new DALNotFoundException($"Hop not added to set", e);
+        }
+
         _logger.LogDebug($"Import: Save changes to database"); 
         _context.SaveChanges();
     }
 
-    public void Export() {
+    public Warehouse Export()
+    {
         _context.Database.EnsureCreated();
 
-        throw new NotImplementedException();
+        try{
+            var result = _context.Hops.OfType<Warehouse>()
+                .Include(wh => wh.NextHops)
+                .ThenInclude(nxh => nxh.Hop)
+                .AsEnumerable()
+                .SingleOrDefault(w => w.Level == 0);
+
+            return result;
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError($"Export: Hop not exported");
+            throw new DALNotFoundException($"Hop not exported", e);
+        }
+    }
+    private void Reset(){
+        _context.Database.ExecuteSqlRaw("DELETE FROM Hops"); 
+        _context.Database.ExecuteSqlRaw("DELETE FROM WarehouseNextHops");
+        _context.Database.ExecuteSqlRaw("DELETE FROM HopArrival");
+        _context.Database.ExecuteSqlRaw("DELETE FROM Parcels");
+        _context.Database.ExecuteSqlRaw("DELETE FROM Recipient");
     }
 }

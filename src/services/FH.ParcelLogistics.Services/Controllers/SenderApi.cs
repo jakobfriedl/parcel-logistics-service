@@ -25,6 +25,7 @@ using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -68,7 +69,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"SubmitParcel: Address of sender/receiver not found");
 				return NotFound(new Error { ErrorMessage = e.Message });
-			} 	
+			} catch(BLException e){
+				_logger.LogError(e, $"SubmitParcel: Error");
+				return BadRequest(new Error { ErrorMessage = e.Message });
+			}
 		}
 	}
 }

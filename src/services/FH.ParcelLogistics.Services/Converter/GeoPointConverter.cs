@@ -29,6 +29,11 @@ internal class GeoPointConverter :
             Lat = (double)sourceMember.Coordinate.X,
             Lon = (double)sourceMember.Coordinate.Y
         };
+        // return new GeoCoordinate()
+        // {
+        //     Lat = (double)sourceMember.Coordinate.Y,
+        //     Lon = (double)sourceMember.Coordinate.X
+        // };
     }
 
     public Point Convert(GeoCoordinate sourceMember, ResolutionContext context)
@@ -37,5 +42,6 @@ internal class GeoPointConverter :
             return null;
 
         return new Point((double)sourceMember.Lat, (double)sourceMember.Lon);
+        // return new Point((double)sourceMember.Lon, (double)sourceMember.Lat);
     }
 }

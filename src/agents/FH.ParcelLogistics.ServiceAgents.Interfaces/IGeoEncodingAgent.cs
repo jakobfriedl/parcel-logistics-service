@@ -1,8 +1,9 @@
 namespace FH.ParcelLogistics.ServiceAgents.Interfaces;
 
+using FH.ParcelLogistics.DataAccess.Entities;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 
 public interface IGeoEncodingAgent
 {
-    public GeoCoordinate EncodeAddress(Recipient address);
+    NetTopologySuite.Geometries.Point EncodeAddress(DataAccess.Entities.Recipient address);
 }
