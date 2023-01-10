@@ -70,22 +70,10 @@ public class ParcelRepository : IParcelRepository
         {
             var senderAddress = _geoEncodingAgent.EncodeAddress(parcel.Sender);
             var recipientAddress = _geoEncodingAgent.EncodeAddress(parcel.Recipient);
-            
-            Hop recipientEndpoint; 
-            Hop senderEndpoint;
 
             // Find endpoint of sender and recipient
-            if (parcel.Recipient.Country == "Austria" || parcel.Recipient.Country == "Österreich"){
-                recipientEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
-            } else {
-                recipientEndpoint = _context.Hops.OfType<Transferwarehouse>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
-            }
-
-            if (parcel.Sender.Country == "Austria" || parcel.Sender.Country == "Österreich"){
-                senderEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
-            } else {
-                senderEndpoint = _context.Hops.OfType<Transferwarehouse>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
-            }
+            var recipientEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
+            var senderEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
 
             _logger.LogDebug($"Submit: Predicting future hops");
             var futureHops = PredictRoute(senderEndpoint, recipientEndpoint).ToList();

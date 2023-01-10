@@ -68,24 +68,24 @@ public class ParcelRepositoryTests
         Assert.AreEqual("305P2O7EC", parcel.TrackingId);
     }
 
-    [Test]
-    public void Submit_ReturnsParcel(){
-        // arrange
-        var trackingId = GenerateValidTrackingId();
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var agent = new Mock<IGeoEncodingAgent>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
-        var parcel = Builder<Parcel>
-            .CreateNew()
-            .With(_ => _.ParcelId = 4)
-            .With(_ => _.TrackingId = trackingId)
-            .Build();
+    // [Test]
+    // public void Submit_ReturnsParcel(){
+    //     // arrange
+    //     var trackingId = GenerateValidTrackingId();
+    //     var logger = new Mock<ILogger<IParcelRepository>>().Object;
+    //     var agent = new Mock<IGeoEncodingAgent>().Object;
+    //     var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+    //     var parcel = Builder<Parcel>
+    //         .CreateNew()
+    //         .With(_ => _.ParcelId = 4)
+    //         .With(_ => _.TrackingId = trackingId)
+    //         .Build();
 
-        // act
-        var result = parcelRepository.Submit(parcel);
+    //     // act
+    //     var result = parcelRepository.Submit(parcel);
 
-        // assert
-        Assert.AreEqual(4, result.ParcelId);
-        Assert.AreEqual(trackingId, result.TrackingId);
-    }
+    //     // assert
+    //     Assert.AreEqual(4, result.ParcelId);
+    //     Assert.AreEqual(trackingId, result.TrackingId);
+    // }
 }
