@@ -38,7 +38,7 @@ public class ParcelRepository : IParcelRepository
 
         _logger.LogDebug($"GetByTrackingId: [trackingId:{trackingId}] Get parcel by trackingId");
         try {
-            return _context.Parcels.Single(_ => _.TrackingId == trackingId);
+           return _context.Parcels.Single(_ => _.TrackingId == trackingId);
         } catch (InvalidOperationException e) {
             _logger.LogError($"GetByTrackingId: [trackingId:{trackingId}] Parcel not found");
             throw new DALNotFoundException($"Parcel with trackingId {trackingId} not found", e);
@@ -51,13 +51,6 @@ public class ParcelRepository : IParcelRepository
         _logger.LogDebug($"TryGetByTrackingId: [trackingId:{trackingId}] Try to get parcel by trackingId");
         parcel = _context.Parcels.SingleOrDefault(_ => _.TrackingId == trackingId);
         return parcel != null;
-    }
-
-    public IEnumerable<Parcel> GetParcels(){
-        _context.Database.EnsureCreated();
-    
-        _logger.LogDebug($"GetParcels: Get all parcels from database");
-        return _context.Parcels.ToList();
     }
 
     public Parcel Submit(Parcel parcel){
@@ -78,25 +71,23 @@ public class ParcelRepository : IParcelRepository
             var senderTruck =_context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
             var recipientTruck = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
 
+            _logger.LogDebug($"Submit: Predicting future hops");
             var futureHops = PredictRoute(senderTruck, recipientTruck).ToList();
 
-            futureHops.Add(new HopArrival(){
-                HopArrivalId = recipientTruck.HopId,
-                Code = recipientTruck.Code,
-                Description = recipientTruck.Description,
-                DateTime = futureHops.Last().DateTime.AddMinutes(recipientTruck.ProcessingDelayMins)
-            });
-
+            _logger.LogDebug($"Submit: Adding sender and recipient trucks to future hops");
             futureHops.Insert(0, new HopArrival(){
-                HopArrivalId = senderTruck.HopId,
                 Code = senderTruck.Code,
                 Description = senderTruck.Description,
                 DateTime = DateTime.Now
             });
 
-            parcel.FutureHops = futureHops;
+            futureHops.Add(new HopArrival(){
+                Code = recipientTruck.Code,
+                Description = recipientTruck.Description,
+                DateTime = futureHops.Last().DateTime.AddMinutes(recipientTruck.ProcessingDelayMins)
+            });
 
-            var test = parcel;
+            parcel.FutureHops = futureHops;
         } 
         catch (AddressNotFoundException e){
             _logger.LogError($"Submit: [parcel:{parcel}] Address not found");
@@ -134,26 +125,23 @@ public class ParcelRepository : IParcelRepository
         if (parentA == parentB){
             return new List<HopArrival>() {
                 new HopArrival(){
-                    HopArrivalId = parentA.HopId,
                     Code = parentA.Code,
                     Description = parentA.Description,
-                    DateTime = DateTime.Now
+                    DateTime = DateTime.Now.AddMinutes(parentA.ProcessingDelayMins)
                 }
             }; 
         } else {
             var route = PredictRoute(parentA, parentB);
 
             var parentArrivalA = new HopArrival(){
-                HopArrivalId = parentA.HopId,
                 Code = parentA.Code,
                 Description = parentA.Description,
                 DateTime = DateTime.Now
             };
             var parentArrivalB = new HopArrival(){
-                HopArrivalId = parentB.HopId,
                 Code = parentB.Code,
                 Description = parentB.Description,
-                DateTime = DateTime.Now
+                DateTime = route.Last().DateTime.AddMinutes(parentB.ProcessingDelayMins)
             };
 
             route.Insert(0, parentArrivalA);
@@ -169,7 +157,11 @@ public class ParcelRepository : IParcelRepository
             throw new DALException("FindParent: Hop is null");
         }
 
-        var parent = _context.Hops.OfType<Warehouse>().Include(_ => _.NextHops).ThenInclude(_ => _.Hop).AsEnumerable().SingleOrDefault(_ => _.NextHops.Any(y => y.Hop.HopId == hop.HopId));
+        var parent = _context.Hops.OfType<Warehouse>()
+                            .Include(_ => _.NextHops)
+                            .ThenInclude(_ => _.Hop)
+                            .AsEnumerable()
+                            .SingleOrDefault(_ => _.NextHops.Any(y => y.Hop.HopId == hop.HopId));
 
         if(parent is null){
             _logger.LogError($"FindParent: [Hop {hop}] Parent not found");

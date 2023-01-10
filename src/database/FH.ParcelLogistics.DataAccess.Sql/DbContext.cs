@@ -10,8 +10,6 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public virtual DbSet<Parcel> Parcels { get; set; }
     public virtual DbSet<Hop> Hops { get; set; }
-    public virtual DbSet<WarehouseNextHops> WarehouseNextHops {get; set;}
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
 
     public DbContext(DbContextOptions<DbContext> options) : base(options){}

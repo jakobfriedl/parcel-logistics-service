@@ -69,20 +69,6 @@ public class ParcelRepositoryTests
     }
 
     [Test]
-    public void GetParcels_ReturnsAllParcels(){
-        // arrange
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var agent = new Mock<IGeoEncodingAgent>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
-
-        // act
-        var parcels = parcelRepository.GetParcels();
-
-        // assert
-        Assert.AreEqual(3, parcels.Count());
-    }
-
-    [Test]
     public void Submit_ReturnsParcel(){
         // arrange
         var trackingId = GenerateValidTrackingId();
