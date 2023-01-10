@@ -6,6 +6,7 @@ using System.Reflection;
 using BingMapsRESTToolkit;
 using DataAccess.Entities;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ParcelLogistics.DataAccess.Interfaces;
@@ -38,7 +39,10 @@ public class ParcelRepository : IParcelRepository
 
         _logger.LogDebug($"GetByTrackingId: [trackingId:{trackingId}] Get parcel by trackingId");
         try {
-           return _context.Parcels.Single(_ => _.TrackingId == trackingId);
+            return _context.Parcels
+                .Include(_ => _.FutureHops)
+                .Include(_ => _.VisitedHops)
+                .Single(_ => _.TrackingId == trackingId); 
         } catch (InvalidOperationException e) {
             _logger.LogError($"GetByTrackingId: [trackingId:{trackingId}] Parcel not found");
             throw new DALNotFoundException($"Parcel with trackingId {trackingId} not found", e);
@@ -66,25 +70,37 @@ public class ParcelRepository : IParcelRepository
         {
             var senderAddress = _geoEncodingAgent.EncodeAddress(parcel.Sender);
             var recipientAddress = _geoEncodingAgent.EncodeAddress(parcel.Recipient);
+            
+            Hop recipientEndpoint; 
+            Hop senderEndpoint;
 
-            // Find Truck of sender and recipient
-            var senderTruck =_context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
-            var recipientTruck = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
+            // Find endpoint of sender and recipient
+            if (parcel.Recipient.Country == "Austria" || parcel.Recipient.Country == "Österreich"){
+                recipientEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
+            } else {
+                recipientEndpoint = _context.Hops.OfType<Transferwarehouse>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(recipientAddress));
+            }
+
+            if (parcel.Sender.Country == "Austria" || parcel.Sender.Country == "Österreich"){
+                senderEndpoint = _context.Hops.OfType<Truck>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
+            } else {
+                senderEndpoint = _context.Hops.OfType<Transferwarehouse>().AsEnumerable().SingleOrDefault(_ => _.Region.Contains(senderAddress));
+            }
 
             _logger.LogDebug($"Submit: Predicting future hops");
-            var futureHops = PredictRoute(senderTruck, recipientTruck).ToList();
+            var futureHops = PredictRoute(senderEndpoint, recipientEndpoint).ToList();
 
             _logger.LogDebug($"Submit: Adding sender and recipient trucks to future hops");
             futureHops.Insert(0, new HopArrival(){
-                Code = senderTruck.Code,
-                Description = senderTruck.Description,
+                Code = senderEndpoint.Code,
+                Description = senderEndpoint.Description,
                 DateTime = DateTime.Now
             });
 
             futureHops.Add(new HopArrival(){
-                Code = recipientTruck.Code,
-                Description = recipientTruck.Description,
-                DateTime = futureHops.Last().DateTime.AddMinutes(recipientTruck.ProcessingDelayMins)
+                Code = recipientEndpoint.Code,
+                Description = recipientEndpoint.Description,
+                DateTime = futureHops.Last().DateTime.AddMinutes(recipientEndpoint.ProcessingDelayMins)
             });
 
             parcel.FutureHops = futureHops;

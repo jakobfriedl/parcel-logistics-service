@@ -25,13 +25,6 @@ public class HopProfile : Profile
 
         CreateMap<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 
-        // Transferwarehouse
-        CreateMap<DataAccess.Entities.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>()
-            .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>();
-
-        CreateMap<BusinessLogic.Entities.Transferwarehouse, DataAccess.Entities.Transferwarehouse>()
-            .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>();
-
         // Warehouse
         CreateMap<DataAccess.Entities.Warehouse, BusinessLogic.Entities.Warehouse>()
             .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>();
@@ -49,6 +42,15 @@ public class HopProfile : Profile
             .ForMember(dest => dest.Region,opt=>opt.ConvertUsing<GeoJsonConverter, string>(p=>p.RegionGeoJson));
 
         CreateMap<DataAccess.Entities.Truck, BusinessLogic.Entities.Truck>()
+            .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
+            .ForMember(dest => dest.RegionGeoJson,opt=>opt.ConvertUsing<GeoJsonConverter, Geometry>(p=>p.Region));
+
+        // Transferwarehouse
+        CreateMap<BusinessLogic.Entities.Transferwarehouse, DataAccess.Entities.Transferwarehouse>()
+            .IncludeBase<BusinessLogic.Entities.Hop, DataAccess.Entities.Hop>()
+            .ForMember(dest => dest.Region,opt=>opt.ConvertUsing<GeoJsonConverter, string>(p=>p.RegionGeoJson));
+        
+        CreateMap<DataAccess.Entities.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>()
             .IncludeBase<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>()
             .ForMember(dest => dest.RegionGeoJson,opt=>opt.ConvertUsing<GeoJsonConverter, Geometry>(p=>p.Region));
 

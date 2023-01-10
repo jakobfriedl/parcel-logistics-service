@@ -21,13 +21,23 @@ public class SubmissionValidator : AbstractValidator<Parcel>
     {
         //check Recipient
         RuleFor(parcel => parcel.Recipient).NotNull();
-        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotNull().Matches(@"Austria|Österreich").DependentRules(() => {
-            //only Checks if Country is Austria|Österreich  
+        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotNull();
+
+        When(recipientCountry => recipientCountry.Recipient.Country == "Austria" || recipientCountry.Recipient.Country == "Österreich", () => {
+            //only Checks if Country is Austria|Österreich
             RuleFor(recipientPostalCode => recipientPostalCode.Recipient.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
             RuleFor(recipientCity => recipientCity.Recipient.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
             RuleFor(recipientStreet => recipientStreet.Recipient.Street).NotNull().Matches(@"^[A-Z][a-zäüöß /\d-]*");
             RuleFor(recipientName => recipientName.Recipient.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
+
+        // RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).Matches(@"Austria|Österreich").DependentRules(() => {
+        //     //only Checks if Country is Austria|Österreich  
+        //     RuleFor(recipientPostalCode => recipientPostalCode.Recipient.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
+        //     RuleFor(recipientCity => recipientCity.Recipient.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+        //     RuleFor(recipientStreet => recipientStreet.Recipient.Street).NotNull().Matches(@"^[A-Z][a-zäüöß /\d-]*");
+        //     RuleFor(recipientName => recipientName.Recipient.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
+        // });
 
         //check Sender
         RuleFor(parcel => parcel.Sender).NotNull();

@@ -10,6 +10,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public virtual DbSet<Parcel> Parcels { get; set; }
     public virtual DbSet<Hop> Hops { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
 
     public DbContext(DbContextOptions<DbContext> options) : base(options){}
@@ -74,7 +75,6 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.Property(c => c.Code);
             e.Property(c => c.Description);
             e.Property(c => c.DateTime).HasColumnType("datetime");
-
         });
     }   
 }

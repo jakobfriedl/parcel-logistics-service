@@ -69,7 +69,10 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e){
 				_logger.LogError(e, $"SubmitParcel: Address of sender/receiver not found");
 				return NotFound(new Error { ErrorMessage = e.Message });
-			} 	
+			} catch(BLException e){
+				_logger.LogError(e, $"SubmitParcel: Error");
+				return BadRequest(new Error { ErrorMessage = e.Message });
+			}
 		}
 	}
 }
