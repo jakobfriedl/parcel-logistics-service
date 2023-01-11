@@ -8,4 +8,6 @@ public interface IParcelRepository
     Parcel Update(Parcel parcel);
     Parcel GetByTrackingId(string trackingId);
     bool TryGetByTrackingId(string trackingId, out Parcel parcel);
+    IList<HopArrival> PredictRoute(Hop hopA, Hop hopB);
+    Hop Parent(Hop hop);
 }
