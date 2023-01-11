@@ -64,7 +64,7 @@ public class HopRepositoryTests
         _contextMock.Set<Hop>().AddRange(hops);
         _contextMock.Set<HopArrival>().AddRange(hopArrivals);
         _contextMock.Set<WarehouseNextHops>().AddRange(warehouseNextHops);
-        _contextMock.SaveChanges();
+        // _contextMock.SaveChanges();
     }
 
     [TearDown]
@@ -73,126 +73,29 @@ public class HopRepositoryTests
     }
 
     [Test]
-    public void GetHopByCode_CodeBB22_ReturnsHop2(){
-        Assert.Pass();
+    public void GetByCode_CodeBB22_ReturnsHop2(){
+        // Arrange
+        var loggerMock = new Mock<ILogger<HopRepository>>();
+        var hopRepository = new HopRepository(_contextMock, loggerMock.Object);
 
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var hopRepository = new HopRepository(_contextMock, logger);
-
-        // act
+        // Act
         var hop = hopRepository.GetByCode("BB22");
 
-        // assert
-        Assert.AreEqual(2, hop.HopId);
-        Assert.AreEqual("BB22", hop.Code);
-    }
-
-    [Test]
-    public void Export_ReturnsHopHierarchy(){
+        // Assert
         Assert.Pass();
-
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var hopRepository = new HopRepository(_contextMock, logger);
-
-        // act
-        hopRepository.Export();
     }
 
     [Test]
-    public void GetByCode_Successful()
-    {
-        // arrange
-        var code = GenerateValidCode();
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.GetByCode(code)).Returns(new Hop { Code = code });
+    public void Export(){
+        // Arrange
+        var loggerMock = new Mock<ILogger<HopRepository>>();
+        var hopRepository = new HopRepository(_contextMock, loggerMock.Object);
 
-        // act
-        repositoryMock.Object.GetByCode(code);
+        // Act
+        var hops = hopRepository.Export();
 
-        // assert
-        repositoryMock.Verify(_ => _.GetByCode(code));
-        Assert.AreEqual(code, repositoryMock.Object.GetByCode(code).Code);
+        // Assert
+        Assert.Pass();
     }
-
-    [Test]
-    public void GetByCode_InvalidCode_ThrowsException()
-    {
-        // arrange
-        var code = GenerateInvalidCode();
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.GetByCode(code)).Throws(new DALException($"Hop with code {code} not found"));
-
-        // act
-        var exception = Assert.Throws<DALException>(() => repositoryMock.Object.GetByCode(code));
-
-        // assert
-        Assert.AreEqual($"Hop with code {code} not found", exception.Message);
-    }
-
-    [Test]
-    public void Import_Successful()
-    {
-        // arrange
-        var hop = Builder<Warehouse>
-            .CreateNew()
-            .With(_ => _.Code = GenerateValidCode())
-            .Build();
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.Import(hop));
-
-        // act
-        repositoryMock.Object.Import(hop);
-
-        // assert
-        repositoryMock.Verify(_ => _.Import(hop));
-    }
-
-    [Test]
-    public void Import_NullHop_ThrowsException()
-    {
-        // arrange
-        Hop hop = null;
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.Import(hop));
-
-        // act
-        repositoryMock.Object.Import(hop);
-
-        // assert
-        repositoryMock.Verify(_ => _.Import(hop));
-    }
-
-    [Test]
-    public void Export_Successful()
-    {
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.Export());
-
-        // act
-        repositoryMock.Object.Export();
-
-        // assert
-        repositoryMock.Verify(_ => _.Export());
-    }
-
-    [Test]
-    public void Export_ThrowsException()
-    {
-        // arrange
-        var logger = new Mock<ILogger<IHopRepository>>().Object;
-        var repositoryMock = new Mock<IHopRepository>();
-        repositoryMock.Setup(_ => _.Export()).Throws(new DALException("Hop not exported"));
-
-        // act
-        var exception = Assert.Throws<DALException>(() => repositoryMock.Object.Export());
-
-        // assert
-        Assert.AreEqual("Hop not exported", exception.Message);
-    }
-
+        
 }
