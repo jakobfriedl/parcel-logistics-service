@@ -100,4 +100,24 @@ public class SenderApiControllerTests
         Assert.AreEqual(404, result?.StatusCode);
         Assert.IsInstanceOf(typeof(DTOs.Error), result?.Value);
     }
+
+    [Test]
+    public void SubmitParcel_SubmitFailed_Returns400(){
+        // arrange
+        var submissionLogicMock = new Mock<BusinessLogic.Interfaces.ISubmissionLogic>();
+        submissionLogicMock.Setup(x => x.SubmitParcel(It.IsAny<BusinessLogic.Entities.Parcel>()))
+            .Throws<BLException>();
+        
+        var submissionLogic = submissionLogicMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<ControllerBase>>().Object;
+        var senderApi = new SenderApiController(mapper, submissionLogic, logger);
+
+        // act
+        var result = senderApi.SubmitParcel(Builder<DTOs.Parcel>.CreateNew().Build()) as ObjectResult;
+
+        // assert
+        Assert.AreEqual(400, result?.StatusCode);
+        Assert.IsInstanceOf(typeof(DTOs.Error), result?.Value);
+    }
 }

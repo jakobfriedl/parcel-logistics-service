@@ -140,6 +140,23 @@ public class SubmissionLogicTests
     }
 
     [Test]
+    public void SubmitParcel_FailedToSubmit_Returns400(){
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var parcel = GenerateValidParcel();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Throws<DALException>();
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<ISubmissionLogic>>().Object;
+                var submissionLogic = new SubmissionLogic(repository, mapper, logger);
+
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLException>().And.Message.EqualTo("The operation failed due to an error."), () => submissionLogic.SubmitParcel(parcel));
+    }
+
+    [Test]
     public void SubmitParcel_ValidSubmission_ReturnsTrue()
     {
         // arrange

@@ -39,7 +39,7 @@ public class ParcelRepositoryTests
             .CreateListOfSize(3)
             .TheFirst<Parcel>(1).With(_ => _.TrackingId = "ABCDEFGHI").And(_ => _.ParcelId = 1)
             .TheNext<Parcel>(1).With(_ => _.TrackingId = "BCDEFGHIJ").And(_ => _.ParcelId = 2)
-            .TheNext<Parcel>(1).With(_ => _.TrackingId = "305P2O7EC").And(_ => _.ParcelId = 3)
+            .TheNext<Parcel>(1).With(_ => _.TrackingId = "305P2O7EC").And(_ => _.ParcelId = 3).And(_ => _.State = Parcel.ParcelState.Pickup)
             .Build();
 
         _contextMock.Set<Parcel>().AddRange(parcels);
@@ -66,6 +66,57 @@ public class ParcelRepositoryTests
         Assert.AreEqual(3, parcel.ParcelId);
         Assert.AreEqual("305P2O7EC", parcel.TrackingId);
     }
+
+    [Test]
+    public void TryGetByTrackingId_305P2O7EC_ReturnsTrue(){
+        // arrange
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var agent = new Mock<IGeoEncodingAgent>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+
+        // act
+        var result = parcelRepository.TryGetByTrackingId("305P2O7EC", out var parcel);
+
+        // assert
+        Assert.IsTrue(result);
+        Assert.AreEqual(3, parcel.ParcelId);
+        Assert.AreEqual("305P2O7EC", parcel.TrackingId);
+    }
+
+    [Test]
+    public void TryGetByTrackingId_405P2O7EC_ReturnsFalse(){
+        // arrange
+        var logger = new Mock<ILogger<IParcelRepository>>().Object;
+        var agent = new Mock<IGeoEncodingAgent>().Object;
+        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+
+        // act
+        var result = parcelRepository.TryGetByTrackingId("405P2O7ED", out var parcel);
+
+        // assert
+        Assert.IsFalse(result);
+        Assert.IsNull(parcel);
+    }
+
+    // [Test]
+    // public void Update_ReturnsUpdatedParcel(){
+    //     // arrange
+    //     var logger = new Mock<ILogger<IParcelRepository>>().Object;
+    //     var agent = new Mock<IGeoEncodingAgent>().Object;
+    //     var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+    //     var parcel = Builder<Parcel>
+    //         .CreateNew()
+    //         .With(_ => _.ParcelId = 3)
+    //         .With(_ => _.TrackingId = "305P2O7EC")
+    //         .With(_ => _.State = Parcel.ParcelState.Delivered)
+    //         .Build();
+
+    //     // act
+    //     var result = parcelRepository.Update(parcel);
+
+    //     // assert
+    //     Assert.AreEqual(parcel, result);
+    // }
 
     // [Test]
     // public void Submit_ReturnsParcel(){

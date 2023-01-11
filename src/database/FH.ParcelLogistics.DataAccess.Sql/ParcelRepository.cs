@@ -23,18 +23,7 @@ public class ParcelRepository : IParcelRepository
         _geoEncodingAgent = geoEncodingAgent;
         _geoEncodingAgent = geoEncodingAgent;
     }
-
-    public Parcel GetById(int id){
-        _context.Database.EnsureCreated();
-
-        _logger.LogDebug($"GetById: [id:{id}] Get parcel by id");
-        try {
-            return _context.Parcels.Find(id);
-        } catch(InvalidOperationException e) {
-            _logger.LogError($"GetById: [id:{id}] Parcel not found");
-            throw new DALNotFoundException($"Parcel with id {id} not found", e);
-        }
-    } 
+    
     public Parcel GetByTrackingId(string trackingId){
         _context.Database.EnsureCreated();
 

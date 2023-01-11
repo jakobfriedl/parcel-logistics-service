@@ -170,8 +170,18 @@ public class ReportingLogicTests
             .Returns(Builder<DataAccess.Entities.Parcel>
                 .CreateNew()
                 .With(x => x.TrackingId = trackingId)
+                .With(x => x.FutureHops = Builder<DataAccess.Entities.HopArrival>
+                                            .CreateListOfSize(3)
+                                            .TheFirst(1).With(x => x.Code = hopCode)
+                                            .Build().ToList())
+                .With(x => x.VisitedHops = Builder<DataAccess.Entities.HopArrival>.CreateListOfSize(1).Build().ToList())
                 .Build());
         var hopRepositoryMock = new Mock<IHopRepository>();
+        hopRepositoryMock.Setup(x => x.GetByCode(hopCode))
+            .Returns(Builder<DataAccess.Entities.Hop>
+                .CreateNew()
+                .With(x => x.Code = hopCode)
+                .Build()); 
 
         var parcelRepository = parcelRepositoryMock.Object;
         var hopRepository = hopRepositoryMock.Object;
@@ -180,8 +190,7 @@ public class ReportingLogicTests
         var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object);
 
         // act & assert
-        // Assert.DoesNotThrow(() => reportingLogic.ReportParcelHop(trackingId, hopCode));
-        Assert.True(true);
+        Assert.DoesNotThrow(() => reportingLogic.ReportParcelHop(trackingId, hopCode));
     }
 
     [Test]
