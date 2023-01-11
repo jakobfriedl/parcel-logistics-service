@@ -15,7 +15,7 @@ using RandomDataGenerator.Randomizers;
 
 public class HopRepositoryTests
 {
-    // private Sql.DbContext _contextMock; 
+    private Sql.DbContext _contextMock; 
 
     private string GenerateValidCode()
     {
@@ -29,76 +29,76 @@ public class HopRepositoryTests
         return codeGenerator.Generate();
     }
 
-    // [SetUp]
-    // public void Setup()
-    // {
-        // var options = new DbContextOptionsBuilder<Sql.DbContext>()
-        //     .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        //     .Options;
-        // var contextToMock = new Sql.DbContext(options);
-        // _contextMock = new MockedDbContextBuilder<Sql.DbContext>()
-        //     .UseDbContext(contextToMock)
-        //     .UseConstructorWithParameters(options).MockedDbContext; 
+    [SetUp]
+    public void Setup()
+    {
+        var options = new DbContextOptionsBuilder<Sql.DbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        var contextToMock = new Sql.DbContext(options);
+        _contextMock = new MockedDbContextBuilder<Sql.DbContext>()
+            .UseDbContext(contextToMock)
+            .UseConstructorWithParameters(options).MockedDbContext; 
 
-        // var hops = Builder<Hop>
-        //     .CreateListOfSize(3)
-        //     .TheFirst<Hop>(1).With(_ => _.HopId = 1).And(_ => _.Code = "AA11")
-        //     .TheNext<Hop>(1).With(_ => _.HopId = 2).And(_ => _.Code = "BB22")
-        //     .TheNext<Hop>(1).With(_ => _.HopId = 3).And(_ => _.Code = "CC33")
-        //     .Build();
+        var hops = Builder<Hop>
+            .CreateListOfSize(3)
+            .TheFirst<Hop>(1).With(_ => _.HopId = 1).And(_ => _.Code = "AA11")
+            .TheNext<Hop>(1).With(_ => _.HopId = 2).And(_ => _.Code = "BB22")
+            .TheNext<Hop>(1).With(_ => _.HopId = 3).And(_ => _.Code = "CC33")
+            .Build();
 
-        // var hopArrivals = Builder<HopArrival>
-        //     .CreateListOfSize(3)
-        //     .TheFirst<HopArrival>(1).With(_ => _.HopArrivalId = 1)
-        //     .TheNext<HopArrival>(1).With(_ => _.HopArrivalId = 2)
-        //     .TheNext<HopArrival>(1).With(_ => _.HopArrivalId = 3)
-        //     .Build();
+        var hopArrivals = Builder<HopArrival>
+            .CreateListOfSize(3)
+            .TheFirst<HopArrival>(1).With(_ => _.HopArrivalId = 1)
+            .TheNext<HopArrival>(1).With(_ => _.HopArrivalId = 2)
+            .TheNext<HopArrival>(1).With(_ => _.HopArrivalId = 3)
+            .Build();
 
-        // var warehouseNextHops = Builder<WarehouseNextHops>
-        //     .CreateListOfSize(3)
-        //     .TheFirst<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 1)
-        //     .TheNext<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 2)
-        //     .TheNext<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 3)
-        //     .Build();
+        var warehouseNextHops = Builder<WarehouseNextHops>
+            .CreateListOfSize(3)
+            .TheFirst<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 1)
+            .TheNext<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 2)
+            .TheNext<WarehouseNextHops>(1).With(_ => _.WarehouseNextHopsId = 3)
+            .Build();
 
-        // _contextMock.Set<Hop>().AddRange(hops);
-        // _contextMock.Set<HopArrival>().AddRange(hopArrivals);
-        // _contextMock.Set<WarehouseNextHops>().AddRange(warehouseNextHops);
-        //_contextMock.SaveChanges();
-    // }
+        _contextMock.Set<Hop>().AddRange(hops);
+        _contextMock.Set<HopArrival>().AddRange(hopArrivals);
+        _contextMock.Set<WarehouseNextHops>().AddRange(warehouseNextHops);
+        _contextMock.SaveChanges();
+    }
 
-    // [TearDown]
-    // public void TearDown(){
-    //     _contextMock.Dispose();
-    // }
+    [TearDown]
+    public void TearDown(){
+        _contextMock.Dispose();
+    }
 
-    // [Test]
-    // public void GetHopByCode_CodeBB22_ReturnsHop2(){
-    //     Assert.Pass();
+    [Test]
+    public void GetHopByCode_CodeBB22_ReturnsHop2(){
+        Assert.Pass();
 
-    //     // arrange
-    //     var logger = new Mock<ILogger<IHopRepository>>().Object;
-    //     var hopRepository = new HopRepository(_contextMock, logger);
+        // arrange
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
-    //     // act
-    //     var hop = hopRepository.GetByCode("BB22");
+        // act
+        var hop = hopRepository.GetByCode("BB22");
 
-    //     // assert
-    //     Assert.AreEqual(2, hop.HopId);
-    //     Assert.AreEqual("BB22", hop.Code);
-    // }
+        // assert
+        Assert.AreEqual(2, hop.HopId);
+        Assert.AreEqual("BB22", hop.Code);
+    }
 
-    // [Test]
-    // public void Export_ReturnsHopHierarchy(){
-    //     Assert.Pass();
+    [Test]
+    public void Export_ReturnsHopHierarchy(){
+        Assert.Pass();
 
-    //     // arrange
-    //     var logger = new Mock<ILogger<IHopRepository>>().Object;
-    //     var hopRepository = new HopRepository(_contextMock, logger);
+        // arrange
+        var logger = new Mock<ILogger<IHopRepository>>().Object;
+        var hopRepository = new HopRepository(_contextMock, logger);
 
-    //     // act
-    //     hopRepository.Export();
-    // }
+        // act
+        hopRepository.Export();
+    }
 
     [Test]
     public void GetByCode_Successful()
