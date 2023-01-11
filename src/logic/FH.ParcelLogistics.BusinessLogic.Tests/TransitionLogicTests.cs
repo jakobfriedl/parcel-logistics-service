@@ -210,4 +210,21 @@ public class TransitionLogicTests
         // act & assert 
         Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => transitionLogic.TransitionParcel(trackingId, parcel));
     }
+
+    [Test]
+    public void TransitionParcel_ValidParcel_SubmitFails_ReturnsError(){
+        // arrange
+        var trackingId = GenerateValidTrackingId();
+        var parcel = GenerateValidParcel();
+        var repositoryMock = new Mock<IParcelRepository>();
+        repositoryMock.Setup(x => x.Submit(It.IsAny<DataAccess.Entities.Parcel>()))
+            .Throws<DALException>();
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<ITransitionLogic>>();
+        var transitionLogic = new TransitionLogic(repository, mapper, logger.Object);
+
+        // act & assert 
+        Assert.Throws(Is.TypeOf<BLException>().And.Message.EqualTo("The operation failed due to an error."), () => transitionLogic.TransitionParcel(trackingId, parcel));
+    }
 }

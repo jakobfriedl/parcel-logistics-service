@@ -202,6 +202,21 @@ public class WarehouseLogicTests
     }
 
     [Test]
+    public void ExportWarehouses_ThrowsNotFound(){
+        // arrange
+        var repositoryMock = new Mock<IHopRepository>();
+        repositoryMock.Setup(x => x.Export())
+            .Throws<DALNotFoundException>();
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
+
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Root warehouse not found"), () => warehouseLogic.ExportWarehouses());
+    }
+
+    [Test]
     public void GetWarehouse_ValidWarehouseCode_ShouldReturnValidHop()
     {
         // arrange
@@ -221,6 +236,22 @@ public class WarehouseLogicTests
         // assert
         Assert.NotNull(result);
         Assert.That(result, Is.TypeOf<Warehouse>());
+    }
+
+    [Test]
+    public void GetWarehouse_ValidWarehouseCode_ErrorGettingWarehouse()
+    {
+        // arrange
+        var repositoryMock = new Mock<IHopRepository>();
+        repositoryMock.Setup(x => x.GetByCode(It.IsAny<string>()))
+            .Throws<Exception>();
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<WarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
+
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLException>().And.Message.EqualTo("Error getting warehouse by code"), () => warehouseLogic.GetWarehouse(GenerateRandomRegex(@"^[A-Z]{4}\d{1,4}$")));
     }
 
     [Test]
@@ -271,5 +302,20 @@ public class WarehouseLogicTests
 
         // act
         Assert.Throws(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => warehouseLogic.ImportWarehouses(GenerateInvalidWarehouse()));
+    }
+
+    [Test]
+    public void ImportWarehouses_ErrorImportingWarehouses(){
+        // arrange
+        var repositoryMock = new Mock<IHopRepository>();
+        repositoryMock.Setup(x => x.Import(It.IsAny<DataAccess.Entities.Warehouse>()))
+            .Throws<Exception>();
+        var repository = repositoryMock.Object;
+        var mapper = CreateAutoMapper();
+        var logger = new Mock<ILogger<IWarehouseLogic>>();
+        var warehouseLogic = new WarehouseLogic(repository, mapper, logger.Object);
+
+        // act & assert
+        Assert.Throws(Is.TypeOf<BLException>().And.Message.EqualTo("Error importing warehouse"), () => warehouseLogic.ImportWarehouses(GenerateValidWarehouse()));
     }
 }
