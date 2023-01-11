@@ -21,7 +21,6 @@ public class ParcelRepository : IParcelRepository
         _context = context;
         _logger = logger;
         _geoEncodingAgent = geoEncodingAgent;
-        _geoEncodingAgent = geoEncodingAgent;
     }
     
     public Parcel GetByTrackingId(string trackingId){
