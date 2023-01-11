@@ -1,15 +1,14 @@
 namespace FH.ParcelLogistics.ServiceAgents.Tests;
 using System;
 using System.Net;
-using FH.ParcelLogistics.BusinessLogic;
-using FH.ParcelLogistics.BusinessLogic.Entities;
-using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using BLEntity = FH.ParcelLogistics.BusinessLogic.Entities;
+using DALEntity = FH.ParcelLogistics.DataAccess.Entities;
 using FizzWare.NBuilder;
 using Moq;
 using NUnit.Framework;
 using RandomDataGenerator.FieldOptions;
 using RandomDataGenerator.Randomizers;
-
+using NetTopologySuite.Geometries;
 
 public class NominatimEncodingAgentTests
 {
@@ -19,9 +18,9 @@ public class NominatimEncodingAgentTests
         return idGenerator.Generate();
     }
 
-    private Recipient GenerateValidRecipientObject()
+    private DALEntity.Recipient GenerateValidRecipientObject()
     {
-        var recipient = Builder<Recipient>.CreateNew()
+        var recipient = Builder<DALEntity.Recipient>.CreateNew()
             .With(x => x.Name = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
             .With(x => x.Country = ("Österreich"))
             .With(x => x.PostalCode = ("AT-1200"))
@@ -31,9 +30,9 @@ public class NominatimEncodingAgentTests
         return recipient;
     }
 
-    private Recipient GenerateInvalidRecipientObject()
+    private DALEntity.Recipient GenerateInvalidRecipientObject()
     {
-        var recipient = Builder<Recipient>.CreateNew()
+        var recipient = Builder<DALEntity.Recipient>.CreateNew()
             .With(x => x.Name = GenerateRandomRegex(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*"))
             .With(x => x.Country = ("invalid"))
             .With(x => x.PostalCode = ("invalid"))
@@ -43,34 +42,29 @@ public class NominatimEncodingAgentTests
         return recipient;
     }
 
+    [Test]
+    public void Encode_WithValidRecipient_ReturnsValidGeoLocation()
+    {
+        // arrange
+        var recipient = GenerateValidRecipientObject();
+        var encodingAgent = new BingEncodingAgent();
 
-    // [Test]
-    // public void Encode_WithValidRecipient_ReturnsValidGeoLocation()
-    // {
-    //     // arrange
-    //     var recipient = GenerateValidRecipientObject();
-    //     var encodingAgent = new BingEncodingAgent();
+        // act
+        var geoLocation = encodingAgent.EncodeAddress(recipient);
 
-    //     // act
-    //     var geoLocation = encodingAgent.EncodeAddress(recipient);
+        // assert
+        Assert.IsNotNull(geoLocation);
+        Assert.IsInstanceOf<Point>(geoLocation);
+    }
 
-    //     // assert
-    //     Assert.IsNotNull(geoLocation);
-    //     Assert.IsInstanceOf<GeoCoordinate>(geoLocation);
-    // }
+    [Test]
+    public void Encode_WithValidRecipient_ReturnsInvalidGeoLocation()
+    {
+        // arrange
+        var recipient = GenerateInvalidRecipientObject();
+        var encodingAgent = new BingEncodingAgent();
 
-    // [Test]
-    // public void Encode_WithValidRecipient_ReturnsInvalidGeoLocation()
-    // {
-    //     // arrange
-    //     var recipient = GenerateInvalidRecipientObject();
-    //     var encodingAgent = new BingEncodingAgent();
-
-    //     // act
-    //     var geoLocation = encodingAgent.EncodeAddress(recipient);
-
-    //     // assert
-    //     Assert.IsNotNull(geoLocation);
-    //     Assert.IsNotInstanceOf<GeoCoordinate>(geoLocation);
-    // }
+        // act & assert
+        Assert.Throws<Exception>(() => encodingAgent.EncodeAddress(recipient));
+    }
 }
