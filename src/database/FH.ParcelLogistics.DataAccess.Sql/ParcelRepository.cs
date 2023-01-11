@@ -101,7 +101,6 @@ public class ParcelRepository : IParcelRepository
         if(parcel is null){
             _logger.LogError($"Update: [parcel:{parcel}] Parcel is null");
             throw new DALException("Update: Parcel is Null");
-            throw new DALException("Update: Parcel is Null");
         }
 
         _logger.LogDebug($"Update: Updating parcel");
@@ -111,7 +110,7 @@ public class ParcelRepository : IParcelRepository
         return parcel;
     }
 
-    private IList<HopArrival> PredictRoute(Hop hopA, Hop hopB){
+    public IList<HopArrival> PredictRoute(Hop hopA, Hop hopB){
         // Find parent warehouse of sender and recipient
         var parentA = Parent(hopA);
         var parentB = Parent(hopB);
@@ -146,7 +145,7 @@ public class ParcelRepository : IParcelRepository
         }
     }
 
-    private Hop Parent(Hop hop){
+    public Hop Parent(Hop hop){
         if(hop is null){
             _logger.LogError($"FindParent: [Hop:{hop}] Hop is null");
             throw new DALException("FindParent: Hop is null");
