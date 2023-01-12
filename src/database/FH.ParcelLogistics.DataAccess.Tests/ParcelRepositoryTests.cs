@@ -1,54 +1,27 @@
 namespace FH.ParcelLogistics.DataAccess.Tests;
 
-using BingMapsRESTToolkit;
-using EntityFrameworkCore.Testing.Moq.Helpers;
+using AutoMapper;
 using FH.ParcelLogistics.DataAccess.Entities;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
+using FH.ParcelLogistics.ServiceAgents;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using FH.ParcelLogistics.Services.MappingProfiles;
 using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.Extensions.Logging;
 using Moq;
+using NetTopologySuite.Geometries;
 using NUnit.Framework;
-using RandomDataGenerator.FieldOptions;
-using RandomDataGenerator.Randomizers;
-
 
 public class ParcelRepositoryTests
 {
     private Sql.DbContext _contextMock; 
-
-    private string GenerateValidTrackingId(){
-        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{9}$" });
-        return idGenerator.Generate();
-    }
-
-    private string GenerateInvalidTrackingId()
-    {
-        var idGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{8}$" });
-        return idGenerator.Generate();
-    }
-
-    private string GenerateValidCode()
-    {
-        var codeGenerator = RandomizerFactory.GetRandomizer(new FieldOptionsTextRegex { Pattern = @"^[A-Z0-9]{4}$" });
-        return codeGenerator.Generate();
-    }
-
-    private Hop GenerateHop()
-    {
-        var hop = new Hop();
-        hop.HopType = "Warehouse";
-        hop.Code = GenerateValidCode();
-        hop.Description = "Test Hop";
-        hop.ProcessingDelayMins = 10;
-        hop.LocationName = "Test Location";
-
-        return hop;
-    }
-
+    private IParcelRepository _parcelRepository;
+    private ILogger<IParcelRepository> _loggerMock;
+    private Mock<IGeoEncodingAgent> _geoEncodingAgentMock;
+    private IMapper _mapperHopMock;
+    private IMapper _mapperGeoMock;
 
     [SetUp]
     public void Setup()
@@ -56,421 +29,247 @@ public class ParcelRepositoryTests
         var options = new DbContextOptionsBuilder<Sql.DbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        var contextToMock = new Sql.DbContext(options);
-        _contextMock = new MockedDbContextBuilder<Sql.DbContext>()
-            .UseDbContext(contextToMock)
-            .UseConstructorWithParameters(options).MockedDbContext; 
+        var DTruck = Builder<Truck>.CreateNew().Build();
+        _contextMock = new Sql.DbContext(options);
+        _mapperHopMock = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new HopProfile())));
+        _mapperGeoMock = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile(new GeoProfile())));
 
-        var parcels = Builder<Parcel>
-            .CreateListOfSize(3)
-            .TheFirst<Parcel>(1).With(_ => _.TrackingId = "ABCDEFGHI").And(_ => _.ParcelId = 1)
-            .TheNext<Parcel>(1).With(_ => _.TrackingId = "BCDEFGHIJ").And(_ => _.ParcelId = 2)
-            .TheNext<Parcel>(1).With(_ => _.TrackingId = "305P2O7EC").And(_ => _.ParcelId = 3).And(_ => _.State = Parcel.ParcelState.Pickup)
-            .Build();
-
-        _contextMock.Set<Parcel>().AddRange(parcels);
+        var warehouse = new DataAccess.Entities.Warehouse
+        {
+            Code = "WH1",
+            Description = "Wien 1",
+            HopType = "Warehouse",
+            Level = 1,
+            LocationCoordinates = new NetTopologySuite.Geometries.Point(10,10),
+            LocationName = "Wien 1",
+            NextHops = new List<DataAccess.Entities.WarehouseNextHops>{
+                new()
+                {
+                    Hop = new DataAccess.Entities.Truck
+                    {
+                        Code = "TR1",
+                        Description = "Truck 1",
+                        HopType = "Truck",
+                        LocationCoordinates = new NetTopologySuite.Geometries.Point(10,10),
+                        LocationName = "Truck 1 Wien",
+                        NumberPlate = "TR1",
+                        ProcessingDelayMins = 10,
+                        Region = _mapperGeoMock.Map<Geometry>(
+                            "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[16.3761038,48.2534278],[16.3692824,48.2614423],[16.3682315,48.2613379],[16.369048,48.2571384],[16.3718834,48.2515948],[16.3706547,48.2485833],[16.3672253,48.2446899],[16.3616225,48.2363087],[16.3616607,48.2319017],[16.3634405,48.2287588],[16.3674596,48.2251067],[16.3703691,48.2258219],[16.3721615,48.2278346],[16.3775201,48.2295723],[16.3813071,48.227913],[16.3831208,48.2256264],[16.3846988,48.2260844],[16.388181,48.228166],[16.3867847,48.2303687],[16.398135,48.2363477],[16.389651,48.2440644],[16.3866006,48.2426463],[16.3761038,48.2534278]]]]}}")
+                    }, 
+                    TraveltimeMins = 10
+                },
+                new()
+                {
+                    Hop = new DataAccess.Entities.Truck
+                    {
+                        Code = "TR2",
+                        Description = "Truck 2",
+                        HopType = "Truck",
+                        LocationCoordinates = new NetTopologySuite.Geometries.Point(10,10),
+                        LocationName = "Truck 2 Wien",
+                        NumberPlate = "TR2",
+                        ProcessingDelayMins = 10,
+                        Region = _mapperGeoMock.Map<Geometry>(
+                           "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[16.3855063,48.1829183],[16.3809243,48.187927],[16.3688407,48.1838302],[16.3561966,48.1796913],[16.3497357,48.1792195],[16.3416029,48.1764194],[16.3421133,48.1752849],[16.3460717,48.1742029],[16.3471909,48.1727215],[16.3475478,48.1718778],[16.3455778,48.1717031],[16.3451152,48.1698929],[16.3492455,48.1688515],[16.3580045,48.1773158],[16.3627948,48.1764782],[16.3626394,48.1753919],[16.365597,48.1752349],[16.3651894,48.1726012],[16.3757655,48.1707913],[16.372356,48.1645085],[16.3837663,48.1609262],[16.3867273,48.1679921],[16.3895278,48.1663358],[16.3912637,48.1678593],[16.3927152,48.1668226],[16.395348,48.1676099],[16.3948848,48.1690892],[16.3965135,48.1690556],[16.3980274,48.1718422],[16.3967675,48.1723321],[16.3976108,48.1730565],[16.39721,48.1744732],[16.395452,48.1755276],[16.3855063,48.1829183]]]]}}")
+                    },
+                    TraveltimeMins = 10
+                }
+            }
+        };
+        
+        var parcel = new DataAccess.Entities.Parcel
+        {
+            ParcelId = 1,
+            Weight = 2.1f,
+            Recipient = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1100"
+            },
+            Sender = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1200"
+            },
+            TrackingId = "ABCD12345",
+            State = Parcel.ParcelState.Pickup,
+            VisitedHops = new List<HopArrival>(),
+            FutureHops = new List<HopArrival>
+            {
+                new DataAccess.Entities.HopArrival
+                {
+                    HopArrivalId = 1,
+                    Code = "WH1",
+                    Description = "Wien 1",
+                    DateTime = DateTime.Now,
+                }
+            }
+        };
+        _contextMock.Hops.Add(warehouse);
         _contextMock.SaveChanges();
-    }
+        _contextMock.Parcels.Add(parcel);
+        _contextMock.SaveChanges();
 
-    [TearDown]
-    public void TearDown(){
-        _contextMock.Dispose();
+        var loggerMock = new Mock<ILogger<ParcelRepository>>();
+        _geoEncodingAgentMock = new Mock<IGeoEncodingAgent>();
+
+        var GeoCoordinate = Builder<BingEncodingAgent>.CreateNew().Build();
+        _geoEncodingAgentMock.Setup(x => x.EncodeAddress(It.Is<Recipient>(s => s.PostalCode == "A-1200")))
+            .Returns(new NetTopologySuite.Geometries.Point(48.23959582023019, 16.377257561013483));
+
+        _geoEncodingAgentMock.Setup(x => x.EncodeAddress(It.Is<Recipient>(s => s.PostalCode == "A-1100")))
+            .Returns(new NetTopologySuite.Geometries.Point(48.18072613625085, 16.37551357102144 ));
+
+        _parcelRepository = new ParcelRepository(_contextMock, loggerMock.Object, _geoEncodingAgentMock.Object);
     }
 
     [Test]
-    public void GetByTrackingId_305P2O7EC_ReturnsParcel3(){
+    public void GetByTrackingId_Success(){
         // arrange
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var agent = new Mock<IGeoEncodingAgent>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+        var trackingId = "ABCD12345";
 
         // act
-        var parcel = parcelRepository.GetByTrackingId("305P2O7EC");
+        var result = _parcelRepository.GetByTrackingId(trackingId);
 
+        //assert
+        Assert.AreEqual(trackingId, result.TrackingId);        
+    }
+
+    [Test]
+    public void GetByTrackingId_ThrowsException(){
+        // arrange
+        var trackingId = "405P2O7EC";
+
+        // act
         // assert
-        Assert.AreEqual(3, parcel.ParcelId);
-        Assert.AreEqual("305P2O7EC", parcel.TrackingId);
+        Assert.Throws<DALNotFoundException>(() => _parcelRepository.GetByTrackingId(trackingId), $"Parcel with trackingId {trackingId} not found");
     }
 
     [Test]
-    public void TryGetByTrackingId_305P2O7EC_ReturnsTrue(){
+    public void TryGetByTrackingId_ReturnsTrue(){
         // arrange
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var agent = new Mock<IGeoEncodingAgent>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+        var trackingId = "ABCD12345";
 
         // act
-        var result = parcelRepository.TryGetByTrackingId("305P2O7EC", out var parcel);
+        var result = _parcelRepository.TryGetByTrackingId(trackingId, out var parcel);
 
         // assert
         Assert.IsTrue(result);
-        Assert.AreEqual(3, parcel.ParcelId);
-        Assert.AreEqual("305P2O7EC", parcel.TrackingId);
     }
 
     [Test]
     public void TryGetByTrackingId_405P2O7EC_ReturnsFalse(){
         // arrange
-        var logger = new Mock<ILogger<IParcelRepository>>().Object;
-        var agent = new Mock<IGeoEncodingAgent>().Object;
-        var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
+        var trackingId = "405P2O7EC";
 
         // act
-        var result = parcelRepository.TryGetByTrackingId("405P2O7ED", out var parcel);
+        var result = _parcelRepository.TryGetByTrackingId(trackingId, out var parcel);
 
         // assert
         Assert.IsFalse(result);
         Assert.IsNull(parcel);
     }
 
-    // [Test]
-    // public void Update_ReturnsUpdatedParcel(){
-    //     // arrange
-    //     var logger = new Mock<ILogger<IParcelRepository>>().Object;
-    //     var agent = new Mock<IGeoEncodingAgent>().Object;
-    //     var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
-    //     var parcel = Builder<Parcel>
-    //         .CreateNew()
-    //         .With(_ => _.ParcelId = 3)
-    //         .With(_ => _.TrackingId = "305P2O7EC")
-    //         .With(_ => _.State = Parcel.ParcelState.Delivered)
-    //         .Build();
+    [Test]
+    public void Submit_Parcel_ThrowsException()
+    {
+        // arrange
+        var parcel = new DataAccess.Entities.Parcel
+        {
+            Weight = 2.1f,
+            Recipient = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1100"
+            },
+            Sender = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1200"
+            }
+        };
 
-    //     // act
-    //     var result = parcelRepository.Update(parcel);
+        // act
+        // assert
+        Assert.Throws<DALException>(() => _parcelRepository.Submit(parcel), "FindParent: Hop is null");
+    }
 
-    //     // assert
-    //     Assert.AreEqual(parcel, result);
-    // }
+    [Test]
+    public void Update_Parcel_Successfull()
+    {
+        // arrange
+        var parcel = new DataAccess.Entities.Parcel
+        {
+            ParcelId = 1,
+            Weight = 2.1f,
+            Recipient = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1100"
+            },
+            Sender = new DataAccess.Entities.Recipient
+            {
+                Name = "Test Name",
+                Street = "Test Address",
+                City = "Test City",
+                Country = "Test Country",
+                PostalCode = "A-1200"
+            },
+            State = Parcel.ParcelState.InTruckDelivery,
+        };
 
-    // [Test]
-    // public void Submit_ReturnsParcel(){
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var logger = new Mock<ILogger<IParcelRepository>>().Object;
-    //     var agent = new Mock<IGeoEncodingAgent>().Object;
-    //     var parcelRepository = new ParcelRepository(_contextMock, logger, agent);
-    //     var parcel = Builder<Parcel>
-    //         .CreateNew()
-    //         .With(_ => _.ParcelId = 4)
-    //         .With(_ => _.TrackingId = trackingId)
-    //         .Build();
+        // act
+        var updatedParcel = _parcelRepository.Update(parcel);
 
-    //     // act
-    //     var result = parcelRepository.Submit(parcel);
+        // assert
+        Assert.AreEqual(updatedParcel.State, Parcel.ParcelState.InTruckDelivery);
+    }
 
-    //     // assert
-    //     Assert.AreEqual(4, result.ParcelId);
-    //     Assert.AreEqual(trackingId, result.TrackingId);
-    // }
+    [Test]
+    public void Update_Parcel_ThrowsException()
+    {
+        // arrange
+        Parcel parcel = null;
 
-    // [Test]
-    // public void GetByTrackingId_Successfull()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.GetByTrackingId(trackingId)).Returns(new Parcel
-    //     {
-    //         TrackingId = trackingId
-    //     });
+        // act
+        // assert
+        Assert.Throws<DALException>(() => _parcelRepository.Update(parcel), "Update: Parcel is Null");
+    }
 
-    //     // act
-    //     var parcel = parcelRepositoryMock.Object.GetByTrackingId(trackingId);
+    [Test]
+    public void Parent_ThrowsException()
+    {
+        // arrange
+        var hop = new DataAccess.Entities.Truck
+        {
+            Code = "TR2",
+            Description = "Truck 2",
+            HopType = "Truck",
+            LocationCoordinates = new NetTopologySuite.Geometries.Point(10, 10),
+            LocationName = "Truck 2 Wien",
+            NumberPlate = "TR2",
+            ProcessingDelayMins = 10,
+        };
 
-    //     // assert
-    //     Assert.AreEqual(trackingId, parcel.TrackingId);
-    // }
+        // act
+        // assert
+        Assert.Throws<DALException>(() => _parcelRepository.Parent(hop), "FindParent: Parent not found");
+    }
 
-    // [Test]
-    // public void GetByTrackingId_ThrowsException()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateInvalidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.GetByTrackingId(trackingId)).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.GetByTrackingId(trackingId));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
-
-    // [Test]
-    // public void TryGetByTrackingId_Successfull()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.TryGetByTrackingId(trackingId, out It.Ref<Parcel>.IsAny)).Returns(true);
-
-    //     // act
-    //     var result = parcelRepositoryMock.Object.TryGetByTrackingId(trackingId, out var parcel);
-
-    //     // assert
-    //     Assert.IsTrue(result);
-    // }
-
-    // [Test]
-    // public void TryGetByTrackingId_ThrowsException()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateInvalidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.TryGetByTrackingId(trackingId, out It.Ref<Parcel>.IsAny)).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.TryGetByTrackingId(trackingId, out var parcel));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
-
-    // [Test]
-    // public void Submit_Successfull()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Submit(It.IsAny<Parcel>())).Returns(new Parcel
-    //     {
-    //         TrackingId = trackingId
-    //     });
-
-    //     // act
-    //     var parcel = parcelRepositoryMock.Object.Submit(new Parcel());
-
-    //     // assert
-    //     Assert.AreEqual(trackingId, parcel.TrackingId);
-    // }
-
-    // [Test]
-    // public void Submit_ThrowsException()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateInvalidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Submit(It.IsAny<Parcel>())).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.Submit(new Parcel()));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
-
-    // [Test]
-    // public void Update_Successfull()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateValidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Update(It.IsAny<Parcel>())).Returns(new Parcel
-    //     {
-    //         TrackingId = trackingId
-    //     });
-
-    //     // act
-    //     var parcel = parcelRepositoryMock.Object.Update(new Parcel());
-
-    //     // assert
-    //     Assert.AreEqual(trackingId, parcel.TrackingId);
-    // }
-
-    // [Test]
-    // public void Update_ThrowsException()
-    // {
-    //     // arrange
-    //     var trackingId = GenerateInvalidTrackingId();
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Update(It.IsAny<Parcel>())).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.Update(new Parcel()));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
-
-    // [Test]
-    // public void PredictRoute_Successfull_SameHop()
-    // {
-    //     // arrange
-    //     var hopA = new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     };
-
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.PredictRoute(hopA, hopA)).Returns(new List<HopArrival>
-    //     {
-    //         new HopArrival
-    //         {
-    //             HopArrivalId = 1,
-    //             Code = GenerateValidCode(),
-    //             Description = "Wien01",
-    //             DateTime = DateTime.Now   
-    //         }
-    //     });
-
-    //     // act
-    //     var result = parcelRepositoryMock.Object.PredictRoute(hopA, hopA);
-
-    //     // assert
-    //     Assert.IsNotNull(result);
-    //     Assert.AreEqual(1, result.Count);
-    // }
-
-    // [Test]
-    // public void PredictRoute_Successfull_DifferentHops()
-    // {
-    //     // arrange
-    //     var hopA = new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     };
-
-    //     var hopB = new Hop
-    //     {
-    //         HopId = 2,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien02",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien02",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(2, 2)
-    //     };
-
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.PredictRoute(hopA, hopB)).Returns(new List<HopArrival>
-    //     {
-    //         new HopArrival
-    //         {
-    //             HopArrivalId = 1,
-    //             Code = GenerateValidCode(),
-    //             Description = "Wien01",
-    //             DateTime = DateTime.Now   
-    //         },
-    //         new HopArrival
-    //         {
-    //             HopArrivalId = 2,
-    //             Code = GenerateValidCode(),
-    //             Description = "Wien02",
-    //             DateTime = DateTime.Now   
-    //         }
-    //     });
-
-    //     // act
-    //     var result = parcelRepositoryMock.Object.PredictRoute(hopA, hopB);
-
-    //     // assert
-    //     Assert.IsNotNull(result);
-    //     Assert.AreEqual(2, result.Count);
-    // }
-
-    // [Test]
-    // public void PredictRoute_ThrowsException()
-    // {
-    //     // arrange
-    //     var hopA = new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     };
-
-    //     var hopB = new Hop
-    //     {
-    //         HopId = 2,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien02",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien02",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(2, 2)
-    //     };
-
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.PredictRoute(hopA, hopB)).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.PredictRoute(hopA, hopB));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
-
-    // [Test]
-    // public void Parent_Successfull()
-    // {
-    //     // arrange
-    //     var Hop = new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     };
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Parent(Hop)).Returns(new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     });
-
-    //     // act
-    //     var result = parcelRepositoryMock.Object.Parent(Hop);
-
-    //     // assert
-    //     Assert.IsNotNull(result);
-    // }
-
-    // [Test]
-    // public void Parent_ThrowsException()
-    // {
-    //     // arrange
-    //     var Hop = new Hop
-    //     {
-    //         HopId = 1,
-    //         HopType = "In Delivery",
-    //         Code = GenerateValidCode(),
-    //         Description = "Wien01",
-    //         ProcessingDelayMins = 10,
-    //         LocationName = "Wien01",
-    //         LocationCoordinates = new NetTopologySuite.Geometries.Point(1, 1)
-    //     };
-    //     var parcelRepositoryMock = new Mock<IParcelRepository>();
-    //     parcelRepositoryMock.Setup(_ => _.Parent(Hop)).Throws(new Exception());
-
-    //     // act
-    //     var exception = Assert.Throws<Exception>(() => parcelRepositoryMock.Object.Parent(Hop));
-
-    //     // assert
-    //     Assert.IsNotNull(exception);
-    // }
 }
