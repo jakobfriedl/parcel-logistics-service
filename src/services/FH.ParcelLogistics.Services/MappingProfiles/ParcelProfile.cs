@@ -29,15 +29,10 @@ public class ParcelProfile : Profile
         CreateMap<BusinessLogic.Entities.Recipient, DataAccess.Entities.Recipient>().ReverseMap(); 
         CreateMap<BusinessLogic.Entities.Parcel, DataAccess.Entities.Parcel>().ReverseMap(); 
 
-        // Webhook
+        // Webhooks
         CreateMap<BusinessLogic.Entities.WebhookResponse, DTOs.WebhookResponse>().ReverseMap();
         CreateMap<BusinessLogic.Entities.WebhookResponse, DataAccess.Entities.WebhookResponse>().ReverseMap();
 
-        CreateMap<DTOs.WebhookMessage, DataAccess.Entities.Parcel>()
-            .ForMember(dest => dest.TrackingId, opt => opt.MapFrom(src => src.TrackingId))
-            .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
-            .ForMember(dest => dest.FutureHops, opt => opt.MapFrom(src => src.FutureHops))
-            .ForMember(dest => dest.VisitedHops, opt => opt.MapFrom(src => src.VisitedHops))
-            .ReverseMap();
+        CreateMap<DTOs.WebhookMessage, BusinessLogic.Entities.Parcel>().ReverseMap();
     }
 }

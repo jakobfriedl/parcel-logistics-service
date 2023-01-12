@@ -32,7 +32,14 @@ public class ParcelWebhookManager : IWebhookManager
         var parcel = _parcelRepository.GetByTrackingId(trackingId);
         var webhooks = _webhookRepository.GetByTrackingId(trackingId);
 
-        var payload = JsonConvert.SerializeObject(_mapper.Map<WebhookMessage>(parcel));
+        WebhookMessage? webhookMessage = null; 
+        try {
+            webhookMessage = _mapper.Map<WebhookMessage>(_mapper.Map<BusinessLogic.Entities.Parcel>(parcel));
+        } catch (Exception e) {
+            _logger.LogError(e, "Error while mapping parcel to webhook message");
+        }
+
+        var payload = JsonConvert.SerializeObject(webhookMessage);
 
         try {
             await Task.WhenAll(webhooks.Select(webhook => {

@@ -89,5 +89,6 @@ public class HopRepository : IHopRepository
         _context.Database.ExecuteSqlRaw("DELETE FROM HopArrival");
         _context.Database.ExecuteSqlRaw("DELETE FROM Parcels");
         _context.Database.ExecuteSqlRaw("DELETE FROM Recipient");
+        _context.Database.ExecuteSqlRaw("DELETE FROM WebhookResponses");
     }
 }
