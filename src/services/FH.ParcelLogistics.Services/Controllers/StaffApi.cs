@@ -63,6 +63,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] not found");
 				return NotFound(new Error(){ErrorMessage = e.Message});
+			} catch (BLException e) {
+				_logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] failed");
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			}
 		}
 
@@ -92,6 +95,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] not found");
 				return NotFound(new Error(){ErrorMessage = e.Message});
+			} catch (BLException e) {
+				_logger.LogError($"ReportParcelHop: [trackingId:{trackingId}] failed");
+				return BadRequest(new Error(){ErrorMessage = e.Message});
 			}
 		}
     }

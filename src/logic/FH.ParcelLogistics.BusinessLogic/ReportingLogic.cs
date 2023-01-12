@@ -68,6 +68,7 @@ public class ReportingLogic : IReportingLogic
                 await _webhookManager.Notify(parcel.TrackingId);
             } catch (Exception e) {
                 _logger.LogError(e.Message);
+                throw new BLException("The operation failed due to an error.", e);
             }
             _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Webhook subscribers notified"); 
 
@@ -130,6 +131,7 @@ public class ReportingLogic : IReportingLogic
                 await _webhookManager.Notify(parcel.TrackingId);
             } catch (Exception e) {
                 _logger.LogError(e.Message);
+                throw new BLException("The operation failed due to an error.", e);
             }
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Webhook subscribers notified");
 
