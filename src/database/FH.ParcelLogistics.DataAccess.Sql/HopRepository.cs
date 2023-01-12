@@ -1,6 +1,7 @@
 namespace FH.ParcelLogistics.DataAccess.Sql;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata.Ecma335;
 using DataAccess.Entities;
 using Microsoft.Data.SqlClient;
@@ -28,6 +29,7 @@ public class HopRepository : IHopRepository
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public void Import(Hop hop){
         _context.Database.EnsureCreated();
 
@@ -59,6 +61,7 @@ public class HopRepository : IHopRepository
         _context.SaveChanges();
     }
 
+    [ExcludeFromCodeCoverage]
     public Warehouse Export()
     {
         _context.Database.EnsureCreated();
