@@ -83,6 +83,7 @@ public class HopRepository : IHopRepository
         }
     }
     
+    [ExcludeFromCodeCoverage]
     private void Reset(){
         _context.Database.ExecuteSqlRaw("DELETE FROM Hops"); 
         _context.Database.ExecuteSqlRaw("DELETE FROM WarehouseNextHops");

@@ -20,6 +20,7 @@ using AutoMapper;
 using FH.ParcelLogistics.Services.Attributes;
 using FH.ParcelLogistics.Services.DTOs;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace FH.ParcelLogistics.Services.Controllers
 { 
@@ -31,11 +32,13 @@ namespace FH.ParcelLogistics.Services.Controllers
     {
         private readonly IWebhookLogic _webhookLogic;
         private readonly IMapper _mapper;
+        private readonly ILogger<ControllerBase> _logger;
 
-        public WebhookApiController(IWebhookLogic webhookLogic, IMapper mapper)
+        public WebhookApiController(IWebhookLogic webhookLogic, IMapper mapper, ILogger<ControllerBase> logger)
         {
             _webhookLogic = webhookLogic;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -80,8 +83,7 @@ namespace FH.ParcelLogistics.Services.Controllers
         public virtual IActionResult SubscribeParcelWebhook([FromRoute (Name = "trackingId")][Required][RegularExpression("^[A-Z0-9]{9}$")]string trackingId, [FromQuery (Name = "url")][Required()]string url)
         {
             try {
-                var webhook = _webhookLogic.Subscribe(trackingId, url);
-                return Ok(_mapper.Map<WebhookResponse>(webhook));
+                return Ok(_mapper.Map<WebhookResponse>(_webhookLogic.Subscribe(trackingId, url)));
             } catch (BLValidationException e){
                 return BadRequest(new Error() { ErrorMessage = e.Message});
             } catch (BLNotFoundException e){
