@@ -32,5 +32,7 @@
     <ProjectReference Include="..\FH.ParcelLogistics.Services.Interfaces\FH.ParcelLogistics.Services.Interfaces.csproj" />
     <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents\FH.ParcelLogistics.ServiceAgents.csproj" />
     <ProjectReference Include="..\..\agents\FH.ParcelLogistics.ServiceAgents.Interfaces\FH.ParcelLogistics.ServiceAgents.Interfaces.csproj" />
+    <ProjectReference Include="..\..\hooks\FH.ParcelLogistics.WebhookManager\FH.ParcelLogistics.WebhookManager.csproj" />
+    <ProjectReference Include="..\..\hooks\FH.ParcelLogistics.WebhookManager.Interfaces\FH.ParcelLogistics.WebhookManager.Interfaces.csproj" />
   </ItemGroup>
 </Project>

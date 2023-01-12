@@ -25,6 +25,8 @@ using FH.ParcelLogistics.BusinessLogic;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.ServiceAgents; 
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
+using FH.ParcelLogistics.WebhookManager.Interfaces;
+using FH.ParcelLogistics.WebhookManager;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -66,13 +68,18 @@ namespace FH.ParcelLogistics.Services {
 			services.AddTransient<ITrackingLogic, TrackingLogic>();
 			services.AddTransient<ITransitionLogic, TransitionLogic>();
 			services.AddTransient<IWarehouseLogic, WarehouseLogic>();
+			services.AddTransient<IWebhookLogic, WebhookLogic>();
 
 			// Geo Service Agent
 			services.AddTransient<IGeoEncodingAgent, BingEncodingAgent>();
 
+			// WebhookManager 
+			services.AddTransient<IWebhookManager, ParcelWebhookManager>();
+
 			// Data access repositories
 			services.AddScoped<IParcelRepository, ParcelRepository>();
 			services.AddScoped<IHopRepository, HopRepository>();
+			services.AddScoped<IWebhookRepository, WebhookRepository>();
 
 			// DbContext
 			services.AddDbContext<DataAccess.Sql.DbContext>( optionsBuilder => {
@@ -80,6 +87,8 @@ namespace FH.ParcelLogistics.Services {
 					o.UseNetTopologySuite();
 				});
 			}); 
+
+			services.AddHttpClient(); 
 
 			// Add framework services.
 			services

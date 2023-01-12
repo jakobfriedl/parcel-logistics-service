@@ -6,6 +6,7 @@ using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using FH.ParcelLogistics.DataAccess.Interfaces;
 using FH.ParcelLogistics.DataAccess.Sql;
+using FH.ParcelLogistics.WebhookManager.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
@@ -31,15 +32,17 @@ public class ReportingLogic : IReportingLogic
     private readonly IHopRepository _hopRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<IReportingLogic> _logger;
+    private readonly IWebhookManager _webhookManager;
 
-    public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper, ILogger<IReportingLogic> logger){
+    public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper, ILogger<IReportingLogic> logger, IWebhookManager webhookManager){
         _parcelRepository = parcelRepository;
         _hopRepository = hopRepository;
         _mapper = mapper;
         _logger = logger;
+        _webhookManager = webhookManager;
     }
 
-    public void ReportParcelDelivery(string trackingId)
+    public async Task ReportParcelDelivery(string trackingId)
     {
         _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}]");
         // Validate trackingId
@@ -58,6 +61,16 @@ public class ReportingLogic : IReportingLogic
             _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel with trackingId:{trackingId} updated to state:Delivered");
             var updatedParcel = _parcelRepository.Update(parcel); 
             _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel updated in database");
+
+            // Notify webhook subscribers
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Notifying webhook subscribers");
+            try {
+                await _webhookManager.Notify(parcel.TrackingId);
+            } catch (Exception e) {
+                _logger.LogError(e.Message);
+            }
+            _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Webhook subscribers notified"); 
+
         } catch(DALNotFoundException e){
             _logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel was not found in database");
             throw new BLNotFoundException("Parcel does not exist with this tracking ID.", e);
@@ -65,7 +78,7 @@ public class ReportingLogic : IReportingLogic
         _logger.LogDebug($"ReportParcelDelivery: [trackingId:{trackingId}] - Parcel delivery reported");
     }
 
-    public void ReportParcelHop(string trackingId, string code)
+    public async Task ReportParcelHop(string trackingId, string code)
     {
         _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], code: {code}");
         // Validate trackingId and code
@@ -110,6 +123,16 @@ public class ReportingLogic : IReportingLogic
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel with trackingId:{trackingId} updated to state:{parcel.State}");
             var updatedParcel = _parcelRepository.Update(parcel);
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel updated in database");
+
+            // Notify webhook subscribers
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Notifying webhook subscribers");
+            try {
+                await _webhookManager.Notify(parcel.TrackingId);
+            } catch (Exception e) {
+                _logger.LogError(e.Message);
+            }
+            _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Webhook subscribers notified");
+
         } catch (DALNotFoundException e){
             _logger.LogError($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Parcel was not found in database");
             throw new BLNotFoundException("Parcel does not exist with this tracking ID or hop with code not found.", e);

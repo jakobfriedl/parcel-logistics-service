@@ -10,6 +10,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public virtual DbSet<Parcel> Parcels { get; set; }
     public virtual DbSet<Hop> Hops { get; set; }
+    public virtual DbSet<WebhookResponse> WebhookResponses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder){}
 
@@ -19,9 +20,9 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 
         modelBuilder.Entity<Hop>(e =>
         {
-            e.HasKey(c => c.HopId);
-            e.Property(c => c.HopId).ValueGeneratedOnAdd();
-            e.Property(c => c.LocationCoordinates).HasColumnType("geometry");
+            e.HasKey(_ => _.HopId);
+            e.Property(_ => _.HopId).ValueGeneratedOnAdd();
+            e.Property(_ => _.LocationCoordinates).HasColumnType("geometry");
 
             e.HasDiscriminator()
                 .HasValue<Warehouse>("Level")
@@ -34,48 +35,53 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 
         modelBuilder.Entity<Parcel>(e =>
            {
-               e.HasKey(c => c.TrackingId);
-               e.Property(c => c.TrackingId).ValueGeneratedOnAdd();
-               e.Property(c => c.TrackingId);
-               e.Property(c => c.Weight).IsRequired();
-               e.HasOne<Recipient>(c => c.Recipient);
-               e.HasOne<Recipient>(c => c.Sender);
-               e.HasMany<HopArrival>(c => c.VisitedHops);
-               e.HasMany<HopArrival>(c => c.FutureHops);
-               e.Property(c => c.State);
+               e.HasKey(_ => _.TrackingId);
+               e.Property(_ => _.TrackingId).ValueGeneratedOnAdd();
+               e.Property(_ => _.TrackingId);
+               e.Property(_ => _.Weight).IsRequired();
+               e.HasOne<Recipient>(_ => _.Recipient);
+               e.HasOne<Recipient>(_ => _.Sender);
+               e.HasMany<HopArrival>(_ => _.VisitedHops);
+               e.HasMany<HopArrival>(_ => _.FutureHops);
+               e.Property(_ => _.State);
            });
 
 
         modelBuilder.Entity<WarehouseNextHops>(e =>
         {
-            e.HasKey(c => c.WarehouseNextHopsId);
-            e.Property(c => c.WarehouseNextHopsId).ValueGeneratedOnAdd();
-            e.Property(c => c.TraveltimeMins);
-            e.HasOne<Hop>(c => c.Hop);
+            e.HasKey(_ => _.WarehouseNextHopsId);
+            e.Property(_ => _.WarehouseNextHopsId).ValueGeneratedOnAdd();
+            e.Property(_ => _.TraveltimeMins);
+            e.HasOne<Hop>(_ => _.Hop);
         });
 
         modelBuilder.Entity<Recipient>(e =>
         {
-            e.HasKey(c => c.RecipientId);
-            e.Property(c => c.RecipientId).ValueGeneratedOnAdd();
+            e.HasKey(_ => _.RecipientId);
+            e.Property(_ => _.RecipientId).ValueGeneratedOnAdd();
         });
 
         modelBuilder.Entity<Truck>()
-             .Property(c => c.Region).HasColumnType("geometry");
+             .Property(_ => _.Region).HasColumnType("geometry");
 
 
         modelBuilder.Entity<Transferwarehouse>()
-            .Property(c => c.Region).HasColumnType("geometry");
+            .Property(_ => _.Region).HasColumnType("geometry");
 
 
         modelBuilder.Entity<HopArrival>(e =>
         {
-            e.HasKey(c => c.HopArrivalId);
-            e.Property(c => c.HopArrivalId).ValueGeneratedOnAdd();
-            e.Property(c => c.Code);
-            e.Property(c => c.Description);
-            e.Property(c => c.DateTime).HasColumnType("datetime");
+            e.HasKey(_ => _.HopArrivalId);
+            e.Property(_ => _.HopArrivalId).ValueGeneratedOnAdd();
+            e.Property(_ => _.Code);
+            e.Property(_ => _.Description);
+            e.Property(_ => _.DateTime).HasColumnType("datetime");
 
+        });
+
+        modelBuilder.Entity<WebhookResponse>(e => {
+            e.HasKey(_ => _.Id);
+            e.Property(_ => _.Id).ValueGeneratedOnAdd();
         });
     }   
 }

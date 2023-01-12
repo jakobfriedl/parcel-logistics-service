@@ -28,5 +28,10 @@ public class ParcelProfile : Profile
 
         CreateMap<BusinessLogic.Entities.Recipient, DataAccess.Entities.Recipient>().ReverseMap(); 
         CreateMap<BusinessLogic.Entities.Parcel, DataAccess.Entities.Parcel>().ReverseMap(); 
+
+        // Webhook
+        CreateMap<BusinessLogic.Entities.WebhookResponse, DTOs.WebhookResponse>().ReverseMap();
+        CreateMap<BusinessLogic.Entities.WebhookResponse, DataAccess.Entities.WebhookResponse>().ReverseMap();
+        CreateMap<DTOs.WebhookMessage, DataAccess.Entities.Parcel>().ReverseMap();
     }
 }
