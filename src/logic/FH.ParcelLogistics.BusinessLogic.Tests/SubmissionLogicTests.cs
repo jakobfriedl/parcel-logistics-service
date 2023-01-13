@@ -18,7 +18,6 @@ namespace FH.ParcelLogistics.BusinessLogic.Tests;
 
 public class SubmissionLogicTests
 {
-
     private IMapper CreateAutoMapper()
     {
         var config = new MapperConfiguration(cfg =>

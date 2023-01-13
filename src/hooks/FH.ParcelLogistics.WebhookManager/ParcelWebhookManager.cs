@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using FH.ParcelLogistics.Services.DTOs;
 using System.Text;
 using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace FH.ParcelLogistics.WebhookManager;
 
@@ -34,19 +35,27 @@ public class ParcelWebhookManager : IWebhookManager
 
         var payload = JsonConvert.SerializeObject(_mapper.Map<WebhookMessage>(_mapper.Map<BusinessLogic.Entities.Parcel>(parcel)));
 
-        foreach(var webhook in webhooks){
-            var req = new HttpRequestMessage(HttpMethod.Post, webhook.Url);
-            req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var response = _httpClient.Send(req);
+        try {
+            foreach(var webhook in webhooks){
+                _logger.LogDebug($"Creating webhook notification http request for webhook with id: {webhook.Id}");
+                var req = new HttpRequestMessage(HttpMethod.Post, webhook.Url);
+                req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                var response = _httpClient.Send(req);
 
-            if (response.StatusCode != HttpStatusCode.OK){
-                _logger.LogError($"Webhook notification failed for webhook with id: {webhook.Id}");
-            }
+                if (response.StatusCode != HttpStatusCode.OK){
+                    _logger.LogError($"Webhook notification failed for webhook with id: {webhook.Id}");
+                }
 
-            // Delete webhook if parcel is delivered
-            if (parcel.State == DataAccess.Entities.Parcel.ParcelState.Delivered){
-                _webhookRepository.Delete(webhook.Id);
+                // Delete webhook if parcel is delivered
+                if (parcel.State == DataAccess.Entities.Parcel.ParcelState.Delivered){
+                    _logger.LogDebug($"Deleting webhook with id: {webhook.Id}");
+                    _webhookRepository.Delete(webhook.Id);
+                    _logger.LogDebug($"Webhook with id: {webhook.Id} deleted");
+                }
             }
+        } catch (Exception e){
+            _logger.LogError($"Webhook notification failed for parcel with tracking id: {trackingId}");
+            throw e; 
         }
     }
 }

@@ -60,8 +60,10 @@ namespace FH.ParcelLogistics.Services.Controllers
                var webhooks = _webhookLogic.ListWebhooks(trackingId);
                return Ok(_mapper.Map<List<WebhookResponse>>(webhooks)); 
             } catch (BLValidationException e){
+                _logger.LogError(e, "ListParcelWebhooks: Validation error, invalid tracking id");
                 return BadRequest(new Error() { ErrorMessage = e.Message});
             } catch (BLNotFoundException e){
+                _logger.LogError(e, "ListParcelWebhooks: Parcel with Tracking Id does not exist");
                 return NotFound(new Error() { ErrorMessage = e.Message});
             } 
         }
@@ -85,10 +87,13 @@ namespace FH.ParcelLogistics.Services.Controllers
             try {
                 return Ok(_mapper.Map<WebhookResponse>(_webhookLogic.Subscribe(trackingId, url)));
             } catch (BLValidationException e){
+                _logger.LogError(e, "SubscribeParcelWebhook: Validation error, invalid tracking id");
                 return BadRequest(new Error() { ErrorMessage = e.Message});
             } catch (BLNotFoundException e){
+                _logger.LogError(e, "SubscribeParcelWebhook: Parcel with Tracking Id does not exist");
                 return NotFound(new Error() { ErrorMessage = e.Message});
             } catch (BLException e){
+                _logger.LogError(e, "SubscribeParcelWebhook: Error subscribing to webhook");
                 return BadRequest(new Error() { ErrorMessage = e.Message});
             }
         }
@@ -111,8 +116,10 @@ namespace FH.ParcelLogistics.Services.Controllers
                 _webhookLogic.Unsubscribe(id);
                 return Ok();
             } catch (BLNotFoundException e){
+                _logger.LogError(e, "UnsubscribeParcelWebhook: Subscription does not exist");
                 return NotFound(new Error() { ErrorMessage = e.Message});
             } catch (BLException e){
+                _logger.LogError(e, "UnsubscribeParcelWebhook: Error unsubscribing from webhook");
                 return BadRequest(new Error() { ErrorMessage = e.Message});
             }
         }
