@@ -111,7 +111,6 @@ public class IntegrationTests
     }
 
     [Test]
-    [Category("Integration")]
     public async Task ParcelJourney()
     {
         var firstHopCode = "WTTA056";
