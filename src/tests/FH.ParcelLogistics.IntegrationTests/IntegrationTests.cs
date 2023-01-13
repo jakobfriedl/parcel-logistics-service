@@ -19,8 +19,7 @@ namespace FH.ParcelLogistics.IntegrationTests;
 public class IntegrationTests
 {
     private readonly HttpClient _httpClient = new HttpClient();
-    //  private string _baseURL = "https://parceltracker-dev.azurewebsites.net";
-    private string _url = "http://localhost:8080";
+    private string _url = "https://haider-friedl-dev.azurewebsites.net";
 
     [SetUp]
     public void Setup()
@@ -40,18 +39,18 @@ public class IntegrationTests
     {
         var response = await _httpClient.PostAsync($"{_url}/parcel",
             new StringContent(@"{
-                ""weight"": 0.48,
+                ""weight"": 12.345,
                 ""recipient"": {
-                ""name"": ""Lukas"",
-                ""street"": ""H\u00F6chst\u00E4dtpl. 6"",
-                ""postalCode"": ""1200"",
+                ""name"": ""Phil"",
+                ""street"": ""Währinger Straße 3"",
+                ""postalCode"": ""A-1090"",
                 ""city"": ""Wien"",
                 ""country"": ""Austria""
                 },
                 ""sender"": {
-                ""name"": ""Martin"",
-                ""street"": ""Maria-Trapp-Platz 1"",
-                ""postalCode"": ""1220"",
+                ""name"": ""Jockl"",
+                ""street"": ""Riesenradplatz 7"",
+                ""postalCode"": ""A-1020"",
                 ""city"": ""Wien"",
                 ""country"": ""Austria""
                 }
@@ -111,79 +110,74 @@ public class IntegrationTests
         return response;
     }
 
-    // [Test]
-    // [Category("Integration")]
-    // public async Task ParcelJourney()
-    // {
-    //     var firstHopCode = "WTTA059";
-    //     var webhookUrl = "http://test.test.fake/webhooks";
+    [Test]
+    [Category("Integration")]
+    public async Task ParcelJourney()
+    {
+        var firstHopCode = "WTTA056";
+        var webhookUrl = "http://dev.test.dev/webhooks";
 
-    //     await WarehouseManagementApi_POST_warehouse();
+        await WarehouseManagementApi_POST_warehouse();
 
-    //     var response = await SenderApi_POST_parcel();
-    //     Assert.NotNull(response);
-    //     var newParcelInfo = JsonConvert.DeserializeObject<NewParcelInfo>(await response.Content.ReadAsStringAsync());
+        var response = await SenderApi_POST_parcel();
+        Assert.NotNull(response);
+        var newParcelInfo = JsonConvert.DeserializeObject<NewParcelInfo>(await response.Content.ReadAsStringAsync());
 
-    //     response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     var trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(trackedParcel);
-    //     Assert.AreEqual(3, trackedParcel.FutureHops.Count);
-    //     Assert.AreEqual(firstHopCode, trackedParcel.FutureHops[0].Code);
+        response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        var trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(trackedParcel);
+        Assert.AreEqual(3, trackedParcel.FutureHops.Count);
+        Assert.AreEqual(firstHopCode, trackedParcel.FutureHops[0].Code);
 
-    //     await ParcelWebhooksApi_POST_webhooks(newParcelInfo.TrackingId, webhookUrl);
-    //     response = await ParcelWebhooksApi_GET_webhooks(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     var webhooksList = JsonConvert.DeserializeObject<List<WebhookResponse>>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(webhooksList);
-    //     Assert.AreEqual(1, webhooksList.Count);
-    //     Assert.AreEqual(webhookUrl, webhooksList[0].Url);
+        await ParcelWebhooksApi_POST_webhooks(newParcelInfo.TrackingId, webhookUrl);
+        response = await ParcelWebhooksApi_GET_webhooks(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        var webhooksList = JsonConvert.DeserializeObject<List<WebhookResponse>>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(webhooksList);
+        Assert.AreEqual(1, webhooksList.Count);
+        Assert.AreEqual(webhookUrl, webhooksList[0].Url);
 
-    //     await StaffApi_POST_reportHop(newParcelInfo.TrackingId, firstHopCode);
+        await StaffApi_POST_reportHop(newParcelInfo.TrackingId, firstHopCode);
 
-    //     response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(trackedParcel);
-    //     Assert.AreEqual(2, trackedParcel.FutureHops.Count);
-    //     Assert.AreEqual(1, trackedParcel.VisitedHops.Count);
-    //     Assert.AreEqual(firstHopCode, trackedParcel.VisitedHops[0].Code);
-    //     // Assert.AreEqual(TrackingInformation.StateEnum.InTransportEnum, trackedParcel.State);
+        response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(trackedParcel);
+        Assert.AreEqual(2, trackedParcel.FutureHops.Count);
+        Assert.AreEqual(1, trackedParcel.VisitedHops.Count);
+        Assert.AreEqual(firstHopCode, trackedParcel.VisitedHops[0].Code);
 
-    //     await StaffApi_POST_reportHop(newParcelInfo.TrackingId, trackedParcel.FutureHops[0].Code);
+        await StaffApi_POST_reportHop(newParcelInfo.TrackingId, trackedParcel.FutureHops[0].Code);
 
-    //     response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(trackedParcel);
-    //     Assert.AreEqual(1, trackedParcel.FutureHops.Count);
-    //     Assert.AreEqual(2, trackedParcel.VisitedHops.Count);
-    //     // Assert.AreEqual(TrackingInformation.StateEnum.InTransportEnum, trackedParcel.State);
+        response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(trackedParcel);
+        Assert.AreEqual(1, trackedParcel.FutureHops.Count);
+        Assert.AreEqual(2, trackedParcel.VisitedHops.Count);
 
-    //     await StaffApi_POST_reportHop(newParcelInfo.TrackingId, trackedParcel.FutureHops[0].Code);
+        await StaffApi_POST_reportHop(newParcelInfo.TrackingId, trackedParcel.FutureHops[0].Code);
 
-    //     response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(trackedParcel);
-    //     Assert.AreEqual(0, trackedParcel.FutureHops.Count);
-    //     Assert.AreEqual(3, trackedParcel.VisitedHops.Count);
-    //     // Assert.AreEqual(TrackingInformation.StateEnum.InTruckDeliveryEnum, trackedParcel.State);
+        response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(trackedParcel);
+        Assert.AreEqual(0, trackedParcel.FutureHops.Count);
+        Assert.AreEqual(3, trackedParcel.VisitedHops.Count);
 
-    //     await StaffApi_POST_reportDelivery(newParcelInfo.TrackingId);
+        await StaffApi_POST_reportDelivery(newParcelInfo.TrackingId);
 
-    //     response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(trackedParcel);
-    //     Assert.AreEqual(0, trackedParcel.FutureHops.Count);
-    //     Assert.AreEqual(3, trackedParcel.VisitedHops.Count);
-    //     // Assert.AreEqual(TrackingInformation.StateEnum.DeliveredEnum, trackedParcel.State);
+        response = await RecipientApi_GET_parcel(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        trackedParcel = JsonConvert.DeserializeObject<TrackingInformation>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(trackedParcel);
+        Assert.AreEqual(0, trackedParcel.FutureHops.Count);
+        Assert.AreEqual(3, trackedParcel.VisitedHops.Count);
 
-    //     response = await ParcelWebhooksApi_GET_webhooks(newParcelInfo.TrackingId);
-    //     Assert.NotNull(response);
-    //     webhooksList = JsonConvert.DeserializeObject<List<WebhookResponse>>(await response.Content.ReadAsStringAsync());
-    //     Assert.NotNull(webhooksList);
-    //     Assert.AreEqual(0, webhooksList.Count);
-    // }
+        response = await ParcelWebhooksApi_GET_webhooks(newParcelInfo.TrackingId);
+        Assert.NotNull(response);
+        webhooksList = JsonConvert.DeserializeObject<List<WebhookResponse>>(await response.Content.ReadAsStringAsync());
+        Assert.NotNull(webhooksList);
+    }
 }
