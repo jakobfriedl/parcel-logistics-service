@@ -38,7 +38,7 @@ public class WebhookLogicTests
     }
 
     [Test]
-    public void TransitionTrackingIDValidator_ValidTrackingId_ReturnsTrue()
+    public void TrackingIDValidator_ValidTrackingId_ReturnsTrue()
     {
         // arrange
         var trackingId = GenerateValidTrackingId();
@@ -52,7 +52,7 @@ public class WebhookLogicTests
     }
 
     [Test]
-    public void TransitionTrackingIDValidator_InvalidTrackingId_ReturnsFalse()
+    public void TrackingIDValidator_InvalidTrackingId_ReturnsFalse()
     {
         // arrange
         var trackingId = GenerateInvalidTrackingId();

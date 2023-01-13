@@ -34,25 +34,17 @@ public class ParcelWebhookManager : IWebhookManager
 
         var payload = JsonConvert.SerializeObject(_mapper.Map<WebhookMessage>(_mapper.Map<BusinessLogic.Entities.Parcel>(parcel)));
 
-        try {
-            await Task.WhenAll(webhooks.Select(webhook => {
-                var req = new HttpRequestMessage(HttpMethod.Post, webhook.Url);
-                req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+        foreach(var webhook in webhooks){
+            var req = new HttpRequestMessage(HttpMethod.Post, webhook.Url);
+            req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var response = _httpClient.Send(req);
 
-                try {
-                    return _httpClient.SendAsync(req); 
-                } catch (Exception e) {
-                    _logger.LogError(e, $"Error while notifying webhook {webhook.Url}");
-                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
-                }
-            })); 
-        } catch (Exception e) {
-            _logger.LogError(e, "Error while notifying webhooks");
-        }
+            if (response.StatusCode != HttpStatusCode.OK){
+                _logger.LogError($"Webhook notification failed for webhook with id: {webhook.Id}");
+            }
 
-        // Delete webhooks if parcel is delivered
-        if (parcel.State == DataAccess.Entities.Parcel.ParcelState.Delivered){
-            foreach(var webhook in webhooks){
+            // Delete webhook if parcel is delivered
+            if (parcel.State == DataAccess.Entities.Parcel.ParcelState.Delivered){
                 _webhookRepository.Delete(webhook.Id);
             }
         }
