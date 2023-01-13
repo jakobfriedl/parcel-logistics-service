@@ -51,6 +51,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.WebhookM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.WebhookManager.Tests", "src\hooks\FH.ParcelLogistics.WebhookManager.Tests\FH.ParcelLogistics.WebhookManager.Tests.csproj", "{AFBF047F-A01B-4032-B691-2C1DC6C99323}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{80334041-9C0F-4E82-B9EA-16AE837E1C89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FH.ParcelLogistics.IntegrationTests", "src\tests\FH.ParcelLogistics.IntegrationTests\FH.ParcelLogistics.IntegrationTests.csproj", "{0C97E86C-2F30-44AE-9479-2042C5168C89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +133,10 @@ Global
 		{AFBF047F-A01B-4032-B691-2C1DC6C99323}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFBF047F-A01B-4032-B691-2C1DC6C99323}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFBF047F-A01B-4032-B691-2C1DC6C99323}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C97E86C-2F30-44AE-9479-2042C5168C89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C97E86C-2F30-44AE-9479-2042C5168C89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C97E86C-2F30-44AE-9479-2042C5168C89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C97E86C-2F30-44AE-9479-2042C5168C89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,5 +168,7 @@ Global
 		{27DF53E7-EE79-4EAF-BA41-5F976F7D2F5F} = {F51A0743-528B-4682-9E37-D61A3C0E0A20}
 		{B28A46DD-8944-4E29-912F-143344FF1072} = {F51A0743-528B-4682-9E37-D61A3C0E0A20}
 		{AFBF047F-A01B-4032-B691-2C1DC6C99323} = {F51A0743-528B-4682-9E37-D61A3C0E0A20}
+		{80334041-9C0F-4E82-B9EA-16AE837E1C89} = {1C540961-7E6C-4E79-B2A1-A729D457FE9E}
+		{0C97E86C-2F30-44AE-9479-2042C5168C89} = {80334041-9C0F-4E82-B9EA-16AE837E1C89}
 	EndGlobalSection
 EndGlobal
