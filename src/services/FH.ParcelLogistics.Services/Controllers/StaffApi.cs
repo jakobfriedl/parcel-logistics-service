@@ -24,6 +24,7 @@ using FH.ParcelLogistics.BusinessLogic.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace FH.ParcelLogistics.Services.Controllers {
 	/// <summary>
@@ -53,9 +54,9 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[ValidateModelState]
 		[SwaggerOperation("ReportParcelDelivery")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-		public virtual IActionResult ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
+		public virtual async Task<IActionResult> ReportParcelDelivery([FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId) {
 			try {
-				_reportingLogic.ReportParcelDelivery(trackingId);
+				await _reportingLogic.ReportParcelDelivery(trackingId);
 				return Ok();
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] invalid");
@@ -63,10 +64,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelDelivery: [trackingId:{trackingId}] not found");
 				return NotFound(new Error(){ErrorMessage = e.Message});
-			} catch (BLException e) {
-				_logger.LogError($"ReportParcelDelivery: [trackingId:{trackingId}] failed");
-				return BadRequest(new Error(){ErrorMessage = e.Message});
-			}
+			} 
 		}
 
 		/// <summary>
@@ -82,12 +80,12 @@ namespace FH.ParcelLogistics.Services.Controllers {
 		[ValidateModelState]
 		[SwaggerOperation("ReportParcelHop")]
 		[SwaggerResponse(statusCode: 400, type: typeof(Error), description: "The operation failed due to an error.")]
-		public virtual IActionResult ReportParcelHop(
+		public virtual async Task<IActionResult> ReportParcelHop(
 			[FromRoute(Name = "trackingId")] [Required] [RegularExpression("^[A-Z0-9]{9}$")] string trackingId,
 			[FromRoute(Name = "code")] [Required] [RegularExpression(@"^[A-Z]{4}\d{1,4}$")] string code) 
 		{	
 			try {
-				_reportingLogic.ReportParcelHop(trackingId, code);
+				await _reportingLogic.ReportParcelHop(trackingId, code);
 				return Ok();
 			} catch(BLValidationException e){
 				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] invalid");
@@ -95,10 +93,7 @@ namespace FH.ParcelLogistics.Services.Controllers {
 			} catch(BLNotFoundException e) {
 				_logger.LogError(e, $"ReportParcelHop: [trackingId:{trackingId}] not found");
 				return NotFound(new Error(){ErrorMessage = e.Message});
-			} catch (BLException e) {
-				_logger.LogError($"ReportParcelHop: [trackingId:{trackingId}] failed");
-				return BadRequest(new Error(){ErrorMessage = e.Message});
-			}
+			} 
 		}
     }
 }

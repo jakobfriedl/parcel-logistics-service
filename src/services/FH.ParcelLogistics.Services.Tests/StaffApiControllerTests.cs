@@ -48,7 +48,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelDelivery_ValidTrackingId_Returns200(){
+    public async Task ReportParcelDelivery_ValidTrackingId_Returns200(){
         // arrange
         var validId = GenerateValidTrackingId();
 
@@ -60,14 +60,14 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelDelivery(validId) as StatusCodeResult;
+        var result = await staffApi.ReportParcelDelivery(validId) as StatusCodeResult;
 
         // assert
         Assert.AreEqual(200, result?.StatusCode);
     }
 
     [Test]
-    public void ReportParcelDelivery_InvalidTrackingId_Returns400(){
+    public async Task ReportParcelDelivery_InvalidTrackingId_Returns400(){
         // arrange
         var invalidId = GenerateInvalidTrackingId();
 
@@ -81,7 +81,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelDelivery(invalidId) as ObjectResult;
+        var result = await staffApi.ReportParcelDelivery(invalidId) as ObjectResult;
 
         // assert
         Assert.AreEqual(400, result?.StatusCode);
@@ -89,7 +89,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelDelivery_ParcelNotFound_Returns404(){
+    public async Task ReportParcelDelivery_ParcelNotFound_Returns404(){
         // arrange
         var validId = GenerateValidTrackingId();
 
@@ -103,7 +103,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelDelivery(validId) as ObjectResult;
+        var result = await staffApi.ReportParcelDelivery(validId) as ObjectResult;
 
         // assert
         Assert.AreEqual(404, result?.StatusCode);
@@ -111,7 +111,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelHop_ValidParameters_Returns200(){
+    public async Task ReportParcelHop_ValidParameters_Returns200(){
         // arrange
         var validId = GenerateValidTrackingId();
         var validCode = GenerateValidCode();
@@ -125,14 +125,14 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelHop(validId, validCode) as StatusCodeResult;
+        var result = await staffApi.ReportParcelHop(validId, validCode) as StatusCodeResult;
 
         // assert
         Assert.AreEqual(200, result?.StatusCode);
     }
 
     [Test]
-    public void ReportParcelHop_InvalidTrackingId_Returns400(){
+    public async Task ReportParcelHop_InvalidTrackingId_Returns400(){
         // arrange
         var invalidId = GenerateInvalidTrackingId(); 
         var validCode = GenerateValidCode();
@@ -147,7 +147,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelHop(invalidId, validCode) as ObjectResult;
+        var result = await staffApi.ReportParcelHop(invalidId, validCode) as ObjectResult;
 
         // assert
         Assert.AreEqual(400, result?.StatusCode);
@@ -155,7 +155,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelHop_InvalidCode_Returns400(){
+    public async Task ReportParcelHop_InvalidCode_Returns400(){
         // arrange
         var validId = GenerateValidTrackingId();
         var invalidCode = GenerateInvalidCode();
@@ -170,7 +170,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelHop(validId, invalidCode) as ObjectResult;
+        var result = await staffApi.ReportParcelHop(validId, invalidCode) as ObjectResult;
 
         // assert
         Assert.AreEqual(400, result?.StatusCode);
@@ -178,7 +178,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelHop_InvalidParameters_Returns400(){
+    public async Task ReportParcelHop_InvalidParameters_Returns400(){
         // arrange
         var invalidId = GenerateInvalidTrackingId();
         var invalidCode = GenerateInvalidCode();
@@ -193,7 +193,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelHop(invalidId, invalidCode) as ObjectResult;
+        var result = await staffApi.ReportParcelHop(invalidId, invalidCode) as ObjectResult;
 
         // assert
         Assert.AreEqual(400, result?.StatusCode);
@@ -201,7 +201,7 @@ public class StaffApiControllerTests
     }
 
     [Test]
-    public void ReportParcelHop_ParcelNotFound_Returns404(){
+    public async Task ReportParcelHop_ParcelNotFound_Returns404(){
         // arrange
         var validId = GenerateValidTrackingId();
         var validCode = GenerateValidCode();
@@ -216,7 +216,7 @@ public class StaffApiControllerTests
         var staffApi = new StaffApiController(mapper, reportingLogic, logger);
 
         // act
-        var result = staffApi.ReportParcelHop(validId, validCode) as ObjectResult;
+        var result = await staffApi.ReportParcelHop(validId, validCode) as ObjectResult;
 
         // assert
         Assert.AreEqual(404, result?.StatusCode);
