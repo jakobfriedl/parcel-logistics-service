@@ -1,1 +1,191 @@
-<meta http-equiv="refresh" content="0;URL='./openapi/'" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcel Logistics Service</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+</head>
+<body>
+    <h1>Parcel Logistics Service</h1>
+    <h4>by Jakob Friedl & Philipp Haider</h4>
+
+    <!-- Submit Parcel -->
+    <div id="submitParcel">
+        <h2>Submit Parcel</h2>
+        <div>
+            <label for="weight">Weight</label>
+            <input type="number" id="weight" name="weight" min="0" step="0.1" value="2">
+        </div>
+        <div>
+            <b>Sender:</b><br>
+            <dib>
+                <label for="senderName">Name</label>
+                <input type="text" id="senderName" name="senderName" value="Ebi 7">
+            </div>
+            <div>
+                <label for="senderPostalCode">Postal Code</label>
+                <input type="text" id="senderPostalCode" name="senderPostalCode" value="A-1070">
+            </div>
+            <div>
+                <label for="senderStreet">Street</label>
+                <input type="text" id="senderStreet" name="senderStreet" value="Mariahilfer Straße 112">
+            </div>
+            <div>
+                <label for="senderCity">City</label>
+                <input type="text" id="senderCity" name="senderCity" value="Wien">
+            </div>
+            <div>
+                <label for="senderCountry">Country</label>
+                <input type="text" id="senderCountry" name="senderCountry" value="Österreich">
+            </div>
+        </div>
+        <div>
+            <b>Recipient:</b><br>
+            <dib>
+                <label for="recipientName">Name</label>
+                <input type="text" id="recipientName" name="recipientName" value="Ebi 10">
+            </div>
+            <div>
+                <label for="recipientPostalCode">Postal Code</label>
+                <input type="text" id="recipientPostalCode" name="recipientPostalCode" value="A-1100">
+            </div>
+            <div>
+                <label for="recipientStreet">Street</label>
+                <input type="text" id="recipientStreet" name="recipientStreet" value="Triester Straße 64">
+            </div>
+            <div>
+                <label for="recipientCity">City</label>
+                <input type="text" id="recipientCity" name="recipientCity" value="Wien">
+            </div>
+            <div>
+                <label for="recipientCountry">Country</label>
+                <input type="text" id="recipientCountry" name="recipientCountry" value="Österreich">
+            </div>
+        </div>
+        <div>
+            <input type="submit" id="submit" value="Submit Parcel">
+        </div>
+    </div> 
+
+    <!-- Track Parcel -->
+    <div id="trackParcel">
+        <h2>Track Parcel</h2>
+        <div>
+            <label for="trackingId">Tracking ID</label>
+            <input type="text" id="trackParcelTrackingId" name="trackingId" value="">
+        </div>
+        <div>
+            <input type="submit" id="track" value="Track Parcel">
+        </div>
+    </div>
+
+    <!-- Report Parcel Hop -->
+    <div id="reportParcelHop">
+        <h2>Report Parcel Hop</h2>
+        <div>
+            <div>
+                <label for="trackingId">Tracking ID</label>
+                <input type="text" id="reportHopTrackingId" name="trackingId" value="">
+            </div>
+            <div>
+                <label for="code">Code</label>
+                <input type="text" id="code" name="code" value="">
+            </div>
+        </div>
+        <div>
+            <input type="submit" id="reportHop" value="Report Parcel Hop">
+        </div>
+    </div>
+
+    <!-- Report Parcel Delivery -->
+    <div id="reportParcelDelivery">
+        <h2>Report Parcel Delivery</h2>
+        <div>
+            <div>
+                <label for="trackingId">Tracking ID</label>
+                <input type="text" id="reportDeliveryTrackingId" name="trackingId" value="">
+            </div>
+        </div>
+        <div>
+            <input type="submit" id="reportDelivery" value="Report Parcel Delivery">
+        </div>
+    </div>
+
+    <!-- Response -->
+    <div id="output">
+        <h2>Response</h2>
+        <code class="prettyprint" id="response"></code>
+    </div>
+
+    <script>
+        const display = async (res) => {
+            const obj = await res.json()
+            $("#response").html(JSON.stringify(obj, null, 4))
+        }
+
+        $("#submit").on("click", async () => {
+            console.log("submit initiated")
+            const parcel = {
+                weight : Number.parseFloat($("#weight").val()),
+                sender : {
+                    name : $("#senderName").val(),
+                    postalCode : $("#senderPostalCode").val(),
+                    street : $("#senderStreet").val(),
+                    city : $("#senderCity").val(),
+                    country : $("#senderCountry").val()
+                },
+                recipient : {
+                    name : $("#recipientName").val(),
+                    postalCode : $("#recipientPostalCode").val(),
+                    street : $("#recipientStreet").val(),
+                    city : $("#recipientCity").val(),
+                    country : $("#recipientCountry").val()
+                }
+            }
+
+            await fetch("/parcel", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(parcel)
+            }).then(res => display(res))
+        })
+
+        $("#track").on("click", async () => {
+            console.log("track initiated")
+
+            const trackingId = $("#trackParcelTrackingId").val()
+
+            await fetch(`/parcel/${trackingId}`)
+                .then(res => display(res))
+        })
+
+        $("#reportHop").on("click", async () => {
+            console.log("report hop initiated")
+
+            const trackingId = $("#reportHopTrackingId").val()
+            const code = $("#code").val()
+
+            await fetch(`/parcel/${trackingId}/reportHop/${code}`, {
+                method: "POST",
+            }).then(res => display(res))
+        })
+
+        $("#reportDelivery").on("click", async () => {
+            console.log("report delivery initiated")
+
+            const trackingId = $("#reportDeliveryTrackingId").val()
+
+            await fetch(`/parcel/${trackingId}/reportDelivery`, {
+                method: "POST",
+            }).then(res => display(res))
+        })
+
+    </script>
+</body>
+</html>
