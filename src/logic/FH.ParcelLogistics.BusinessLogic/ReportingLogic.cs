@@ -123,9 +123,14 @@ public class ReportingLogic : IReportingLogic
                 parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
             } else if (hop.HopType == "transferwarehouse") {
                 var transferwarehouse = hop as FH.ParcelLogistics.DataAccess.Entities.Transferwarehouse;
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{transferwarehouse.LogisticsPartnerUrl}/parcel/{trackingId}");
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{transferwarehouse.LogisticsPartnerUrl}/parcel/${trackingId}");
                 request.Content = new StringContent(JsonConvert.SerializeObject(parcel), Encoding.UTF8, "application/json");
-                await _httpClient.SendAsync(request);
+                try {
+                    var response = await _httpClient.SendAsync(request);
+                } catch (Exception e) {
+                    _logger.LogError(e.Message);
+                    throw new BLException("The operation failed due to an error.", e);
+                }
                 parcel.State = DataAccess.Entities.Parcel.ParcelState.Transferred;
             }
             
