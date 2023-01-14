@@ -131,8 +131,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act
         reportingLogic.ReportParcelDelivery(trackingId);
@@ -161,8 +162,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act & assert
         Assert.ThrowsAsync(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => reportingLogic.ReportParcelDelivery(trackingId));
@@ -199,9 +201,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
-
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act & assert
         Assert.DoesNotThrow (() => reportingLogic.ReportParcelHop(trackingId, hopCode));
@@ -228,8 +230,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act & assert
         Assert.ThrowsAsync(Is.TypeOf<BLValidationException>().And.Message.EqualTo("The operation failed due to an error."), () => reportingLogic.ReportParcelHop(trackingId, hopCode));
@@ -252,8 +255,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act & assert
         Assert.ThrowsAsync(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Parcel does not exist with this tracking ID or hop with code not found."), () => reportingLogic.ReportParcelHop(trackingId, hopCode));
@@ -275,8 +279,9 @@ public class ReportingLogicTests
         var webhookManagerMock = new Mock<IWebhookManager>();
         webhookManagerMock.Setup(x => x.Notify(It.IsAny<string>()));
         var webhookManager = webhookManagerMock.Object;
+        var _httpClient = new HttpClient();
 
-        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager);
+        var reportingLogic = new ReportingLogic(parcelRepository, hopRepository, mapper, logger.Object, webhookManager, _httpClient);
 
         // act & assert
         Assert.ThrowsAsync(Is.TypeOf<BLNotFoundException>().And.Message.EqualTo("Parcel does not exist with this tracking ID."), () => reportingLogic.ReportParcelDelivery(trackingId));

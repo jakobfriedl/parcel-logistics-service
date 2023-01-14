@@ -9,20 +9,37 @@ using NetTopologySuite.Geometries;
 public class HopProfile : Profile
 {
     public HopProfile(){
+        // DTO Coordinate
         CreateMap<DTOs.GeoCoordinate, BusinessLogic.Entities.GeoCoordinate>().ReverseMap();
+
+        // DTO Hop
         CreateMap<DTOs.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
+
+        // DTO HopArrival
         CreateMap<DTOs.HopArrival, BusinessLogic.Entities.HopArrival>().ReverseMap();
-        CreateMap<DTOs.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>().ReverseMap();
+
+        // DTO Transferwarehouse
+        CreateMap<DTOs.Transferwarehouse, BusinessLogic.Entities.Transferwarehouse>()
+            .IncludeBase<DTOs.Hop, BusinessLogic.Entities.Hop>()
+            .ReverseMap();
+
+        // DTO WarehouseNextHops
         CreateMap<DTOs.WarehouseNextHops, BusinessLogic.Entities.WarehouseNextHops>().ReverseMap();
+
+        // DTO Truck
         CreateMap<DTOs.Truck, BusinessLogic.Entities.Truck>()
             .IncludeBase<DTOs.Hop, BusinessLogic.Entities.Hop>()
             .ReverseMap();
+
+        // DTO Warehouse
         CreateMap<DTOs.Warehouse, BusinessLogic.Entities.Warehouse>()
             .IncludeBase<DTOs.Hop, BusinessLogic.Entities.Hop>()
             .ReverseMap();
 
+        // HopArrival
         CreateMap<BusinessLogic.Entities.HopArrival, DataAccess.Entities.HopArrival>().ReverseMap();
 
+        // Hop
         CreateMap<DataAccess.Entities.Hop, BusinessLogic.Entities.Hop>().ReverseMap();
 
         // Warehouse
