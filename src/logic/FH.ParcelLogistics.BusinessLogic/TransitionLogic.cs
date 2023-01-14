@@ -24,25 +24,31 @@ public class TransitionValidator : AbstractValidator<Parcel>
     {
         //check Recipient
         RuleFor(parcel => parcel.Recipient).NotNull();
-        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotNull().Matches(@"Austria|Österreich").DependentRules(() =>
+        RuleFor(recipeintCountry => recipeintCountry.Recipient.Country).NotNull();
+
+        When(recipientCountry => recipientCountry.Recipient.Country == "Austria" || recipientCountry.Recipient.Country == "Österreich", () =>
         {
-            //only Checks if Country is Austria|Österreich  
+            //only Checks if Country is Austria|Österreich
             RuleFor(recipientPostalCode => recipientPostalCode.Recipient.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
             RuleFor(recipientCity => recipientCity.Recipient.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
             RuleFor(recipientStreet => recipientStreet.Recipient.Street).NotNull().Matches(@"^[A-Z][a-zäüöß /\d-]*");
             RuleFor(recipientName => recipientName.Recipient.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
 
+
         //check Sender
         RuleFor(parcel => parcel.Sender).NotNull();
-        RuleFor(senderCountry => senderCountry.Sender.Country).NotNull().Matches(@"Austria|Österreich").DependentRules(() =>
+        RuleFor(senderCountry => senderCountry.Sender.Country).NotNull();
+
+        When(senderCountry => senderCountry.Sender.Country == "Austria" || senderCountry.Sender.Country == "Österreich", () =>
         {
             //only Checks if Country is Austria|Österreich
             RuleFor(senderPostalCode => senderPostalCode.Sender.PostalCode).NotNull().Length(6).Matches(@"[A][-]\d{4}");
             RuleFor(senderCity => senderCity.Sender.City).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
-            RuleFor(senderStreet => senderStreet.Sender.Street).NotNull().Matches(@"^[a-zA-Z][a-zäüöß /\d-]*");
+            RuleFor(senderStreet => senderStreet.Sender.Street).NotNull().Matches(@"^[A-Z][a-zäüöß /\d-]*");
             RuleFor(senderName => senderName.Sender.Name).NotNull().Matches(@"^[A-ZÄÖÜß][a-zA-Zäöüß -]*");
         });
+
         RuleFor(parcelWeight => parcelWeight.Weight).NotNull().GreaterThan(0.0f);
     }
 }

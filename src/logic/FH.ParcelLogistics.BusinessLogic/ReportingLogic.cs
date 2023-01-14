@@ -1,6 +1,7 @@
 namespace FH.ParcelLogistics.BusinessLogic;
 
 using System.Data;
+using System.Text;
 using AutoMapper;
 using FH.ParcelLogistics.BusinessLogic.Entities;
 using FH.ParcelLogistics.BusinessLogic.Interfaces;
@@ -9,6 +10,7 @@ using FH.ParcelLogistics.DataAccess.Sql;
 using FH.ParcelLogistics.WebhookManager.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 public class ReportTrackingIDValidator : AbstractValidator<string>
 {
@@ -33,13 +35,15 @@ public class ReportingLogic : IReportingLogic
     private readonly IMapper _mapper;
     private readonly ILogger<IReportingLogic> _logger;
     private readonly IWebhookManager _webhookManager;
+    private readonly HttpClient _httpClient;
 
-    public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper, ILogger<IReportingLogic> logger, IWebhookManager webhookManager){
+    public ReportingLogic(IParcelRepository parcelRepository, IHopRepository hopRepository, IMapper mapper, ILogger<IReportingLogic> logger, IWebhookManager webhookManager, HttpClient httpClient){
         _parcelRepository = parcelRepository;
         _hopRepository = hopRepository;
         _mapper = mapper;
         _logger = logger;
         _webhookManager = webhookManager;
+        _httpClient = httpClient;
     }
 
     public async Task ReportParcelDelivery(string trackingId)
@@ -118,6 +122,10 @@ public class ReportingLogic : IReportingLogic
             } else if (hop.HopType == "truck") {
                 parcel.State = DataAccess.Entities.Parcel.ParcelState.InTruckDelivery; 
             } else if (hop.HopType == "transferwarehouse") {
+                var transferwarehouse = hop as FH.ParcelLogistics.DataAccess.Entities.Transferwarehouse;
+                var request = new HttpRequestMessage(HttpMethod.Post, $"{transferwarehouse.LogisticsPartnerUrl}/parcel/{trackingId}");
+                request.Content = new StringContent(JsonConvert.SerializeObject(parcel), Encoding.UTF8, "application/json");
+                await _httpClient.SendAsync(request);
                 parcel.State = DataAccess.Entities.Parcel.ParcelState.Transferred;
             }
             
