@@ -144,6 +144,7 @@ namespace FH.ParcelLogistics.Services {
 				app.UseHsts();
 			}
 
+			app.UseFileServer(true); 
 			app.UseHttpsRedirection();
 			app.UseDefaultFiles();
 			app.UseStaticFiles();
