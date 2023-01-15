@@ -46,3 +46,10 @@ steps:
     PathtoPublish: './src/services/FH.ParcelLogistics.Services/bin/$(buildConfiguration)/'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish integration test artifacts
+  inputs:
+    PathtoPublish: './src/tests/FH.ParcelLogistics.IntegrationTests/bin/$(buildConfiguration)/'
+    ArtifactName: 'integration-tests'
+    publishLocation: 'Container'
