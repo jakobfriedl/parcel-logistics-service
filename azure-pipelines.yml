@@ -53,3 +53,10 @@ steps:
     PathtoPublish: './src/tests/FH.ParcelLogistics.IntegrationTests/bin/$(buildConfiguration)/'
     ArtifactName: 'integration-tests'
     publishLocation: 'Container'
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish wwwroot
+  inputs: 
+    PathtoPublish: './src/services/FH.ParcelLogistics.Services/wwwroot/'
+    ArtifactName: 'wwwroot'
+    publishLocation: 'Container'
