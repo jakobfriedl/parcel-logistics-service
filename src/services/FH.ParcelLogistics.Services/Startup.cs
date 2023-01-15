@@ -144,7 +144,6 @@ namespace FH.ParcelLogistics.Services {
 				app.UseHsts();
 			}
 
-			app.UseFileServer(true); 
 			app.UseHttpsRedirection();
 			app.UseDefaultFiles();
 			app.UseStaticFiles();
@@ -160,6 +159,7 @@ namespace FH.ParcelLogistics.Services {
 				});
 			app.UseRouting();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+			app.UseFileServer(true); 
 		}
 	}
 }
