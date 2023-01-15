@@ -20,12 +20,7 @@ public class IntegrationTests
 {
     private readonly HttpClient _httpClient = new HttpClient();
     private string _url = "https://haider-friedl-dev.azurewebsites.net";
-
-    [SetUp]
-    public void Setup()
-    {
-    }
-
+    
     public async Task<HttpResponseMessage?> WarehouseManagementApi_POST_warehouse()
     {
         string warehouseData = File.ReadAllText("./data-light.json");
