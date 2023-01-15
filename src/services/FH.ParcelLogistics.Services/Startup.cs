@@ -27,6 +27,7 @@ using FH.ParcelLogistics.ServiceAgents;
 using FH.ParcelLogistics.ServiceAgents.Interfaces;
 using FH.ParcelLogistics.WebhookManager.Interfaces;
 using FH.ParcelLogistics.WebhookManager;
+using Microsoft.Extensions.FileProviders;
 
 namespace FH.ParcelLogistics.Services {
 	/// <summary>
@@ -146,7 +147,12 @@ namespace FH.ParcelLogistics.Services {
 
 			app.UseHttpsRedirection();
 			app.UseDefaultFiles();
-			app.UseStaticFiles();
+			app.UseStaticFiles(new StaticFileOptions {
+				FileProvider = new PhysicalFileProvider(
+					Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+				RequestPath = ""
+			});
+			
 			app.UseSwagger(c => { c.RouteTemplate = "openapi/{documentName}/openapi.json"; })
 				.UseSwaggerUI(c => {
 					// set route prefix to openapi, e.g. http://localhost:8080/openapi/index.html
