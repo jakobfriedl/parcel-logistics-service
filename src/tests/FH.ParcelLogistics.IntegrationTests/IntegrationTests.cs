@@ -28,7 +28,7 @@ public class IntegrationTests
 
     public async Task<HttpResponseMessage?> WarehouseManagementApi_POST_warehouse()
     {
-        string warehouseData = File.ReadAllText("../../../../../../data/data-light.json");
+        string warehouseData = File.ReadAllText("./data-light.json");
         var response = await _httpClient.PostAsync($"{_url}/warehouse",
             new StringContent(warehouseData, System.Text.Encoding.UTF8, "application/json"));
         Assert.AreEqual(HttpStatusCode.OK, response?.StatusCode);
