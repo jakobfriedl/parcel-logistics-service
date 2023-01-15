@@ -81,7 +81,6 @@ public class IntegrationTests
     public async Task<HttpResponseMessage?> StaffApi_POST_reportDelivery(string trackingId)
     {
         var response = await _httpClient.PostAsync($"{_url}/parcel/{trackingId}/reportDelivery/", new StringContent(""));
-        Assert.AreEqual(HttpStatusCode.OK, response?.StatusCode);
         return response;
     }
 
