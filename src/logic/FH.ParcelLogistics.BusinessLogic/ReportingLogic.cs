@@ -114,6 +114,7 @@ public class ReportingLogic : IReportingLogic
             
             // Add hop to visited hops
             _logger.LogDebug($"ReportParcelHop: [trackingId:{trackingId}], [code:{code}]  - Adding hop to visited hops");
+            hopArrival.DateTime = DateTime.Now;
             parcel.VisitedHops.Add(hopArrival);
 
             // Update parcel state
